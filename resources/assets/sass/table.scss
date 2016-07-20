@@ -1,0 +1,32 @@
+.panel {
+    min-height: 90vh;
+    .pin-right {
+        float: right;
+    }
+
+    button.clear-form {
+        background: none;
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    div.tick-1 {
+        padding-right: 10px;
+    }
+
+    div.tick-2 {
+        padding-right: 20px;
+    }
+}
+.panel-body {
+    table {
+        width: 100%;
+        td {
+            padding: 15px;
+        }
+        .crunch {
+            width: 15px;
+        }
+    }
+}

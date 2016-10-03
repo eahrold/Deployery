@@ -1,0 +1,139 @@
+<?php
+
+/**
+ * This was taken directly from the amazing Laravel based TypiCMS
+ * https://github.com/TypiCMS/Core/blob/master/src/Commands/Database.php
+ *
+ * The MIT License (MIT)
+ * https://github.com/TypiCMS/Core/blob/master/LICENCE
+ *
+ */
+
+
+namespace App\Console\Commands\Deployery;
+
+use DB;
+use Exception;
+use Illuminate\Console\Command;
+use Illuminate\Filesystem\Filesystem;
+use Schema;
+use Symfony\Component\Console\Helper\SymfonyQuestionHelper;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Question\Question;
+
+class Database extends Command
+{
+    /**
+     * The console command name.
+     *
+     * @var string
+     */
+    protected $name = 'deployery:database';
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Set database credentials in .env file';
+    /**
+     * The filesystem instance.
+     *
+     * @var \Illuminate\Filesystem\Filesystem
+     */
+    protected $files;
+    /**
+     * Create a new key generator command.
+     *
+     * @param \Illuminate\Filesystem\Filesystem $files
+     */
+
+    public function __construct(Filesystem $files)
+    {
+        parent::__construct();
+        $this->files = $files;
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return void
+     */
+    public function fire()
+    {
+        $contents = $this->getKeyFile();
+        $dbName = $this->argument('database');
+
+        $dbUserName = $this->ask('What is your MySQL username?', env('DB_USERNAME', 'homestead'));
+        $question = new Question('What is your MySQL password?', env('DB_PASSWORD', 'secret'));
+
+        $question->setHidden(true)->setHiddenFallback(true);
+        $dbPassword = (new SymfonyQuestionHelper())->ask($this->input, $this->output, $question);
+        if ($dbPassword === '<none>') {
+            $dbPassword = '';
+        }
+
+        // Update DB credentials in .env file.
+        $search = [
+            '/('.preg_quote('DB_DATABASE=').')(.*)/',
+            '/('.preg_quote('DB_USERNAME=').')(.*)/',
+            '/('.preg_quote('DB_PASSWORD=').')(.*)/',
+        ];
+        $replace = [
+            '$1'.$dbName,
+            '$1'.$dbUserName,
+            '$1'.$dbPassword,
+        ];
+
+        $contents = preg_replace($search, $replace, $contents);
+        if (!$contents) {
+            throw new Exception('Error while writing credentials to .env file.');
+        }
+
+        // Set DB username and password in config
+        $this->laravel['config']['database.connections.mysql.username'] = $dbUserName;
+        $this->laravel['config']['database.connections.mysql.password'] = $dbPassword;
+
+        // Clear DB name in config
+        unset($this->laravel['config']['database.connections.mysql.database']);
+        // Force the new login to be used
+        DB::purge();
+        // Create database if not exists
+        DB::unprepared('CREATE DATABASE IF NOT EXISTS `'.$dbName.'`');
+        DB::unprepared('USE `'.$dbName.'`');
+        DB::connection()->setDatabaseName($dbName);
+        // Migrate DB
+        if (Schema::hasTable('migrations')) {
+            $this->error('A migrations table was found in database ['.$dbName.'], no migration and seed were done.');
+        } else {
+            $this->call('migrate');
+            $this->call('db:seed');
+        }
+
+        // Write to .env
+        $this->files->put('.env', $contents);
+    }
+
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getArguments()
+    {
+        return [
+            ['database', InputArgument::REQUIRED, 'The database name'],
+        ];
+    }
+
+    /**
+     * Get the key file and return its content.
+     *
+     * @return string
+     */
+    protected function getKeyFile()
+    {
+        return $this->files->exists('.env') ?
+               $this->files->get('.env') :
+               $this->files->get('.env.example');
+    }
+}

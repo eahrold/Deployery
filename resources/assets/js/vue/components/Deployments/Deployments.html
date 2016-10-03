@@ -1,0 +1,124 @@
+<div class="dropdown">
+    <button class='icon' id="deploy-dropdown" type="button"
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+    </button>
+
+    <ul class="dropdown-menu" aria-labelledby="deploy-dropdown">
+        <li v-for='server in servers'>
+            <a @click='getCommitDetails(server)'
+               data-toggle="modal"
+               data-target="#server-selector">{{ server.name }}
+            </a>
+        </li>
+    </ul>
+
+    <div class="deployments">
+        <!-- Button HTML (to Trigger Modal) -->
+        <!-- Modal HTML -->
+        <div id="server-selector" class="modal fade">
+            <div class="modal-dialog modal-lg modal-xl">
+                <div v-if='loading' class="modal-content">
+                    <div class='modal-body'>
+                        <div class='loadingcontainer'>
+                            <div class='loading'></div>
+                            <p>Getting Commit Details</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title">Depoy {{ currentServer.name }}</h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <div id='deployment'>
+                            <div class="row commit-selection">
+                                <div class="col-md-12">
+                                    <div class="col-md-6">
+                                        <div class='panel panel-default'>
+                                            <div class="panel-body tab-pane">
+                                                <div class='row'>
+                                                    <div class="col-md-4"><h4>From</h4></div>
+                                                    <div class="col-md-8">
+                                                        <select class="form-control" v-model="fromCommit" :disable='deploying'>
+                                                        <option v-for="commit in avaliableCommits"
+                                                                v-bind:value="commit.hash">
+                                                            {{ commit.hash }} : {{ commit.message | truncate }}
+                                                            {{ commit.hash === lastDeployment ? "<<":""}}
+                                                        </option>
+                                                        <option value=0>...Beginning of time</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class='commit-message'>{{ fromCommit | hashMessage }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class='panel panel-default'>
+                                            <div class="panel-body tab-pane">
+                                                <div class='row'>
+                                                    <div class="col-md-4">
+                                                        <h4>To</h4>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <select class="form-control" v-model="toCommit" :disable='deploying'>
+                                                            <option v-for="commit in avaliableCommits" v-bind:value="commit.hash">
+                                                                {{ commit.hash }} : {{ commit.message | truncate }}
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class='commit-message'>{{ toCommit | hashMessage }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='row'>
+                                <div class="col-md-12">
+                                    <div class='btn-deploy'>
+                                        <button class="btn btn-primary"
+                                                @click='deploy'
+                                                :disabled="deploying">
+                                                <i v-if='deploying' class="fa fa-spinner fa-spin"></i>
+                                                {{ deploying ? "Deploying..." : "Deploy Now" }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class='row'>
+                                <div class="col-md-12">
+
+                                    <div class='form-group'>
+                                        <hr/>
+                                        <template v-if='primary_status'>
+                                            <h3 v-bind:class="['primary-status, '{ 'error': errors.length }]" >
+                                                {{ primary_status }}
+                                            </h3>
+                                        </template>
+                                    </div>
+
+                                    <div class='form-group'>
+                                        <ul class='list-unstyled deploy-messages'>
+                                            <li v-for='message in messages'>
+                                                <h4>{{{ message }}}</h4>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -20,6 +20,8 @@ class CreateHistoryTable extends Migration
             $table->string('from_commit');
             $table->string('to_commit');
 
+            $table->boolean('success');
+
             $table->integer('server_id')->unsigned();
             $table->integer('project_id')->unsigned();
             $table->integer('user_id')->unsigned();

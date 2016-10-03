@@ -1,0 +1,59 @@
+<div v-if='!servers.length'>
+    <a href='{{ endpoint }}/create'>
+        <i class="fa fa-plus-circle" aria-hidden="true"></i> Add Your first server.
+    </a>
+</div>
+
+<div v-else>
+    <table class='table table-hover'>
+        <thead>
+            <th>Name</th>
+            <th>Hostname</th>
+            <th>Branch</th>
+            <th>Path</th>
+            <th class='crunch'>Deploy</th>
+            <th class='crunch'>Status</th>
+            <th class='crunch'>
+                <a href='{{ endpoint }}/create'>
+                    <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                </a>
+            </th>
+        </thead>
+        <tbody>
+            <tr v-for='server in servers'>
+                <td>
+                    <a href='{{ endpoint }}/{{ server.id }}/edit'
+                       alt='edit'>
+                        {{ server.name }}
+                    </a>
+                </td>
+                <td>{{ server.hostname }}</td>
+                <td>{{ server.branch }}</td>
+                <td>{{ server.deployment_path }}</td>
+                <td v-if='server.is_deploying'>
+                    <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                </td>
+                <td v-else>
+                     <i class="fa fa-cloud-download"
+                        aria-hidden="true"
+                        @click="deploy(server)">
+                    </i>
+                </td>
+                <td class="status-icon center">
+                    <div id='status-indicator'
+                        v-bind:class="[statusClass(server)]">
+                    </div>
+                </td>
+                <td>
+                    <i id="server_status_{{server.id}}"
+                       class="fa fa-refresh"
+                       aria-hidden="true"
+                       :class=''
+                       @click="test(server)">
+                    </i>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+

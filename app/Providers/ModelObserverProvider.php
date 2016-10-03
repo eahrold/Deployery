@@ -2,8 +2,6 @@
 
 namespace App\Providers;
 
-use App\Models\Observers\ProjectObserver;
-use App\Models\Project;
 use Illuminate\Support\ServiceProvider;
 
 class ModelObserverProvider extends ServiceProvider
@@ -15,7 +13,6 @@ class ModelObserverProvider extends ServiceProvider
      */
     public function boot()
     {
-        Project::observe(new ProjectObserver());
     }
 
     /**

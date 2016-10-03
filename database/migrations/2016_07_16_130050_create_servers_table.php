@@ -30,6 +30,8 @@ class CreateServersTable extends Migration
             $table->string('sub_directory');
             $table->boolean('autodeploy');
             $table->string('webhook');
+            $table->string('last_deployed_commit');
+            $table->integer('successfully_connected');
 
             $table->integer('project_id')->unsigned();
             $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');

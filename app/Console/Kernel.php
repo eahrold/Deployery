@@ -13,7 +13,12 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\TestEnvoyServer::class,
+        Commands\Deployery\Database::class,
+        Commands\Deployery\QueueClones::class,
+        Commands\Deployery\QueueDeployments::class,
+        Commands\Deployery\QueueProgress::class,
+        Commands\Deployery\Setup::class,
+        Commands\EventPusherTest::class,
     ];
 
     /**

@@ -1,2 +1,226 @@
-// @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+@import 'mixins';
+@import 'colors';
+
+/**
+ * Variables
+ */
+$footerHeight: 60px;
+
+/**
+ * Top level.
+ */
+[v-cloak] { display: none }
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  margin-bottom: $footerHeight;
+  font-family: 'Lato';
+}
+
+.fa-btn {
+    margin-right: 6px;
+}
+
+.panel {
+    min-width: 400px;
+}
+
+/**
+ * Nav bar
+ */
+.navbar-center {
+  text-align: center;
+  ul {
+    float: none !important;
+    display: inline-block !important;
+  }
+}
+
+.navbar-nocollapse {
+    display: block !important;
+    height: auto !important;
+    padding-bottom: 0;
+    overflow: visible !important;
+
+    .navbar-nav {
+      margin: 0;
+    }
+    .navbar-nav > li {
+      float: left;
+    }
+}
+
+/**
+ * Footer
+ */
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: $footerHeight;
+  background-color: $dep-light-grey;
+}
+
+/**
+ * Fixed Header For tables
+ */
+.header-fixed {
+    width: 100%;
+}
+
+.header-fixed > thead,
+.header-fixed > tbody,
+.header-fixed > thead > tr,
+.header-fixed > tbody > tr,
+.header-fixed > thead > tr > th,
+.header-fixed > tbody > tr > td {
+    display: block;
+}
+
+.header-fixed > tbody > tr:after,
+.header-fixed > thead > tr:after {
+    content: ' ';
+    display: block;
+    visibility: hidden;
+    clear: both;
+}
+
+.header-fixed > tbody {
+    overflow-y: auto;
+    height: 100%;
+}
+
+.header-fixed > tbody > tr > td,
+.header-fixed > thead > tr > th {
+    float: left;
+    width: 25%;
+}
+
+.history > tbody > tr > td,
+.history > thead > tr > th {
+    width: 20%;
+}
+/**
+ * Status Indicators
+ */
+td.status-icon {
+    vertical-align: middle !important;
+}
+
+ div[class*="status-"]{
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.status-red {
+    background-color: $dep-red;
+}
+
+.status-yellow {
+    background-color: $dep-yellow;
+}
+
+.status-green {
+    background-color: $dep-green;
+}
+
+/**
+ * Utility
+ */
+.vertical-align {
+    @include vertical-align();
+}
+
+
+/**
+ * Loading Container Animation
+ */
+.loadingcontainer {
+    width: 100%;
+    height: 10em;
+    text-align: center;
+    p {
+        color: $green;
+        font-size: 1.25em;
+        text-transform: uppercase;
+    }
+    .loading {
+        z-index: 3;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border: 1px solid rgba(23, 161, 99, 0.5);
+        border-left-color: rgba(23, 161, 99, 1);
+        -webkit-border-radius: 999px;
+        -moz-border-radius: 999px;
+        border-radius: 999px;
+        margin: -25px 0 0 -25px;
+        height: 50px;
+        width: 50px;
+        -webkit-animation: animation-rotate 1000ms linear infinite;
+        -moz-animation: animation-rotate 1000ms linear infinite;
+        -o-animation: animation-rotate 1000ms linear infinite;
+        animation: animation-rotate 1000ms linear infinite;
+        &:before,
+        &:after {
+            z-index: 3;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 1px solid rgba(23, 161, 99, 0.5);
+            border-left-color: rgba(23, 161, 99, 1);
+            -webkit-border-radius: 999px;
+            -moz-border-radius: 999px;
+            border-radius: 999px;
+        }
+        &:before {
+            content: "";
+            margin: -23px 0 0 -23px;
+            height: 44px;
+            width: 44px;
+            -webkit-animation: animation-rotate 1000ms linear infinite;
+            -moz-animation: animation-rotate 1000ms linear infinite;
+            -o-animation: animation-rotate 1000ms linear infinite;
+            animation: animation-rotate 1000ms linear infinite;
+        }
+        &:after {
+            content: "";
+            margin: -29px 0 0 -29px;
+            height: 56px;
+            width: 56px;
+            -webkit-animation: animation-rotate 2000ms linear infinite;
+            -moz-animation: animation-rotate 2000ms linear infinite;
+            -o-animation: animation-rotate 2000ms linear infinite;
+            animation: animation-rotate 2000ms linear infinite;
+        }
+    }
+}
+
+@-webkit-keyframes animation-rotate {
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@-moz-keyframes animation-rotate {
+  100% {
+    -moz-transform: rotate(360deg);
+  }
+}
+
+@-o-keyframes animation-rotate {
+  100% {
+    -o-transform: rotate(360deg);
+  }
+}
+
+@keyframes animation-rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
 

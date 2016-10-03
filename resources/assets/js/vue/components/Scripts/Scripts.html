@@ -1,0 +1,24 @@
+<table class='table'>
+    <thead>
+        <th>Install Scripts</th>
+        <th class='crunch'>
+            <a :href='getEndpoint("create")'>
+                <i class="fa fa-plus-circle" aria-hidden="true"></i>
+            </a>
+        </th>
+    </thead>
+    <tbody>
+        <tr v-for='script in scripts'>
+            <td>
+                <a :href='getEndpoint(script.id, "edit")' alt='edit'>
+                    {{ script.description }}
+                </a>
+            </td>
+            <td>
+                <trash-button type='scripts'
+                           :object='script'>
+                </trash-button>
+            </td>
+        </tr>
+    </tbody>
+</table>

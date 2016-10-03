@@ -5,133 +5,141 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BaseRequest;
 use App\Jobs\ServerDeploy;
 use App\Models\Server;
+use Illuminate\Support\Facades\Log;
 
-class ServersController extends Controller
+final class ServersController extends ProjectChildController
 {
 
-    public function __construct(BaseRequest $request, Server $model){
+    public function __construct(BaseRequest $request, Server $model)
+    {
         parent::__construct($request, $model);
-    }
-
-    /**
-     * Trigger Deployment from frontend
-     *
-     * @return JSON
-     */
-    public function deploy($project_id, $id){
-        $server = $this->model->findOrFail($id);
-        return $this->ququeDeployment($server);
-    }
-
-    /**
-     * Trigger Deployment from frontend
-     *
-     * @return JSON
-     */
-    public function webhook($webhook){
-        $server = $this->model
-                       ->where('webhook', $this->request->url())
-                       ->firstOrFail();
-        return $this->ququeDeployment($server);
     }
 
     /**
      * Show the form for creating a new resource.
      *
+     * @param number $project_id Project Id
+     *
      * @return \Illuminate\Http\Response
      */
-    public function create($project_id){
+    public function create($project_id)
+    {
+        $project = $this->project->getUserModel($project_id);
         return view('pages.server_form', [
             'model' => $this->model,
-            'project' => $project_id
+            'project' => $project
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param number $project_id Project Id
+     *
      * @return \Illuminate\Http\Response
      */
-    public function store($project_id){
-        $project = $this->model
-                        ->project()
-                        ->getModel()
-                        ->findOrFail($project_id);
-        $model = new $this->model($this->request->all());
+    public function store($project_id)
+    {
+        $project = $this->project->getUserModel($project_id);
+        $path = $project->repo_path;
+        $key = $project->user->auth_key;
 
+        $this->validate(
+            $this->request,
+            $this->model->getValidationRules(null, ['branch'=>"branch:{$path},{$key}"])
+        );
+
+        $data = $this->request->all();
+        $data["project_id"] = $project_id;
+
+        $model = $this->model->newInstance($data);
         $project->servers()->save($model);
 
-        if($this->request->get('exit')){
+        $model->scripts()->sync($this->request->get('script_ids') ?: []);
+
+        if ($this->request->get('exit')) {
             return redirect()->route('projects.edit', $project_id);
         }
-        return redirect()->route('projects.{projects}.servers.edit', [$project_id, $model->id]);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($project_id, $id){
-        $model = $this->model->with('servers', 'history')->find($id);
+        return redirect()->route('servers.edit', [$project_id, $model->id]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $project_id Project Id
+     * @param int $id         Server Id
+     *
      * @return \Illuminate\Http\Response
      */
-    public function edit($project_id, $id){
-        $model = $this->model->findOrFail($id);
-        return view('pages.server_form', [
-            'model' => $model,
-            'project' => $project_id
-        ]);
+    public function edit($project_id, $id)
+    {
+        $model = $this->project->findServer($project_id, $id);
+        $project = $model->project;
+        return view('pages.server_form', compact('model', 'project'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param int $project_id Project Id
+     * @param int $id         Server Id
+     *
      * @return \Illuminate\Http\Response
      */
-    public function update($project_id, $id){
-        $model = $this->model->findOrFail($id);
+    public function update($project_id, $id)
+    {
+        $model = $this->project->findServer($project_id, $id);
+        $path = $model->repo;
+        $key = $model->project->user->auth_key;
 
-        if($model->update($this->request->all()) && $this->request->get('exit')){
+        $this->validate(
+            $this->request,
+            $model->getValidationRules($id, ['branch'=>"git_branch:{$path},{$key}"])
+        );
+
+        $model->fill($this->request->all());
+        $dirty = $model->isDirty();
+        $success = $model->save() || !$dirty;
+
+        $model->scripts()->sync($this->request->get('script_ids') ?: []);
+        if ($success && $this->request->get('exit')) {
+            Log::info("Redirecting to project route");
             return redirect()->route('projects.edit', $project_id);
         }
-        return redirect()->route('projects.{projects}.servers.edit', [$project_id, $model->id]);
+        return redirect()->route('servers.edit', [$project_id, $model->id]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $project_id Project Id
+     * @param int $id         Server Id
+     *
      * @return \Illuminate\Http\Response
      */
-    public function destroy($project_id, $id){
-        $model = $this->model->findOrFail($id);
-        $project_id = $model->project->id;
-        if($model->delete()){
+    public function destroy($project_id, $id)
+    {
+        $model = $this->project->findServer($project_id, $id);
+        if ($model->delete()) {
             return redirect()->route('projects.edit', $project_id);
         }
-        return redirect()->route('projects.{projects}.servers.edit', [$project_id, $model->id]);
+        return redirect()->route('servers.edit', [$project_id, $model->id]);
     }
 
-    //----------------------------------------------------------
-    // Private
-    //-------------------------------------------------------
-    private function ququeDeployment(Server $server){
-        $deployment = new ServerDeploy($server);
-        $this->dispatch($deployment);
-        return [
-            'message'=>'started deployment',
-            'socket_id'=>$deployment->socket()
-        ];
+    /**
+     * Show the deployment page for the server.
+     *
+     * @param int $project_id Project Id
+     * @param int $id         Server Id
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function deploy($project_id, $id)
+    {
+        $model = $this->project->findServer($project_id, $id);
+        return view('pages.server_deploy', [
+            'model' => $model,
+            'project' => $project_id
+        ]);
     }
 }

@@ -1,4 +1,5 @@
-var elixir = require('laravel-elixir');
+const elixir = require('laravel-elixir');
+require('laravel-elixir-vue');
 
 /*
  |--------------------------------------------------------------------------
@@ -11,33 +12,36 @@ var elixir = require('laravel-elixir');
  |
  */
 
-elixir(function(mix) {
+elixir(mix => {
+    var node_module_path = "../../../node_modules";
 
     mix.sass([
       'app.scss',
       'table.scss',
       'form.scss',
+      'project.scss'
     ], 'public/css/');
+
+    mix.webpack('header-helper.js');
+    mix.webpack('app.js');
 
     // Passing in
     mix.scripts([
-       'vue/vue.js',
-       'vue/vue-resource.js',
-       'vue/vue-validator.js',
-       //'vue/vue-strap.js',
-       //'vue/vue-sortable-directive.js',
-       //'vue/vue-datepicker-directive.js',
-       //'vue/vue-tinymce-directive.js',
-       //'vue/vue-dropzone-directive.js',
-       //'vue/vue-filepicker-directive.js',
-       //'vue/vue-selectize.js',
-       //'vue/vue-globals.js',
-    ], 'public/js/vue/vue-kit.js')
+      'vue/vue-globals.js',
+      'vue/vue-resource.js',
+    ], 'public/js/vue/vue-kit.js');
+
+    // Passing in
+    mix.scripts([
+       // node_module_path+'/noty/js/noty/packaged/jquery.noty.packaged.min.js',
+       node_module_path+'/socket.io-client/socket.io.js',
+       'alerter.js',
+    ], 'public/js/vendor.js')
 
     mix.version([
         'public/js/vue/vue-kit.js',
-        'public/css/app.css'
+        'public/js/vendor.js',
+        'public/css/app.css',
     ]);
-
 });
 

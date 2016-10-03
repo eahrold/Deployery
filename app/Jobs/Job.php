@@ -18,4 +18,9 @@ abstract class Job
     */
 
     use Queueable;
+
+    const COMPLETE = 'complete';
+    const FAILED   = 'failed';
+    const PROGRESS = 'progress';
+    const STARTING = 'starting';
 }

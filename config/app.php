@@ -125,6 +125,7 @@ return [
 
         Barryvdh\Debugbar\ServiceProvider::class,
         Dingo\Api\Provider\LaravelServiceProvider::class,
+        Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
 
         /*
          * Laravel Framework Service Providers...
@@ -156,16 +157,22 @@ return [
          */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
+        App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\ModelObserverProvider::class,
+        App\Providers\ValidationServiceProvider::class,
 
         /*
          * Vendor
          */
         AdamWathan\BootForms\BootFormsServiceProvider::class,
-        BrainSocket\BrainSocketServiceProvider::class,
         Collective\Remote\RemoteServiceProvider::class,
+
+        /**
+         * Main Deployery Service Provider..
+         */
+        App\Providers\DeployeryServiceProvider::class,
     ],
 
     /*
@@ -211,15 +218,20 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-
-        'Project' => App\Models\Project::class,
-        'BrainSocket' => BrainSocket\BrainSocketFacade::class,
+        'Carbon' => \Carbon\Carbon::class,
 
         /*
          * Vendor
          */
         'SSH' => App\Services\SSHAccess::class,
         'BootForm' => AdamWathan\BootForms\Facades\BootForm::class,
+        'JWTAuth' => \Tymon\JWTAuth\Facades\JWTAuth::class,
+
+        /**
+         *  Deployery
+         */
+        'Project' => App\Models\Project::class,
+        'User' => App\Models\User::class,
     ],
 
 ];

@@ -45,6 +45,35 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {
+        // If the request wants JSON (AJAX doesn't always want JSON)
+        if ($request->is('api/*'))
+        {
+            // Define the response
+            $response = [
+                'errors' => 'Sorry, something went wrong.',
+                'message' => $e->getMessage()
+            ];
+
+            if (config('app.debug'))
+            {
+                $response['exception'] = get_class($e);
+                $response['trace'] = $e->getTrace();
+            }
+
+            // Default response of 400
+            $status = 400;
+
+            // If this exception is an instance of HttpException
+            if ($this->isHttpException($e))
+            {
+                // Grab the HTTP status code from the Exception
+                $status = $e->getStatusCode();
+            }
+
+        // Return a JSON response with the response array and status code
+        return response()->json($response, $status);
+    }
+
         return parent::render($request, $e);
     }
 }

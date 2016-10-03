@@ -15,12 +15,16 @@ class CreateProjectTable extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
-            $table->timestamps();
 
+            $table->timestamps();
             $table->string('name');
             $table->string('slug');
             $table->string('repo');
             $table->string('branch');
+            $table->string('uid')->unique();
+
+            $table->integer('user_id')->unsigned();
+            $table->foreign('user_id')->references('id')->on('projects')->onDelete('cascade');
         });
     }
 

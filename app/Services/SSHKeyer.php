@@ -16,19 +16,21 @@ class SSHKeyer
         $this->shell = new Exec();
     }
 
-    public function generate($path, $force=false){
-        // ssh-keygen -b 2048 -t rsa -N "" -f /path/to/keys/ -q
+    /**
+     * Generate an SSK key for the project.
+     * The key this generates is added to the ~/.ssh/authorized_keys file on the server
+     * @param  string  $path  path where the keys should be generated
+     * @param  boolean $force should old keys be removed and regenerated
+     *
+     * @return boolean  true if file was successfully created, false otherwise
+     */
+    public function generate(string $path, $force=false){
         if(!starts_with($path, storage_path())){
             abort(500, 'Generating SSH Keys at invalid path');
         }
 
-        $command = new Command('mkdir');
-        $command->addFlag('p')
-                ->addFlag('m', '700') // Restrict to PHP Process user
-                ->addParam($path);
-
-        if($this->run($command)){
-            if($force && file_exists($path.'id_rsa') && !$this->destroy($path)){
+        if($this->mkdir($path)){
+            if($force && file_exists("{$path}id_rsa") && !$this->destroy($path)){
                 return $this->success();
             }
             $this->create($path);
@@ -41,7 +43,16 @@ class SSHKeyer
         return $this->success();
     }
 
+    private function mkdir($path){
+        $command = new Command('mkdir');
+        $command->addFlag('p') // recursive create path
+                ->addFlag('m', '700') // mode: Restrict to PHP Process user
+                ->addParam($path);
+        return $this->run($command);
+    }
+
     private function create($path){
+        // ssh-keygen -b 2048 -t rsa -N "" -f /path/to/keys/ -q
         $command = new Command('ssh-keygen');
         $command->addFlag('b','4096')
                 ->addFlag('t', 'rsa')
@@ -53,8 +64,8 @@ class SSHKeyer
 
     private function destroy($path){
         $command = new Command('rm');
-        $command->addParam($path.'id_rsa');
-        $command->addParam($path.'id_rsa.pub');
+        $command->addParam("{$path}id_rsa");
+        $command->addParam("{$path}id_rsa.pub");
         $this->run($command);
     }
 

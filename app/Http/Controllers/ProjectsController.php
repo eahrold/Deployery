@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\BaseRequest;
+use App\Jobs\RepositoryClone;
 use App\Models\Project;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
-class ProjectsController extends Controller
+final class ProjectsController extends Controller
 {
 
     public function __construct(BaseRequest $request, Project $model){
@@ -18,8 +21,8 @@ class ProjectsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(){
-        $projects = $this->model->all();
-        return view('pages.projects', compact('projects'));
+        $projects = $this->model->findUserModels()->get();
+        return view('pages.dashboard', compact('projects'));
     }
 
     /**
@@ -28,7 +31,7 @@ class ProjectsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(){
-        return view('pages.projects_form', ['model' => $this->model]);
+        return view('pages.project', ['model' => $this->model]);
     }
 
     /**
@@ -39,9 +42,13 @@ class ProjectsController extends Controller
      */
     public function store(){
         $model = $this->model->initializeProject($this->request->all());
-        if($this->request->get('exit')){
-            return redirect()->route('projects.index');
-        }
+        $clone = (new RepositoryClone($model))->onQueue('clones');
+        $this->dispatch($clone);
+
+        // Mark the model as "Cloning".  It's actually a
+        // cache store so there is no need to save it.
+        $model->is_cloning = true;
+
         return redirect()->route('projects.edit', $model->id);
     }
 
@@ -52,7 +59,7 @@ class ProjectsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id){
-        $model = $this->model->with('servers', 'history')->find($id);
+        return redirect()->route('projects.edit', $model->id);
     }
 
     /**
@@ -62,8 +69,9 @@ class ProjectsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id){
-        $model = $this->model->findOrFail($id);
-        return view('pages.projects_form', compact('model'));
+        $with = ['servers', 'history', 'history.server', 'scripts', 'configs'];
+        $model = $this->model->with($with)->getUserModel($id);
+        return view('pages.project', compact('model'));
     }
 
     /**
@@ -74,11 +82,8 @@ class ProjectsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update($id){
-        $model = $this->model->findOrFail($id);
+        $model = $this->model->getUserModel($id);
         $model->update($this->request->all());
-        if($this->request->get('exit')){
-            return redirect()->route('projects.index');
-        }
         return redirect()->route('projects.edit', $id);
     }
 
@@ -89,7 +94,7 @@ class ProjectsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id){
-        $model = $this->model->findOrFail($id);
+        $model = $this->model->getUserModel($id);
         if($model->delete()){
             return redirect()->route('projects.index');
         }

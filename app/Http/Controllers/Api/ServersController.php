@@ -173,8 +173,8 @@ class ServersController extends APIController
     public function webhook($webhook)
     {
         $server = $this->model
-                        ->where('webhook', $this->request->url())
-                        ->firstOrFail();
+                       ->where('webhook', $this->request->url())
+                       ->firstOrFail();
 
         // TODO: Figure out the sender from the request
         $sender = 'github';

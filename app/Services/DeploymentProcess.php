@@ -13,10 +13,10 @@ class DeploymentProcess
     /**
      * Deploy the server
      *
-     * @param  Server $server   [description]
-     * @param  mixed  $from     [description]
-     * @param  mixed  $to       [description]
-     * @param         \Closure $callback [description]
+     * @param  Server   $server   [description]
+     * @param  mixed    $from     [description]
+     * @param  mixed    $to       [description]
+     * @param  \Closure $callback [description]
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
@@ -87,10 +87,10 @@ class DeploymentProcess
     /**
      * Rsync implementation of remote sync (depricated)
      *
-     * @param  array  $files          Local files to upload to remote
-     * @param  Server $server         Server to upload the files
-     * @param  function $callback      File uploaded callback,
-     * @param  function $errorCallback Error callback
+     * @param  array    $files         Local files to upload to remote
+     * @param  Server   $server        Server to upload the files
+     * @param  \Closure $callback      File uploaded callback,
+     * @param  \Closure $errorCallback Error callback
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
@@ -138,10 +138,10 @@ class DeploymentProcess
     /**
      * Upload a list of files
      *
-     * @param  array  $files          Local files to upload to remote
-     * @param  Server $server         Server to upload the files
-     * @param  function $callback      File uploaded callback,
-     * @param  function $errorCallback Error callback
+     * @param  array    $files          Local files to upload to remote
+     * @param  Server   $server         Server to upload the files
+     * @param  \Closure $callback       File uploaded callback,
+     * @param  \Closure $errorCallback  Error callback
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
@@ -176,10 +176,10 @@ class DeploymentProcess
 
     /**
      * Remove a list of files from the server
-     * @param  array  $files          Local files to upload to remote
-     * @param  Server $server         Server to upload the files
-     * @param  function $callback      File removed callback,
-     * @param  function $errorCallback Error callback
+     * @param  array    $files          Local files to upload to remote
+     * @param  Server   $server         Server to upload the files
+     * @param  \Closure $callback       File removed callback,
+     * @param  \Closure $errorCallback  Error callback
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
@@ -200,9 +200,9 @@ class DeploymentProcess
 
     /**
      * Upload configuration files
-     * @param  Server $server         Server to upload the files
-     * @param  function $callback      Config file written callback,
-     * @param  function $errorCallback Error callback
+     * @param  Server   $server         Server to upload the files
+     * @param  \Closure $callback       Config file written callback,
+     * @param  \Closure $errorCallback  Error callback
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
@@ -249,10 +249,10 @@ class DeploymentProcess
 
     /**
      * Execute scripts on server
-     * @param  array $scripts        Array of scripts to execute
-     * @param  Server $server        Server to execute the scripts on
-     * @param  function $callback    Progress callback (std_out)
-     * @param  $errorCallback        Error callback (std_err)
+     * @param  array    $scripts        Array of scripts to execute
+     * @param  Server   $server         Server to execute the scripts on
+     * @param  \Closure $callback       Progress callback (std_out)
+     * @param  \Closure $errorCallback  Error callback (std_err)
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */

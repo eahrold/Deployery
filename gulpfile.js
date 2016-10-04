@@ -19,7 +19,8 @@ elixir(mix => {
       'app.scss',
       'table.scss',
       'form.scss',
-      'project.scss'
+      'project.scss',
+      'deployment.scss',
     ], 'public/css/');
 
     mix.webpack('header-helper.js');

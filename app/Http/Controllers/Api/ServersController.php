@@ -18,8 +18,8 @@ class ServersController extends APIController
     /**
      * New APIController object
      *
-     * @param Request     $request     Illuminate\Http\Request
-     * @param Model       $model       Illuminate\Database\Eloquent\Model
+     * @param  Request $request Illuminate\Http\Request
+     * @param  Model   $model   Illuminate\Database\Eloquent\Model
      */
     public function __construct(ServerRequest $request, Project $project, ServerTransformer $transformer)
     {
@@ -155,11 +155,12 @@ class ServersController extends APIController
 
         $server = $this->projects->findServer($project_id, $id);
 
-        $to = $this->request->get('to') ?: $server->newest_commit['hash'];
-        $from = $this->request->get('from') ?: $server->last_deployed_commit;
-
-        if (!$from) {
+        if ($this->request->get('deploy_entire_repo')) {
+            $to = $server->newest_commit['hash'];
             $from = null;
+        } else {
+            $to = $this->request->get('to') ?: $server->newest_commit['hash'];
+            $from = $this->request->get('from') ?: $server->last_deployed_commit;
         }
 
         return $this->response->array(
@@ -199,6 +200,16 @@ class ServersController extends APIController
     //----------------------------------------------------------
     // Private
     //-------------------------------------------------------
+
+    /**
+     * Add the deployment to the quque
+     *
+     * @param  Server      $server    Server being deployed to
+     * @param  string|null $to        Commit getting deployed to
+     * @param  string|null $from      Commite getting deployed from
+     * @param  string|null $user_name User deploying
+     * @return array  Message
+     */
     private function ququeDeployment(Server $server, string $to = null, string $from = null, $user_name = null)
     {
         if (!$user_name) {

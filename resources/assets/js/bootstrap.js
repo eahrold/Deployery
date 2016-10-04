@@ -19,6 +19,7 @@ require('bootstrap-sass');
 window.Vue = require('vue');
 // require('vue-resource');
 require('vue-validator');
+require('vue-select');
 
 window.noty = require('noty');
 

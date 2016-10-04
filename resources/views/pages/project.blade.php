@@ -15,13 +15,13 @@
                 </li>
 
                 <li>
-                    <a data-toggle="tab" href="#servers" :class="cloning | disabled">
+                    <a data-toggle="tab" href="#servers" :class="cloning ? disabled:''">
                         <i class="fa fa-server" aria-hidden="true"></i>
                         <span class='hidden-sm hidden-xs'>Servers</span>
                     </a>
                 </li>
                 <li>
-                    <a data-toggle="tab" href="#history" :class="cloning | disabled">
+                    <a data-toggle="tab" href="#history" :class="cloning ? disabled:''">
                         <i class="fa fa-history" aria-hidden="true"></i>
                         <span class='hidden-sm hidden-xs'>History</span>
                     </a>

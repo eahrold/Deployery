@@ -1,0 +1,11 @@
+.deployments {
+    .v-select {
+        .selected-tag {
+            background-color:transparent;
+            border: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 80%;
+        }
+    }
+}

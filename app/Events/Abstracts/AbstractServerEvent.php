@@ -7,16 +7,20 @@ use Illuminate\Broadcasting\PrivateChannel;
 
 abstract class AbstractServerEvent extends AbstractEchoEvent
 {
+    /**
+     * @var Server
+     */
     public $server;
 
-    public function __construct(Server $server){
+    public function __construct(Server $server)
+    {
         $this->server = $server;
     }
 
     /**
      * Get the channels the event should be broadcast on.
      *
-     * @return array
+     * @return Channel|array
      */
     public function broadcastOn()
     {

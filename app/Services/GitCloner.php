@@ -35,6 +35,7 @@ class GitCloner {
         return $this;
     }
 
+    private $password;
     public function withPassword($password){
         $this->password = $password;
         return $this;
@@ -80,7 +81,7 @@ class GitCloner {
                 $this->sendMessage($buffer);
             }
         });
-        return ($process->getExitCode() == 0);
+        return ($process->getExitCode() === 0);
     }
 
     private function sendMessage($buffer, $error=false, $firstLineOnly=true){

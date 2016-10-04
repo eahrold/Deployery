@@ -77,10 +77,6 @@ class PusherTestEvent implements ShouldBroadcast
 
     /**
      * Create a new event instance.
-     *
-     * @param   $data configuration data for the event
-     * @return void
-     *
      */
     public function __construct()
     {
@@ -91,10 +87,10 @@ class PusherTestEvent implements ShouldBroadcast
     /**
      * Get the channels the event should be broadcast on.
      *
-     * @return array
+     * @return Channel|array
      */
     public function broadcastOn()
     {
-        return new Channel($this->channel_id);
+        return [new Channel($this->channel_id)];
     }
 }

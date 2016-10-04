@@ -59,7 +59,7 @@ final class ProjectsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id){
-        return redirect()->route('projects.edit', $model->id);
+        return redirect()->route('projects.edit', $id);
     }
 
     /**

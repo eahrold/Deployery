@@ -10,16 +10,16 @@ final class HistoryCreatedEvent extends AbstractEchoEvent
 {
     /**
      * History object
-     * @var App\Models\History
+     * @var \App\Models\History
      */
     public $history;
 
     /**
      * Create a new event instance.
      *
-     * @param   $data configuration data for the event
+     * @param  $data configuration data for the event
      * @return void
-     * @return  void
+     * @return void
      */
     public function __construct(History $history)
     {
@@ -37,7 +37,7 @@ final class HistoryCreatedEvent extends AbstractEchoEvent
     /**
      * Get the channels the event should be broadcast on.
      *
-     * @return array
+     * @return Channel|array
      */
     public function broadcastOn()
     {

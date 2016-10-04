@@ -121,7 +121,7 @@ class DeploymentProcess
             "rsync -rltgoDzv {$excludeContext} --filter=':- .gitignore' {$src}/ {$dest}"
         ];
 
-        $this->manger = new ProcessManager();
+        $this->manager = new ProcessManager();
 
         $_callback = function ($line) use ($callback) {
             $silence = [
@@ -134,7 +134,7 @@ class DeploymentProcess
             }
         };
 
-        return $this->manger->setWorkingDirectory($server->project->repoPath())
+        return $this->manager->setWorkingDirectory($server->project->repoPath())
                     ->setStdOut($_callback)
                     ->setStdErr($errorCallback ?: $_callback)
                     ->run($tasks);

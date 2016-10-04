@@ -23,8 +23,6 @@ class ServerRequest extends BaseRequest
      */
     public function rules()
     {
-        return [
-            //
-        ];
+        return [];
     }
 }

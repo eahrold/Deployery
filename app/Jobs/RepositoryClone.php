@@ -19,7 +19,7 @@ class RepositoryClone extends Job implements ShouldQueue
 
     /**
      * Project Object
-     * @var App\Models\Project
+     * @var \App\Models\Project
      */
     private $project;
 
@@ -74,7 +74,7 @@ class RepositoryClone extends Job implements ShouldQueue
     /**
      * Send a message to the broadcast socket
      * @param  string $message message to send
-     * @param  const  $type    string const describing the message
+     * @param  string $type    string const describing the message
      * @param  array  $errors  Array of errors
      */
     private function sendMessage($message, $type, $errors = [])

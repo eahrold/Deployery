@@ -17,20 +17,19 @@ abstract class AbstractEventMessage extends AbstractEchoEvent
     /**
      * Create a new event instance.
      *
-     * @param   $data configuration data for the event
+     * @param  $data configuration data for the event
      * @return void
-     *
      */
     public function __construct($data)
     {
         $this->message = $data['message'];
         $this->errors = $data['errors'];
 
-        if(isset($data['type'])){
+        if (isset($data['type'])) {
             $this->type = $data['type'];
         }
 
-        if(isset($data['channel_id'])){
+        if (isset($data['channel_id'])) {
             $this->channel_id = $data['channel_id'];
         }
     }
@@ -38,7 +37,7 @@ abstract class AbstractEventMessage extends AbstractEchoEvent
     /**
      * Get the channels the event should be broadcast on.
      *
-     * @return array
+     * @return Channel|array
      */
     public function broadcastOn()
     {

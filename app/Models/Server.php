@@ -111,16 +111,25 @@ final class Server extends Base
         return "{$this->project->id}_repo_commits";
     }
 
+    /**
+     *  @property string $slug
+     */
     public function getSlugAttribute($value)
     {
         return str_slug($this->name);
     }
 
+    /**
+     *  @property string $channel_id
+     */
     public function getChannelIdAttribute($value = '')
     {
         return $this->project->channel_id;
     }
 
+    /**
+     *  @property string $connection_details
+     */
     public function getConnectionDetailsAttribute($value = '')
     {
         return "{$this->username}@{$this->hostname}";
@@ -183,6 +192,12 @@ final class Server extends Base
     }
 
     private $ssh_connection;
+    /**
+     * SSH Connection
+     *
+     * @property  connection
+     * @return \App\Services\SSHConnection
+     */
     public function getConnectionAttribute()
     {
         if (!$this->ssh_connection) {

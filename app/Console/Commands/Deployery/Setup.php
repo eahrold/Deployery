@@ -27,7 +27,7 @@ class Setup extends Command
     /**
      * Filesystem object
      *
-     * @var Illuminate\Filesystem\Filesystem
+     * @var \Illuminate\Filesystem\Filesystem
      */
     private $files;
 
@@ -176,9 +176,10 @@ class Setup extends Command
                 'username'   => $username,
                 'email'      => $email,
                 'password'   => bcrypt($password),
-                'first_name' =>  $firstname,
-                'last_name'  =>  $password ,
+                'first_name' => $firstname,
+                'last_name'  => $lastname,
             ]);
+
             $this->info('Superuser created.');
         } catch (\Exception $e) {
             $this->error('User could not be created. A duplicate entery may already exists');
@@ -215,6 +216,6 @@ class Setup extends Command
         }
     }
 
-    static $line =
+    protected static $line =
     "------------------------------------------------------------------------------------------";
 }

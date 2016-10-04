@@ -44,7 +44,7 @@ class ServersController extends APIController
             $this->model->getValidationRules()
         );
 
-        $project = $this->project->getUserModel($project_id);
+        $project = $this->projects->getUserModel($project_id);
 
         $data = $this->request->all();
         $data["project_id"] = $project_id;
@@ -80,15 +80,14 @@ class ServersController extends APIController
     {
         $this->validate(
             $this->request,
-            $model->getValidationRules($id)
+            $this->model->getValidationRules($id)
         );
-        $model = $this->projects->findServer($project_id, $id);
 
-        $success = $model->update($this->request->all());
+        $model = $this->projects->findServer($project_id, $id);
         $model->scripts()->sync($this->request->get('script_ids') ?: []);
 
-        if ($model->update($this->request->all())) {
-            return $this->response->item($model);
+        if ($model->update($this->request->all()) || !$model->isDirty()) {
+            return $this->response->item($model, new $this->transformer);
         }
         abort(500, "There was a problem updating {$model->name}");
     }
@@ -212,7 +211,7 @@ class ServersController extends APIController
      */
     private function ququeDeployment(Server $server, string $to = null, string $from = null, $user_name = null)
     {
-        if (!$user_name) {
+        if ($user_name === '' || $user_name === null) {
             if ($user = Auth::user()) {
                 $user_name = $user->username;
             } else {

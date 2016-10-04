@@ -19,7 +19,7 @@ class ServerDeploy extends Job implements ShouldQueue
 
     /**
      * Server Object
-     * @var App\Models\Server
+     * @var \App\Models\Server
      */
     private $server;
 
@@ -120,7 +120,6 @@ class ServerDeploy extends Job implements ShouldQueue
      * Send a message to the broadcast channel
      *
      * @param  string $message message to send
-     * @param  const  $type    string const describing the message
      * @param  array  $errors  Array of errors
      */
     private function sendMessage($message, $errors = [])

@@ -16,7 +16,7 @@ final class RepositoryCloneMessage extends AbstractEventMessage
     /**
      * Create a new event instance.
      *
-     * @param   $data configuration data for the event
+     * @param  $data configuration data for the event
      * @return void
      */
     public function __construct($data)

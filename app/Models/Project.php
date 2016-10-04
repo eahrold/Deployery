@@ -247,7 +247,7 @@ final class Project extends Base
         // Register for events
         static::created(function($model){
             $keyer = new SSHKeyer();
-            $res = $keyer->generate($model->keyPath(), true);
+            $keyer->generate($model->keyPath(), true);
         });
 
         static::deleting(

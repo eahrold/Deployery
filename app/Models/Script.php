@@ -49,7 +49,7 @@ final class Script extends Base
         foreach ($this->_parsable as $key => $message) {
             $serverKey = str_replace('%', '', $key);
             if ($swap = $server->{$serverKey}) {
-                $script = str_replace($key, $server->{$serverKey}, $script);
+                $script = str_replace($key, $swap, $script);
             }
         }
         return $script;

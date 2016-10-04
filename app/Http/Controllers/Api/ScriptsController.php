@@ -29,7 +29,7 @@ class ScriptsController extends APIController
             $this->model->getValidationRules()
         );
 
-        $project = $this->project->findOrFail($project_id);
+        $project = $this->projects->findOrFail($project_id);
         $data = $this->request->all();
 
         $model = $this->model->newInstance($data);
@@ -52,7 +52,7 @@ class ScriptsController extends APIController
             $this->request,
             $this->model->getValidationRules($id)
         );
-        $model = $this->project->findScript($project_id, $id);
+        $model = $this->projects->findScript($project_id, $id);
         $model->update($this->request->all());
         $model->servers()->sync($this->request->get('server_ids') ?: []);
 
@@ -69,7 +69,6 @@ class ScriptsController extends APIController
     public function destroy($project_id, $id)
     {
         $model = $this->model->findOrFail($id);
-        $project_id = $model->project->id;
         if (!$model->delete()) {
             $this->response->error('Could not detete the model.', 422);
         }

@@ -18,6 +18,7 @@ class WebhookInfo {
 class WebhookHandler {
 
     protected $request;
+    protected $server;
 
     public function __construct(Request $request, Server $server){
         $this->server = $server;

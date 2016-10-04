@@ -70,8 +70,7 @@ final class UsersController extends Controller
      */
     public function update($id)
     {
-        $model = $this->upsert($id);
-
+        $this->upsert($id);
         if ($this->request->get('exit')) {
             if (Auth::user()->is_admin) {
                 return redirect()->route('users.index');

@@ -32,6 +32,12 @@ abstract class Transformer extends Fractal\TransformerAbstract
      */
     protected $mappedKeys = [];
 
+    /**
+     * Any properties to purge on unauthenticated requests
+     *
+     * @var array
+     */
+    protected $guardedProperties =[];
 
     /**
      * Transfrom the model

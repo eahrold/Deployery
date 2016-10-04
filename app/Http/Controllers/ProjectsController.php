@@ -5,13 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BaseRequest;
 use App\Jobs\RepositoryClone;
 use App\Models\Project;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 
 final class ProjectsController extends Controller
 {
 
-    public function __construct(BaseRequest $request, Project $model){
+    public function __construct(BaseRequest $request, Project $model) {
         parent::__construct($request, $model);
     }
 
@@ -20,7 +18,7 @@ final class ProjectsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(){
+    public function index() {
         $projects = $this->model->findUserModels()->get();
         return view('pages.dashboard', compact('projects'));
     }
@@ -30,17 +28,16 @@ final class ProjectsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(){
+    public function create() {
         return view('pages.project', ['model' => $this->model]);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(){
+    public function store() {
         $model = $this->model->initializeProject($this->request->all());
         $clone = (new RepositoryClone($model))->onQueue('clones');
         $this->dispatch($clone);
@@ -56,7 +53,7 @@ final class ProjectsController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function show($id){
         return redirect()->route('projects.edit', $id);
@@ -68,7 +65,7 @@ final class ProjectsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id){
+    public function edit($id) {
         $with = ['servers', 'history', 'history.server', 'scripts', 'configs'];
         $model = $this->model->with($with)->getUserModel($id);
         return view('pages.project', compact('model'));
@@ -77,11 +74,10 @@ final class ProjectsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update($id){
+    public function update($id) {
         $model = $this->model->getUserModel($id);
         $model->update($this->request->all());
         return redirect()->route('projects.edit', $id);
@@ -91,11 +87,11 @@ final class ProjectsController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy($id){
+    public function destroy($id) {
         $model = $this->model->getUserModel($id);
-        if($model->delete()){
+        if ($model->delete()) {
             return redirect()->route('projects.index');
         }
         return redirect()->route('projects.edit', $id);

@@ -3,9 +3,6 @@
 namespace App\Services;
 
 use App\Models\Server;
-use App\Services\SSHAccess;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\ProcessBuilder;
 
 class DeploymentProcess
 {
@@ -19,19 +16,18 @@ class DeploymentProcess
      * @param  Server $server   [description]
      * @param  mixed  $from     [description]
      * @param  mixed  $to       [description]
-     * @param         $callback [description]
+     * @param         \Closure $callback [description]
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
     public function deploy(Server $server, $from = null, $to = null, $callback = null)
     {
-        $callback = $callback ?: function ($line) {
+        $callback = $callback ?: function($line) {
             echo $line;
         };
         $to = $to ?: $server->git_info->newest_commit['hash'];
 
-        $callback($from ? "Deploying from {$from} to {$to}.\n" :
-                          "Deploying entire repo...");
+        $callback($from ? "Deploying from {$from} to {$to}.\n" : "Deploying entire repo...");
 
         $callback("Preparing Repo for deploy.\n");
         $this->prepareGitRepo($server, $to);
@@ -40,8 +36,7 @@ class DeploymentProcess
 
         // If "from" was not supplied, then grab
         // the repo from the beginning of time.
-        $changes = $from ? $server->git_info->changes($from, $to):
-                           $server->git_info->all();
+        $changes = $from ? $server->git_info->changes($from, $to) : $server->git_info->all();
 
         $status = 0;
         $actions = [
@@ -80,7 +75,7 @@ class DeploymentProcess
      * @param  Server   $server the server to update
      * @param  string   $to     the deployed commit
      *
-     * @return void
+     * @return integer
      */
     private function updateServerLastCommit(Server $server, string $to)
     {
@@ -114,7 +109,7 @@ class DeploymentProcess
 
         $excludeContext = ' ';
         foreach ($excludes as $exclude) {
-            $excludeContext .="--exclude='{$exclude}' ";
+            $excludeContext .= "--exclude='{$exclude}' ";
         }
 
         $tasks = [
@@ -123,7 +118,7 @@ class DeploymentProcess
 
         $this->manager = new ProcessManager();
 
-        $_callback = function ($line) use ($callback) {
+        $_callback = function($line) use ($callback) {
             $silence = [
                 'sent',
                 'total'
@@ -173,7 +168,7 @@ class DeploymentProcess
             }
 
             $server->connection->put($local_file, $remote_file);
-            $percent = (int)(($idx/$file_count) * 100);
+            $percent = (int)(($idx / $file_count) * 100);
             $callback("[{$percent}%] Uploaded {$remote_file}".PHP_EOL);
         }
         return 0;
@@ -214,7 +209,7 @@ class DeploymentProcess
     private function uploadConfigFiles(Server $server, $callback = null, $errorCallback = null)
     {
         $status = false;
-        $callback = $callback ?: function ($msg) {
+        $callback = $callback ?: function($msg) {
             \Log::debug($msg);
         };
         $errorCallback = $errorCallback ?: $callback;
@@ -232,6 +227,9 @@ class DeploymentProcess
         return $status ? 0 : -1;
     }
 
+    /**
+     * @param Server $server
+     */
     private function runPreInstallScripts($server, $callback = null, $errorCallback = null)
     {
         $callback("Starting Preinstall Scripts");
@@ -239,6 +237,9 @@ class DeploymentProcess
         return $this->runScripts($scripts, $server, $callback, $errorCallback);
     }
 
+    /**
+     * @param Server $server
+     */
     private function runPostInstallScripts($server, $callback = null, $errorCallback = null)
     {
         $callback("Starting Postinstall Scripts");
@@ -269,11 +270,11 @@ class DeploymentProcess
 
             $lines = explode(PHP_EOL, $scriptContents);
 
-            $commands = array_map(function ($i) {
+            $commands = array_map(function($i) {
                 return trim($i);
             }, $lines);
 
-            $commands = array_filter($commands, function ($i) {
+            $commands = array_filter($commands, function($i) {
                 return !empty($i);
             });
             $connection->run($commands, $callback);
@@ -316,7 +317,7 @@ class DeploymentProcess
 
         return $this->manager
                     ->setWorkingDirectory($server->repo)
-                    ->run($tasks, null, function ($line) {
+                    ->run($tasks, null, function($line) {
                         \Log::info("Preparing Repo: {$line}");
                     }, true);
     }

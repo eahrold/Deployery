@@ -5,10 +5,8 @@ namespace App\Models;
 use App\Presenters\PresentableTrait;
 use App\Services\GitInfo;
 use App\Services\SSHConnection as Connection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Log;
 
 final class Server extends Base
 {
@@ -141,7 +139,7 @@ final class Server extends Base
     private $gitInfoInstance;
     public function getGitInfoAttribute($value = '')
     {
-        if ( ! isset($this->gitInfoInstance)) {
+        if (!isset($this->gitInfoInstance)) {
             if ($branch = $this->branch ?: Input::get('branch') ?: $this->project->branch) {
                 $this->gitInfoInstance = (new GitInfo($this->repo, $branch))->withPubKey($this->project->user->auth_key);
             }
@@ -301,13 +299,16 @@ final class Server extends Base
         return $this->filteredInstallScripts($predeploy = false);
     }
 
+    /**
+     * @param boolean $predeploy
+     */
     private function filteredInstallScripts($predeploy)
     {
         $count = $this->successful_deployments->count();
         return $this->scripts()
                     ->where('run_pre_deploy', $predeploy)
                     ->get()
-                    ->filter(function ($script) use ($count) {
+                    ->filter(function($script) use ($count) {
                 switch ($script->on_deployment) {
                     case $script::RUN_ON_ALL_DEPLOYMENTS:
                         return true;
@@ -349,7 +350,7 @@ final class Server extends Base
     {
         parent::boot();
 
-        static::updating(function ($model) {
+        static::updating(function($model) {
             // A list of properties that if changed, require revalidating
             // the server connection.
             $check = ['hostname', 'username', 'password', 'port', 'deployment_path'];

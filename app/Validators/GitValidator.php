@@ -11,8 +11,8 @@ class GitValidator extends IlluminateValidator {
         "git_branch" => "This is not a valid git :attribute",
     ];
 
-    public function __construct( $translator, $data, $rules, $messages = [], $customAttributes = [] ) {
-        parent::__construct( $translator, $data, $rules, $messages, $customAttributes );
+    public function __construct($translator, $data, $rules, $messages = [], $customAttributes = []) {
+        parent::__construct($translator, $data, $rules, $messages, $customAttributes);
         $this->set_messages();
     }
 
@@ -23,7 +23,7 @@ class GitValidator extends IlluminateValidator {
      */
     protected function set_messages() {
         //setup our custom error messages
-        $this->setCustomMessages( $this->messages );
+        $this->setCustomMessages($this->messages);
     }
 
     /**
@@ -33,10 +33,10 @@ class GitValidator extends IlluminateValidator {
      * @param mixed $value
      * @return bool
      */
-    protected function validateGitBranch( $attribute, $value, $parameters ) {
+    protected function validateGitBranch($attribute, $value, $parameters) {
         $path = $parameters[0];
         $info = new GitInfo($path);
-        if(isset($parameters[1])){
+        if (isset($parameters[1])) {
             $info->withPubKey($parameters[1]);
         }
         return $info->hasBranch($value);

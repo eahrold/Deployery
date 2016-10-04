@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Exceptions\Git\GitException;
 use App\Exceptions\Git\GitInvalidBranchException;
-use ArrayAccess;
 use Illuminate\Support\Str;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessBuilder;
@@ -42,7 +41,7 @@ class GitInfo
     /**
      * An initialized builder for git processes
      *
-     * @return Symfony\Component\Process\ProcessBuilder builder
+     * @return ProcessBuilder builder
      */
     protected function builder()
     {
@@ -64,7 +63,7 @@ class GitInfo
     {
         $output = "";
         $process = $builder->getProcess();
-        $process->run(function ($type, $buffer) use (&$output) {
+        $process->run(function($type, $buffer) use (&$output) {
             if (Process::ERR !== $type) {
                 if (!empty($buffer)) {
                     $output .= $buffer;
@@ -73,7 +72,7 @@ class GitInfo
         });
         $results = explode(PHP_EOL, $output);
 
-        $results =  array_filter($results, function ($item) {
+        $results = array_filter($results, function($item) {
             return !empty($item);
         });
         return $results;
@@ -101,10 +100,10 @@ class GitInfo
     public function commits($take = 10)
     {
         $builder = $this->builder()->add('log')
-                                   ->add("origin/{$this->_branch}")
-                                   ->add('--oneline')
-                                   ->add('--no-merges')
-                                   ->add("-n{$take}");
+                                    ->add("origin/{$this->_branch}")
+                                    ->add('--oneline')
+                                    ->add('--no-merges')
+                                    ->add("-n{$take}");
         $stdout = $this->run($builder);
         $commits = [];
         foreach ($stdout as $line) {
@@ -128,9 +127,9 @@ class GitInfo
     public function getInitialCommitProperty()
     {
         $builder = $this->builder()->add('rev-list')
-                                   ->add('--oneline')
-                                   ->add('--max-parents=0')
-                                   ->add('HEAD');
+                                    ->add('--oneline')
+                                    ->add('--max-parents=0')
+                                    ->add('HEAD');
         $stdout = $this->run($builder);
 
         list($hash, $message) = explode(' ', $stdout[0], 2);
@@ -145,15 +144,15 @@ class GitInfo
     public function branches()
     {
         $builder = $this->builder()->add('branch')
-                                   ->add('-a');
+                                    ->add('-a');
 
         $branches = $this->run($builder);
         $branches = collect($branches);
 
-        return $branches->reject(function ($item) {
+        return $branches->reject(function($item) {
             return str_contains($item, 'HEAD') || empty($item);
         })
-        ->transform(function ($item) {
+        ->transform(function($item) {
             $item = trim(str_replace("*", "", $item));
             return str_replace('remotes/origin/', "", $item);
         })
@@ -192,7 +191,7 @@ class GitInfo
     public function fetch()
     {
         $builder = $this->builder()->add('fetch')
-                                   ->add('--all');
+                                    ->add('--all');
         $this->run($builder);
     }
     /**
@@ -205,8 +204,8 @@ class GitInfo
     public function changes($from, $to = null)
     {
         $builder = $this->builder()->add('diff')
-                                   ->add('--name-status')
-                                   ->add($from);
+                                    ->add('--name-status')
+                                    ->add($from);
         if ($to) {
             $builder->add($to);
         }

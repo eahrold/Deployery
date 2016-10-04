@@ -51,7 +51,7 @@ final class History extends Base
         parent::boot();
 
         static::created(
-            function ($history) {
+            function($history) {
                 event(new HistoryCreatedEvent($history));
             }
         );

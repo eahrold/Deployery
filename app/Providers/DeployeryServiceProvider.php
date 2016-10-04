@@ -23,7 +23,7 @@ class DeployeryServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app['Dingo\Api\Transformer\Factory']->setAdapter(function ($app) {
+        $this->app['Dingo\Api\Transformer\Factory']->setAdapter(function($app) {
             $fractal = new \League\Fractal\Manager;
             $fractal->setSerializer(new \App\Serializers\DataArraySerializer);
             return new \Dingo\Api\Transformer\Adapter\Fractal($fractal);

@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Log;
-use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessBuilder;
 
 /**
@@ -47,14 +45,15 @@ class GitCloner {
      * @param  string $repo clone url
      * @param  string $dir  directory where the repo should be cloned
      * @param  string $name the name of the repo being cloned
+     * @param \Closure $callback
      *
      * @return bool Success if the repo was suceesfully cloned.
      */
-    public function cloneRepo($repo, $dir, $name, $callback=null)
+    public function cloneRepo($repo, $dir, $name, $callback = null)
     {
         $this->callback = $callback;
 
-        if(!file_exists($dir) && !mkdir($dir, 0770, true)){
+        if (!file_exists($dir) && !mkdir($dir, 0770, true)) {
             $this->sendMessage("Failed to create a directory at {$dir}");
             return false;
         }
@@ -64,7 +63,7 @@ class GitCloner {
         // TODO: use unique user keys for SSH Auth.
         // $key = Auth::user()->auth_key;
         // $builder->setEnv("GIT_SSH_COMMAND", "ssh -i {$key}");
-        if($this->pub_key){
+        if ($this->pub_key) {
             $builder->setEnv("GIT_SSH_COMMAND", "ssh -i {$this->pub_key}");
         }
 
@@ -76,7 +75,7 @@ class GitCloner {
                 ->add($name);
 
         $process = $builder->getProcess();
-        $process->run(function ($type, $buffer) {
+        $process->run(function($type, $buffer) {
             if (!empty($buffer)) {
                 $this->sendMessage($buffer);
             }
@@ -84,14 +83,14 @@ class GitCloner {
         return ($process->getExitCode() === 0);
     }
 
-    private function sendMessage($buffer, $error=false, $firstLineOnly=true){
-        if($this->callback){
+    private function sendMessage($buffer, $error = false, $firstLineOnly = true) {
+        if ($this->callback) {
             // The [K character is used to clear the terminal
             // We need to strip it out from the raw string
             $buffer = str_replace("[K", PHP_EOL, $buffer);
-            foreach (explode(PHP_EOL, $buffer) as $line ) {
+            foreach (explode(PHP_EOL, $buffer) as $line) {
                 call_user_func($this->callback, trim($line));
-                if($firstLineOnly){
+                if ($firstLineOnly) {
                     return;
                 }
             }

@@ -37,8 +37,7 @@ final class UsersController extends Controller
     /**
      * Store a newly created user in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store()
     {
@@ -64,9 +63,8 @@ final class UsersController extends Controller
     /**
      * Update the specified user in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update($id)
     {
@@ -84,7 +82,7 @@ final class UsersController extends Controller
      * Remove the specified user from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy($id)
     {
@@ -96,6 +94,9 @@ final class UsersController extends Controller
     }
 
 
+    /**
+     * @param integer $id
+     */
     private function upsert($id = null)
     {
         $this->validate(

@@ -6,5 +6,5 @@ class ConfigTransformer extends Transformer
 
     protected $defaultIncludes = [];
     protected $mappedKeys = [];
-    protected $guardedProperties =[];
+    protected $guardedProperties = [];
 }

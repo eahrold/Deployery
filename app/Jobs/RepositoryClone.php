@@ -9,9 +9,7 @@ use App\Services\GitCloner;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\Process\ProcessBuilder;
 
 class RepositoryClone extends Job implements ShouldQueue
 {
@@ -55,7 +53,7 @@ class RepositoryClone extends Job implements ShouldQueue
 
         $cloner = (new GitCloner())->withPubKey($project->user->auth_key);
 
-        $callback = function ($message) {
+        $callback = function($message) {
             $this->sendMessage($message, self::PROGRESS);
             $this->project->is_cloning = true;
         };

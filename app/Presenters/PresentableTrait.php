@@ -26,11 +26,11 @@ trait PresentableTrait {
      */
     public function present()
     {
-        if ( ! $this->presenter or ! class_exists($this->presenter) ) {
+        if (!$this->presenter or !class_exists($this->presenter)) {
             throw new Exception\PresenterException("The {$presenter} property is not set");
         }
 
-        if ( ! isset($this->presenterInstance)){
+        if (!isset($this->presenterInstance)) {
             $this->presenterInstance = new $this->presenter($this);
         }
         return $this->presenterInstance;

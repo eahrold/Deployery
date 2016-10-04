@@ -32,7 +32,7 @@ class ProcessManager
      *
      * @return  this chainable
      */
-    public function setWorkingDirectory($cwd){
+    public function setWorkingDirectory($cwd) {
         $this->cwd = $cwd;
         return $this;
     }
@@ -71,21 +71,21 @@ class ProcessManager
      * @param Callable the function callback for std_err
      * @return  ProcessManager current process manager object
      */
-    public function setStdOut($fn){
-        if(is_callable($fn)){
+    public function setStdOut($fn) {
+        if (is_callable($fn)) {
             $this->stdout = $fn;
         }
         return $this;
     }
 
-    public function setStdErr($fn){
+    public function setStdErr($fn) {
     /**
      * Set the standard error pipe
      *
      * @param Callable the function callback for std_err
      * @return  ProcessManager current process manager object
      */
-        if(is_callable($fn)){
+        if (is_callable($fn)) {
             $this->stderr = $fn;
         }
         return $this;
@@ -104,26 +104,26 @@ class ProcessManager
      * @param  mixed  $stderr  std_err callback
      * @return int            process exit code
      */
-    private function exec($script, $stdout=null, $stderr=null){
+    private function exec($script, $stdout = null, $stderr = null) {
         $process = new Process($script);
         $process->setWorkingDirectory($this->cwd);
         $process->setEnv($this->env);
 
         $process->run(function($type, $buffer) use ($stdout, $stderr){
             if (Process::ERR === $type) {
-                if($stderr){
+                if ($stderr) {
                     $stderr($buffer);
                 }
-                if(is_callable($this->stderr)){
+                if (is_callable($this->stderr)) {
                     call_user_func($this->stderr, $buffer);
                 }
             } else {
                 $lines = explode(PHP_EOL, $buffer);
                 foreach ($lines as $line) {
-                    if($stdout){
+                    if ($stdout) {
                         $stdout($line);
                     }
-                    if(is_callable($this->stdout)){
+                    if (is_callable($this->stdout)) {
                         call_user_func($this->stdout, $line);
                     }
                 }
@@ -141,15 +141,15 @@ class ProcessManager
      * @param  boolean $force  Carry on executing task list regardless of exit code of previous taks
      * @return int    last process exit code,
      */
-    public function run($tasks, $stdout=null, $stderr=null, $force=false){
-        if(!is_array($tasks)){
+    public function run($tasks, $stdout = null, $stderr = null, $force = false) {
+        if (!is_array($tasks)) {
             $tasks = [$tasks];
         }
         $rc = 0;
         foreach ($tasks as $task) {
             $rc = $this->exec($task, $stdout, $stderr);
-            if($rc !== 0){
-                if(!$force){
+            if ($rc !== 0) {
+                if (!$force) {
                     break;
                 }
             }

@@ -2,4 +2,4 @@
 
 namespace App\Exceptions\Git;
 
-class GitInvalidBranchException extends GitException{}
+class GitInvalidBranchException extends GitException {}

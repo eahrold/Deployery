@@ -6,7 +6,6 @@ use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Foundation\Inspiring;
 use Illuminate\Queue\SerializesModels;
 
 class EventPusherTest extends Command

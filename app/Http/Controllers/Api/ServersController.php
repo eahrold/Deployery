@@ -6,7 +6,6 @@ use App\Http\Requests\ServerRequest;
 use App\Jobs\ServerDeploy;
 use App\Models\Project;
 use App\Models\Server;
-use App\Services\DeploymentProcess;
 use App\Transformers\ServerTransformer;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,8 +17,7 @@ class ServersController extends APIController
     /**
      * New APIController object
      *
-     * @param  Request $request Illuminate\Http\Request
-     * @param  Model   $model   Illuminate\Database\Eloquent\Model
+     * @param  ServerRequest $request Illuminate\Http\Request
      */
     public function __construct(ServerRequest $request, Project $project, ServerTransformer $transformer)
     {
@@ -35,7 +33,7 @@ class ServersController extends APIController
      * Store a newly created resource in storage.
      *
      * @param  int  $project_id
-     * @return Dingo\Api\Http\Response
+     * @return \Dingo\Api\Http\Response
      */
     public function store($project_id)
     {
@@ -61,7 +59,7 @@ class ServersController extends APIController
      *
      * @param  int  $project_id
      * @param  int  $id
-     * @return Dingo\Api\Http\Response
+     * @return \Dingo\Api\Http\Response
      */
     public function show($project_id, $id)
     {
@@ -74,7 +72,7 @@ class ServersController extends APIController
      *
      * @param  int  $project_id
      * @param  int  $id
-     * @return Dingo\Api\Http\Response
+     * @return \Dingo\Api\Http\Response|null
      */
     public function update($project_id, $id)
     {
@@ -117,10 +115,10 @@ class ServersController extends APIController
     {
         $server = $this->projects->findServer($project_id, $id);
         if ($server->validateConnection()) {
-             return $this->response->array([
+                return $this->response->array([
                 'success'=> true,
                 'message'=> $server->connection_status_message
-             ]);
+                ]);
         }
         abort(412, $server->connection_status_message);
     }
@@ -175,8 +173,8 @@ class ServersController extends APIController
     public function webhook($webhook)
     {
         $server = $this->model
-                       ->where('webhook', $this->request->url())
-                       ->firstOrFail();
+                        ->where('webhook', $this->request->url())
+                        ->firstOrFail();
 
         // TODO: Figure out the sender from the request
         $sender = 'github';

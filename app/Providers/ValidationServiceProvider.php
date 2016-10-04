@@ -13,8 +13,8 @@ class ValidationServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        \Validator::resolver( function( $translator, $data, $rules, $messages ) {
-            return new \App\Validators\GitValidator( $translator, $data, $rules, $messages );
+        \Validator::resolver(function($translator, $data, $rules, $messages) {
+            return new \App\Validators\GitValidator($translator, $data, $rules, $messages);
         });
 
     }

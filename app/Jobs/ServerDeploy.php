@@ -37,6 +37,8 @@ class ServerDeploy extends Job implements ShouldQueue
 
     /**
      * Create a new job instance.
+     * @param null|string $from
+     * @param null|string $to
      */
     public function __construct(Server $server, $user_name, $from, $to)
     {
@@ -52,7 +54,7 @@ class ServerDeploy extends Job implements ShouldQueue
      */
     public function handle()
     {
-        if($this->postponeIfNeeded()){
+        if ($this->postponeIfNeeded()) {
             return;
         }
 
@@ -66,7 +68,7 @@ class ServerDeploy extends Job implements ShouldQueue
             $this->server,
             $this->fromCommit,
             $this->toCommit,
-            function ($message) {
+            function($message) {
                 $this->sendMessage($message);
                 $this->server->is_deploying = true;
             }
@@ -86,7 +88,7 @@ class ServerDeploy extends Job implements ShouldQueue
      */
     public function postponeIfNeeded()
     {
-        if($this->server->project->is_deploying){
+        if ($this->server->project->is_deploying) {
             \Log::debug("Releaseing job for {$this->server->name} back into the queue.");
             $this->release((int)env('POSTPONMENT_INTERVAL', 30));
             return true;
@@ -110,7 +112,7 @@ class ServerDeploy extends Job implements ShouldQueue
      *
      * @param  string $message The on start message
      */
-    private function registerDeploymentEnded(string $message, int $rc, array $errors=[]) {
+    private function registerDeploymentEnded(string $message, int $rc, array $errors = []) {
         event(new DeploymentEnded($this->server, $message, $errors));
         $this->saveHistory($rc);
         $this->server->is_deploying = false;
@@ -139,6 +141,7 @@ class ServerDeploy extends Job implements ShouldQueue
      * Store the Deployment History
      *
      * @param  int code $rc TaskWrapper exit code.
+     * @param integer $rc
      */
     private function saveHistory($rc)
     {

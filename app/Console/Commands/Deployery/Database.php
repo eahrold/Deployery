@@ -133,7 +133,6 @@ class Database extends Command
     protected function getKeyFile()
     {
         return $this->files->exists('.env') ?
-               $this->files->get('.env') :
-               $this->files->get('.env.example');
+               $this->files->get('.env') : $this->files->get('.env.example');
     }
 }

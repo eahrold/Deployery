@@ -94,7 +94,7 @@ abstract class Transformer extends Fractal\TransformerAbstract
         return $item;
     }
 
-   /**
+    /**
      *  Remove guarded properties from the array
      *
      * @param  array $item data in

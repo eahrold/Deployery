@@ -139,6 +139,7 @@ class Setup extends Command
      * Set the application key in the environment file.
      *
      * @param  string  $key
+     * @param string $value
      * @return void
      */
     protected function setEnvValueForKey($value, $key)
@@ -146,7 +147,7 @@ class Setup extends Command
         file_put_contents(
             $this->laravel->environmentFilePath(),
             preg_replace(
-                "/.*\b" . $key . "\b.*\n/ui",
+                "/.*\b".$key."\b.*\n/ui",
                 "{$key}={$value}\n",
                 file_get_contents($this->laravel->environmentFilePath())
             )
@@ -205,11 +206,11 @@ class Setup extends Command
      */
     private function makeEnvFile()
     {
-        $dest =  $this->laravel->environmentFilePath();
+        $dest = $this->laravel->environmentFilePath();
         $source = "{$dest}.example";
         $this->info("Copying {$source} to {$dest}.");
 
-        if (! file_exists($dest)) {
+        if (!file_exists($dest)) {
             copy($source, $dest);
         } else {
             $this->info('File already exists, skipping...');

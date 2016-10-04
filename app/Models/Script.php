@@ -77,7 +77,7 @@ final class Script extends Base
 
     /**
      * Select/Options key/value pair
-     * @return array usable description value pair
+     * @return string[] usable description value pair
      */
     public function getDeploymentOptsAttribute()
     {

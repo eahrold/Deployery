@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Broadcast;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 
 class BroadcastServiceProvider extends ServiceProvider
@@ -20,21 +19,21 @@ class BroadcastServiceProvider extends ServiceProvider
         /*
          * Authenticate the user's personal channel...
          */
-        Broadcast::channel('App.User.*', function ($user, $userId) {
-            return (int) $user->id === (int) $userId;
+        Broadcast::channel('App.User.*', function($user, $userId) {
+            return (int)$user->id === (int)$userId;
         });
 
         /*
          * Authenticate the Project channel
          */
-        Broadcast::channel('project.*', function ($user, $projectId) {
+        Broadcast::channel('project.*', function($user, $projectId) {
             return !is_null($user->projects->find($projectId));
         });
 
         /*
          * Authenticate to the presence channel;
          */
-        Broadcast::channel('project-viewers.*', function ($user, $projectId) {
+        Broadcast::channel('project-viewers.*', function($user, $projectId) {
             return ['id'=>$user->id, 'email'=>$user->email, 'name' => $user->full_name];
         });
     }

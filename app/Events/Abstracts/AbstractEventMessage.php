@@ -37,7 +37,7 @@ abstract class AbstractEventMessage extends AbstractEchoEvent
     /**
      * Get the channels the event should be broadcast on.
      *
-     * @return Channel|array
+     * @return PrivateChannel
      */
     public function broadcastOn()
     {

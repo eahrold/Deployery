@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\BaseRequest;
 use App\Models\Script;
-use App\Models\Project;
 
 final class ScriptsController extends ProjectChildController
 {
@@ -30,8 +29,7 @@ final class ScriptsController extends ProjectChildController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store($project_id)
     {
@@ -72,9 +70,8 @@ final class ScriptsController extends ProjectChildController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update($project_id, $id)
     {
@@ -100,7 +97,7 @@ final class ScriptsController extends ProjectChildController
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy($project_id, $id)
     {

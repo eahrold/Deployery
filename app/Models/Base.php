@@ -12,6 +12,9 @@ abstract class Base extends Model
     protected $validation_rules = [];
     protected $unique_validation_rules = [];
 
+    /**
+     * @param integer $id
+     */
     public function getValidationRules($id = null, $append=[])
     {
         $unique = [];

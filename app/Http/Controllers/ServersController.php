@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\BaseRequest;
-use App\Jobs\ServerDeploy;
 use App\Models\Server;
 use Illuminate\Support\Facades\Log;
 
@@ -36,7 +35,7 @@ final class ServersController extends ProjectChildController
      *
      * @param number $project_id Project Id
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store($project_id)
     {
@@ -84,7 +83,7 @@ final class ServersController extends ProjectChildController
      * @param int $project_id Project Id
      * @param int $id         Server Id
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update($project_id, $id)
     {
@@ -115,7 +114,7 @@ final class ServersController extends ProjectChildController
      * @param int $project_id Project Id
      * @param int $id         Server Id
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy($project_id, $id)
     {

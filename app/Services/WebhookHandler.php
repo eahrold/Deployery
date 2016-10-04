@@ -20,16 +20,16 @@ class WebhookHandler {
     protected $request;
     protected $server;
 
-    public function __construct(Request $request, Server $server){
+    public function __construct(Request $request, Server $server) {
         $this->server = $server;
         $this->request = $request;
     }
 
-    public function info(){
+    public function info() {
         // TODO: info about the webhook request
     }
 
-    private function getDeploymentService(){
+    private function getDeploymentService() {
         // TODO: service calling the webhook
     }
 

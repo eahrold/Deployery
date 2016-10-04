@@ -7,7 +7,6 @@ use App\Http\Requests\BaseRequest as Request;
 use App\Models\Base;
 use App\Transformers\Transformer;
 use Dingo\Api\Routing\Helpers;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class APIController extends Controller
 {

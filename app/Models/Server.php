@@ -129,15 +129,15 @@ final class Server extends Base
     //----------------------------------------------------------
     // GitInfo
     //-------------------------------------------------------
-    private static $_git_info;
+    private $gitInfoInstance;
     public function getGitInfoAttribute($value = '')
     {
-        if ( ! isset(static::$_git_info)) {
+        if ( ! isset($this->gitInfoInstance)) {
             if ($branch = $this->branch ?: Input::get('branch') ?: $this->project->branch) {
-                static::$_git_info = (new GitInfo($this->repo, $branch))->withPubKey($this->project->user->auth_key);
+                $this->gitInfoInstance = (new GitInfo($this->repo, $branch))->withPubKey($this->project->user->auth_key);
             }
         }
-        return static::$_git_info;
+        return $this->gitInfoInstance;
     }
 
     //----------------------------------------------------------

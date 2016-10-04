@@ -1,8 +1,25 @@
 ## Deployery (v0.1)
 
-_Host your own code deploying server_
+Deployery is a simple web app that allows you to auto-deploy your code from git repositories to web hosts.  
+
+####It currently supports
+
+- configuration file uploads
+- pre/post deploy scripts
+- webhook deployment
+- multiple environment projects (production, stage, development...)
 
 ![main](./docs/images/project_page.png)
+
+Best of all it's free as in beer. 
+
+We've got the core, and now we're looking to extend the project based on the community's needs. Please fork, improve, and send PR's.
+ 
+Have suggestons? Take a look at the [Roadmap](./docs/roadmap.md) we'd love to add them.
+
+## Status
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/eahrold/Deployery/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/eahrold/Deployery/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/eahrold/Deployery/badges/build.png?b=master)](https://scrutinizer-ci.com/g/eahrold/Deployery/build-status/master)
 
 
 ## Server Requirements
@@ -13,7 +30,7 @@ _Host your own code deploying server_
 
 ## Setup
 
-- Clone repo 
+- Clone repo
 - Run: `composer install`
 - Run: `php artisan deployery:setup`
 - Configure Apache / Nginx
@@ -29,29 +46,35 @@ There are 3 queues that need to be configured
 Each has a corresponding artisan command to use for testing.
 
 ``` bash
-php artisan deployery:queue:clones     
-php artisan deployery:queue:deployments 
+php artisan deployery:queue:clones
+php artisan deployery:queue:deployments
 php artisan deployery:queue:progress
 ```
 
 ## Contributing
-We love PR's. They're always welcome.
-Please make sure code conforms to PSR-2 coding standards.
+PR's welcome. 
 
-_**This Project is early stage active development, expect breaking changes.**_
+Please make PR's to the development branch.
+
+We try to adhere to [Laravel's coding standards](https://laravel.com/docs/5.3/contributions#coding-style). However when extending library classes, it's OK to conform to the parent's style. Just try to keep consistent.
+
+_This Project is early stage active development, breaking changes are likely until v1.0._
 
 ## License
 Licensed under the [MIT license](http://opensource.org/licenses/MIT).
 
 ## Credits
-This project takes advantage of numerous open source frameworks.
+This project takes advantage of numerous open source projects.
 
+- Laravel
 - Dingo API
 - JWT Auth
 - Laravel Collective Remote
 - Laravel Debugbar
 - Shell Wrapper
 - Bootforms
+- Vue.js
+- Vue Select
 
 And numerous other includes.
 

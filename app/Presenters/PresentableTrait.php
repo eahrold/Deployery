@@ -4,13 +4,6 @@ namespace App\Presenters;
 
 trait PresentableTrait {
 
-    /*
-     * The Presenter class
-     *
-     * @var mixed
-     */
-    protected $presenter;
-
     /**
      * View presenter instance
      *

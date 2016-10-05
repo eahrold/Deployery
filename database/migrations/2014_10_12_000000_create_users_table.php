@@ -22,8 +22,9 @@ class CreateUsersTable extends Migration
 
             $table->string('first_name');
             $table->string('last_name');
-
             $table->string('password');
+
+            $table->bool('is_admin');
             $table->rememberToken();
         });
     }

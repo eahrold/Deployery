@@ -24,7 +24,7 @@ class CreateProjectTable extends Migration
             $table->string('uid')->unique();
 
             $table->integer('user_id')->unsigned();
-            $table->foreign('user_id')->references('id')->on('projects')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

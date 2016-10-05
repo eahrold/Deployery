@@ -40,7 +40,7 @@ class GitCloner {
     }
 
     /**
-     * Cone a repo
+     * Clone a repo
      *
      * @param  string $repo clone url
      * @param  string $dir  directory where the repo should be cloned
@@ -64,7 +64,11 @@ class GitCloner {
         // $key = Auth::user()->auth_key;
         // $builder->setEnv("GIT_SSH_COMMAND", "ssh -i {$key}");
         if ($this->pub_key) {
-            $builder->setEnv("GIT_SSH_COMMAND", "ssh -i {$this->pub_key}");
+            $ssh_cmd = "ssh -i {$this->pub_key} -o StrictHostKeyChecking=no";
+            $builder->setEnv("GIT_SSH_COMMAND", $ssh_cmd);
+            \Log::info("Setting GIT_SSH_COMMAND {$ssh_cmd}");
+        } else {
+            \Log::info("No public key found");
         }
 
         $builder->setTimeout(300)

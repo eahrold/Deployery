@@ -48,7 +48,8 @@ class GitInfo
         $builder = new ProcessBuilder(['/usr/bin/git']);
         $builder->setWorkingDirectory($this->_repo);
         if ($this->pub_key) {
-            $builder->setEnv("GIT_SSH_COMMAND", "ssh -i {$this->pub_key}");
+            $ssh_cmd = "ssh -i {$this->pub_key} -o StrictHostKeyChecking=no";
+            $builder->setEnv("GIT_SSH_COMMAND",  $ssh_cmd);
         }
         return $builder;
     }

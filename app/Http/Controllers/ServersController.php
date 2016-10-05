@@ -45,7 +45,7 @@ final class ServersController extends ProjectChildController
 
         $this->validate(
             $this->request,
-            $this->model->getValidationRules(null, ['branch'=>"branch:{$path},{$key}"])
+            $this->model->getValidationRules(null, ['branch'=>"gitBranch:{$path},{$key}"])
         );
 
         $data = $this->request->all();

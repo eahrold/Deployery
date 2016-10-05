@@ -1,6 +1,6 @@
 ## Deployery (v0.1)
 
-Deployery is a simple web app that allows you to auto-deploy your code from git repositories to web hosts.  
+Deployery is a simple web app that allows you to auto-deploy your code from git repositories to web hosts.
 
 ####It currently supports
 
@@ -11,10 +11,10 @@ Deployery is a simple web app that allows you to auto-deploy your code from git 
 
 ![main](./docs/images/project_page.png)
 
-Best of all it's free as in beer. 
+Best of all it's free as in beer.
 
 We've got the core, and now we're looking to extend the project based on the community's needs. Please fork, improve, and send PR's.
- 
+
 Have suggestons? Take a look at the [Roadmap](./docs/roadmap.md) we'd love to add them.
 
 ## Status
@@ -24,7 +24,7 @@ Have suggestons? Take a look at the [Roadmap](./docs/roadmap.md) we'd love to ad
 
 ## Server Requirements
 - [Everything Laravel 5.3 Needs](https://laravel.com/docs/master)
-- [Git](https://git-scm.com)
+- [Git > 2.0](https://git-scm.com)
 - [Supervisord](http://supervisord.org)
 - [A Pusher account](https://pusher.com)
 
@@ -39,11 +39,7 @@ Have suggestons? Take a look at the [Roadmap](./docs/roadmap.md) we'd love to ad
 ## Queues
 There are 3 queues that need to be configured
 
-- default / progress
-- clones
-- deployments
-
-Each has a corresponding artisan command to use for testing.
+Each with a corresponding artisan command to use for testing.
 
 ``` bash
 php artisan deployery:queue:clones
@@ -51,8 +47,14 @@ php artisan deployery:queue:deployments
 php artisan deployery:queue:progress
 ```
 
+You'll also find supervisor config files in the [./docs/examples/]() folder
+
+- [default / progress](./docs/examples/supervisord.deployery.progress.conf)
+- [clones](./docs/examples/supervisord.deployery.clones.conf)
+- [deployments](./docs/examples/supervisord.deployery.deployments.conf)
+
 ## Contributing
-PR's welcome. 
+PR's welcome.
 
 Please make PR's to the development branch.
 

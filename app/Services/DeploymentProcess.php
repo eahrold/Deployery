@@ -22,7 +22,7 @@ class DeploymentProcess
      */
     public function deploy(Server $server, $from = null, $to = null, $callback = null)
     {
-        $callback = $callback ?: function($line) {
+        $callback = $callback ?: function ($line) {
             echo $line;
         };
         $to = $to ?: $server->git_info->newest_commit['hash'];
@@ -118,7 +118,7 @@ class DeploymentProcess
 
         $this->manager = new ProcessManager();
 
-        $_callback = function($line) use ($callback) {
+        $_callback = function ($line) use ($callback) {
             $silence = [
                 'sent',
                 'total'
@@ -208,8 +208,8 @@ class DeploymentProcess
      */
     private function uploadConfigFiles(Server $server, $callback = null, $errorCallback = null)
     {
-        $status = false;
-        $callback = $callback ?: function($msg) {
+        $status = $server->configs->count() == 0;
+        $callback = $callback ?: function ($msg) {
             \Log::debug($msg);
         };
         $errorCallback = $errorCallback ?: $callback;
@@ -270,11 +270,11 @@ class DeploymentProcess
 
             $lines = explode(PHP_EOL, $scriptContents);
 
-            $commands = array_map(function($i) {
+            $commands = array_map(function ($i) {
                 return trim($i);
             }, $lines);
 
-            $commands = array_filter($commands, function($i) {
+            $commands = array_filter($commands, function ($i) {
                 return !empty($i);
             });
             $connection->run($commands, $callback);
@@ -302,22 +302,18 @@ class DeploymentProcess
     private function prepareGitRepo(Server $server, string $toCommit)
     {
         $tasks = [
-            "git fetch origin",
-            "git reset --hard origin/{$server->branch}",
-            "git pull",
-            "git reset --hard {$toCommit}",
-            "git clean -xdf",
+            "fetch origin",
+            "reset --hard origin/{$server->branch}",
+            "pull",
+            "reset --hard {$toCommit}",
+            "clean -xdf",
         ];
 
-        $this->manager = new ProcessManager();
-
-        $key = $server->project->user->auth_key;
-        $env = ["GIT_SSH_COMMAND", "ssh -i {$key}"];
-        $this->manager->setEnv($env);
-
+        $this->manager = new GitProcessManager();
         return $this->manager
+                    ->withPubKey($server->project->user->auth_key)
                     ->setWorkingDirectory($server->repo)
-                    ->run($tasks, null, function($line) {
+                    ->run($tasks, null, function ($line) {
                         \Log::info("Preparing Repo: {$line}");
                     }, true);
     }

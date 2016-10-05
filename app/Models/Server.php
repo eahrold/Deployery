@@ -355,7 +355,7 @@ final class Server extends Base
             // the server connection.
             $check = ['hostname', 'username', 'password', 'port', 'deployment_path'];
             if ($model->isDirty($check)) {
-                $model->successfully_connected = self::CONNECTION_STATUS_UNKNOWN;
+                $model->successfully_connected = Connection::CONNECTION_STATUS_UNKNOWN;
             }
         });
     }

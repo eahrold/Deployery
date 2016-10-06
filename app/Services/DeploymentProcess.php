@@ -7,7 +7,6 @@ use App\Services\Git\GitPreparer;
 
 class DeploymentProcess
 {
-    private $manager;
     private $errors;
 
     private $server;
@@ -86,57 +85,6 @@ class DeploymentProcess
         $server->last_deployed_commit = $to;
         $server->save();
         return 0;
-    }
-
-    /**
-     * Rsync implementation of remote sync (depricated)
-     *
-     * @param  array    $files         Local files to upload to remote
-     * @param  Server   $server        Server to upload the files
-     * @param  \Closure $callback      File uploaded callback,
-     * @param  \Closure $errorCallback Error callback
-     *
-     * @return int  This will return 0 for success, anything else indicated a failure.
-     */
-    private function rsync(array $files, Server $server, $callback, $errorCallback = null)
-    {
-        $dest = "{$server->username}@{$server->hostname}:{$server->deployment_path}";
-        $src = $server->repo;
-
-        // Touch deployment path.
-        $server->connection->run(["mkdir -p {$server->deployment_path}"]);
-
-        // Setup Exclude Context for Rsync
-        $excludes = [
-            '.git',
-        ];
-
-        $excludeContext = ' ';
-        foreach ($excludes as $exclude) {
-            $excludeContext .= "--exclude='{$exclude}' ";
-        }
-
-        $tasks = [
-            "rsync -rltgoDzv {$excludeContext} --filter=':- .gitignore' {$src}/ {$dest}"
-        ];
-
-        $this->manager = new ProcessManager();
-
-        $_callback = function ($line) use ($callback) {
-            $silence = [
-                'sent',
-                'total'
-            ];
-            $l = current(explode(" ", $line));
-            if (!in_array($l, $silence)) {
-                $callback("Uploaded $line");
-            }
-        };
-
-        return $this->manager->setWorkingDirectory($server->project->repoPath())
-                    ->setStdOut($_callback)
-                    ->setStdErr($errorCallback ?: $_callback)
-                    ->run($tasks);
     }
 
     /**

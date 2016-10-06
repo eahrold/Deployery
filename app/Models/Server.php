@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Presenters\PresentableTrait;
-use App\Services\GitInfo;
+use App\Services\Git\GitInfo;
 use App\Services\SSHConnection as Connection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Input;

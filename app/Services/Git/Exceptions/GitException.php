@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exceptions\Git;
+namespace App\Services\Git\Exceptions;
 
 use RuntimeException;
 

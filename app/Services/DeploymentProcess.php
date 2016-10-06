@@ -3,12 +3,16 @@
 namespace App\Services;
 
 use App\Models\Server;
+use App\Services\Git\GitPreparer;
 
 class DeploymentProcess
 {
     private $manager;
     private $errors;
+
+    private $server;
     private $callback;
+    private $errorCallback;
 
     /**
      * Deploy the server
@@ -230,7 +234,7 @@ class DeploymentProcess
     /**
      * @param Server $server
      */
-    private function runPreInstallScripts($server, $callback = null, $errorCallback = null)
+    private function runPreInstallScripts(Server $server, $callback = null, $errorCallback = null)
     {
         $callback("Starting Preinstall Scripts");
         $scripts = $server->pre_install_scripts;
@@ -240,7 +244,7 @@ class DeploymentProcess
     /**
      * @param Server $server
      */
-    private function runPostInstallScripts($server, $callback = null, $errorCallback = null)
+    private function runPostInstallScripts(Server $server, $callback = null, $errorCallback = null)
     {
         $callback("Starting Postinstall Scripts");
         $scripts = $server->post_install_scripts;
@@ -301,20 +305,11 @@ class DeploymentProcess
      */
     private function prepareGitRepo(Server $server, string $toCommit)
     {
-        $tasks = [
-            "fetch origin",
-            "reset --hard origin/{$server->branch}",
-            "pull",
-            "reset --hard {$toCommit}",
-            "clean -xdf",
-        ];
-
-        $this->manager = new GitProcessManager();
-        return $this->manager
-                    ->withPubKey($server->project->user->auth_key)
-                    ->setWorkingDirectory($server->repo)
-                    ->run($tasks, null, function ($line) {
-                        \Log::info("Preparing Repo: {$line}");
-                    }, true);
+        $preparer = new GitPreparer();
+        \Log::info("SERVER KEY {$server->project->user->auth_key}");
+        $preparer->withPubKey($server->project->user->auth_key);
+        return $preparer->prepare($server->repo, $server->branch, $toCommit, function ($line) {
+            \Log::info("Preparing Repo: {$line}");
+        });
     }
 }

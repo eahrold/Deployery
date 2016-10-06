@@ -2,7 +2,7 @@
 
 namespace App\Validators;
 
-use App\Services\GitInfo;
+use App\Services\Git\GitInfo;
 use Illuminate\Validation\Validator as IlluminateValidator;
 
 class GitValidator extends IlluminateValidator {

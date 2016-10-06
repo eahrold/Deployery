@@ -1,23 +1,19 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Git;
 
+use App\Services\Git\Traits\GitAuthenticatable;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Process\ProcessBuilder;
-
 
 class GitProcessManager
 {
-
-    //----------------------------------------------------------
-    // Settings
-    //-------------------------------------------------------
+    use GitAuthenticatable;
 
     /**
      * Currenty working directory
      * @var string
      */
-    private $cwd = '';
+    private $repo = '';
 
     /**
      * Envrionmental variables
@@ -26,15 +22,12 @@ class GitProcessManager
     private $env = [];
 
     /**
-     * Set the current working directory
-     *
-     * @param string $cwd current working directory
-     *
-     * @return  this chainable
+     * Initialize
+     * @param string $repo path to repo
      */
-    public function setWorkingDirectory($cwd) {
-        $this->cwd = $cwd;
-        return $this;
+    public function __construct(string $repo)
+    {
+        $this->repo = $repo;
     }
 
     /**
@@ -48,20 +41,6 @@ class GitProcessManager
         return $this;
     }
 
-    private $pub_key;
-    public function withPubKey($pub_key)
-    {
-        $this->pub_key = $pub_key;
-        return $this;
-    }
-
-    private $password;
-    public function withPassword($password)
-    {
-        $this->password = $password;
-        return $this;
-    }
-
     /**
      * An initialized builder for git processes
      *
@@ -69,11 +48,9 @@ class GitProcessManager
      */
     protected function newBuilder()
     {
-        $builder = new ProcessBuilder(['/usr/bin/git']);
-        $builder->setWorkingDirectory($this->cwd);
+        $builder = new GitProcessBuilder($this->repo);
         if ($this->pub_key) {
-            $ssh_cmd = "ssh -i {$this->pub_key} -o StrictHostKeyChecking=no";
-            $builder->setEnv("GIT_SSH_COMMAND",  $ssh_cmd);
+            $builder->withPubKey($this->pub_key);
         }
         return $builder;
     }
@@ -101,20 +78,22 @@ class GitProcessManager
      * @param Callable the function callback for std_err
      * @return  ProcessManager current process manager object
      */
-    public function setStdOut($fn) {
+    public function setStdOut($fn)
+    {
         if (is_callable($fn)) {
             $this->stdout = $fn;
         }
         return $this;
     }
 
-    public function setStdErr($fn) {
     /**
      * Set the standard error pipe
      *
      * @param Callable the function callback for std_err
      * @return  ProcessManager current process manager object
      */
+    public function setStdErr($fn)
+    {
         if (is_callable($fn)) {
             $this->stderr = $fn;
         }
@@ -130,21 +109,17 @@ class GitProcessManager
     /**
      * Execute a script like process
      *
-     * @param  string $script  task to execute
+     * @param  string $task    task to execute
      * @param  mixed  $stdout  std_out callback
      * @param  mixed  $stderr  std_err callback
      * @return int            process exit code
      */
-    private function exec($script, $stdout = null, $stderr = null) {
-        $builder = $this->newBuilder();
-        $args = explode(' ', $script);
-        foreach ($args as $arg) {
-            $builder->add($arg);
-        }
+    private function exec($task, $stdout = null, $stderr = null)
+    {
+        $builder = $this->newBuilder()->setTask($task);
         $process = $builder->getProcess();
 
-
-        $process->run(function($type, $buffer) use ($stdout, $stderr){
+        $process->run(function ($type, $buffer) use ($stdout, $stderr) {
             if (Process::ERR === $type) {
                 if ($stderr) {
                     $stderr($buffer);
@@ -170,13 +145,14 @@ class GitProcessManager
     /**
      * Run a group of tasks
      *
-     * @param  mixed   $tasks  A taks or array of tasks to execute
-     * @param  mixed $stdout   std_out callback
-     * @param  mixed $stderr   std_err callback
-     * @param  boolean $force  Carry on executing task list regardless of exit code of previous taks
-     * @return int    last process exit code,
+     * @param  mixed   $tasks   A taks or array of tasks to execute
+     * @param  mixed   $stdout  std_out callback
+     * @param  mixed   $stderr  std_err callback
+     * @param  boolean $force   Continue executing task list regardless of exit code of previous taks
+     * @return int              last process exit code,
      */
-    public function run($tasks, $stdout = null, $stderr = null, $force = false) {
+    public function run($tasks, $stdout = null, $stderr = null, $force = false)
+    {
         if (!is_array($tasks)) {
             $tasks = [$tasks];
         }

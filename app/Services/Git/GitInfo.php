@@ -1,41 +1,42 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Git;
 
-use App\Exceptions\Git\GitException;
-use App\Exceptions\Git\GitInvalidBranchException;
+use App\Services\Git\Exceptions\GitException;
+use App\Services\Git\Exceptions\GitInvalidBranchException;
+use App\Services\Git\Traits\GitAuthenticatable;
 use Illuminate\Support\Str;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Process\ProcessBuilder;
 
 /**
  * Get Git Info for a repo and branch.
+ *
+ * @property newest_commit
+ * @property initial_commit
+ *
  */
 class GitInfo
 {
-    public $_repo;
-    protected $_branch;
+    use GitAuthenticatable;
 
-    private $pub_key;
-    private $password;
+    /**
+     * Path to the repo
+     *
+     * @var string
+     */
+    public $repo;
+
+    /**
+     * Name of the branch
+     *
+     * @var string
+     */
+    protected $branch;
 
     public function __construct($repo, $branch = 'master')
     {
-        $this->_repo = $repo;
-        $this->_branch = $branch;
-        //$this->fetch();
-    }
-
-    public function withPubKey($pub_key)
-    {
-        $this->pub_key = $pub_key;
-        return $this;
-    }
-
-    public function withPassword($password)
-    {
-        $this->password = $password;
-        return $this;
+        $this->repo = $repo;
+        $this->branch = $branch;
     }
 
     /**
@@ -43,28 +44,22 @@ class GitInfo
      *
      * @return ProcessBuilder builder
      */
-    protected function builder()
+    protected function gitBuilder()
     {
-        $builder = new ProcessBuilder(['/usr/bin/git']);
-        $builder->setWorkingDirectory($this->_repo);
-        if ($this->pub_key) {
-            $ssh_cmd = "ssh -i {$this->pub_key} -o StrictHostKeyChecking=no";
-            $builder->setEnv("GIT_SSH_COMMAND",  $ssh_cmd);
-        }
-        return $builder;
+        return new GitProcessBuilder($this->repo, $this->branch);
     }
 
     /**
      * Run the git process
      *
-     * @param  ProcessBuilder $builder fully constructed builder
-     * @return array                   array of lines from buffered output.
+     * @param  GitProcessBuilder $builder fully constructed builder
+     * @return array                      array of lines from buffered output.
      */
-    protected function run(ProcessBuilder $builder)
+    protected function run(GitProcessBuilder $builder)
     {
         $output = "";
         $process = $builder->getProcess();
-        $process->run(function($type, $buffer) use (&$output) {
+        $process->run(function ($type, $buffer) use (&$output) {
             if (Process::ERR !== $type) {
                 if (!empty($buffer)) {
                     $output .= $buffer;
@@ -73,7 +68,7 @@ class GitInfo
         });
         $results = explode(PHP_EOL, $output);
 
-        $results = array_filter($results, function($item) {
+        $results = array_filter($results, function ($item) {
             return !empty($item);
         });
         return $results;
@@ -85,10 +80,10 @@ class GitInfo
      * @param  string $branch the branch to switch to.
      * @return $this          this
      */
-    public function branch($branch)
+    public function branch(string $branch)
     {
         $this->validateBranch($branch);
-        $this->_branch = $branch;
+        $this->branch = $branch;
         return $this;
     }
 
@@ -100,12 +95,11 @@ class GitInfo
      */
     public function commits($take = 10)
     {
-        $builder = $this->builder()->add('log')
-                                    ->add("origin/{$this->_branch}")
-                                    ->add('--oneline')
-                                    ->add('--no-merges')
-                                    ->add("-n{$take}");
+        $task = "log origin/{$this->branch} --oneline --no-merges -n{$take}";
+        $builder = $this->gitBuilder()->setTask($task);
+
         $stdout = $this->run($builder);
+
         $commits = [];
         foreach ($stdout as $line) {
             list($hash, $message) = explode(' ', $line, 2);
@@ -117,6 +111,11 @@ class GitInfo
         return $commits;
     }
 
+    /**
+     * Get the most recent commit.
+     *
+     * @return array The newest commit
+     */
     public function getNewestCommitProperty()
     {
         $commits = $this->commits();
@@ -125,14 +124,16 @@ class GitInfo
         }
     }
 
+    /**
+     * Get the first commit to the repo.
+     *
+     * @return array first commit to the repo.
+     */
     public function getInitialCommitProperty()
     {
-        $builder = $this->builder()->add('rev-list')
-                                    ->add('--oneline')
-                                    ->add('--max-parents=0')
-                                    ->add('HEAD');
+        $task = "rev-list --oneline --max-parents=0 HEAD";
+        $builder = $this->gitBuilder()->setTask($task);
         $stdout = $this->run($builder);
-
         list($hash, $message) = explode(' ', $stdout[0], 2);
         return compact('hash', 'message');
     }
@@ -144,16 +145,15 @@ class GitInfo
      */
     public function branches()
     {
-        $builder = $this->builder()->add('branch')
-                                    ->add('-a');
+        $builder = $this->gitBuilder()->setTask('branch -a');
 
         $branches = $this->run($builder);
         $branches = collect($branches);
 
-        return $branches->reject(function($item) {
+        return $branches->reject(function ($item) {
             return str_contains($item, 'HEAD') || empty($item);
         })
-        ->transform(function($item) {
+        ->transform(function ($item) {
             $item = trim(str_replace("*", "", $item));
             return str_replace('remotes/origin/', "", $item);
         })
@@ -191,10 +191,10 @@ class GitInfo
      */
     public function fetch()
     {
-        $builder = $this->builder()->add('fetch')
-                                    ->add('--all');
+        $builder = $this->gitBuilder()->setTask('fetch --all');
         $this->run($builder);
     }
+
     /**
      * Show Changes between two commits
      *
@@ -204,15 +204,14 @@ class GitInfo
      */
     public function changes($from, $to = null)
     {
-        $builder = $this->builder()->add('diff')
-                                    ->add('--name-status')
-                                    ->add($from);
+        $builder = $this->gitBuilder()->setTask("diff --name-status {$from}");
         if ($to) {
             $builder->add($to);
         }
-        $data = $this->run($builder);
+
+        $stdout = $this->run($builder);
         $files = [];
-        foreach ($data as $buffered) {
+        foreach ($stdout as $buffered) {
             $lines = explode(PHP_EOL, $buffered);
             $files = array_merge($files, $lines);
         }
@@ -244,10 +243,10 @@ class GitInfo
      */
     public function all()
     {
-        $builder = $this->builder()->add('ls-files');
-        $data = $this->run($builder);
+        $builder = $this->gitBuilder()->add('ls-files');
+        $stdout = $this->run($builder);
         $changed = [];
-        foreach ($data as $buffered) {
+        foreach ($stdout as $buffered) {
             $lines = explode(PHP_EOL, $buffered);
             $changed = array_merge($changed, $lines);
         }

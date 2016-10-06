@@ -1,13 +1,22 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Git;
 
+use App\Services\Git\Traits\GitAuthenticatable;
 use Symfony\Component\Process\ProcessBuilder;
 
 /**
  * Get Git Info for a repo and branch.
  */
-class GitCloner {
+class GitCloner
+{
+
+    use GitAuthenticatable;
+
+    /**
+     * @var GitProcessBuilder
+     */
+    private $builder;
 
     private $callback;
 
@@ -23,33 +32,21 @@ class GitCloner {
      *
      * @return array Errors
      */
-    public function getErrors(){
+    public function getErrors()
+    {
         return $this->errors;
-    }
-
-    private $pub_key;
-    public function withPubKey($pub_key){
-        $this->pub_key = $pub_key;
-        return $this;
-    }
-
-    private $password;
-    public function withPassword($password){
-        $this->password = $password;
-        return $this;
     }
 
     /**
      * Clone a repo
      *
      * @param  string $repo clone url
-     * @param  string $dir  directory where the repo should be cloned
+     * @param  string $dir  directory where the repo should be cloned (process CWD)
      * @param  string $name the name of the repo being cloned
-     * @param \Closure $callback
-     *
+     * @param  \Closure $callback
      * @return bool Success if the repo was suceesfully cloned.
      */
-    public function cloneRepo($repo, $dir, $name, $callback = null)
+    public function cloneRepo(string $repo, string $dir, string $name, \Closure $callback = null)
     {
         $this->callback = $callback;
 
@@ -58,28 +55,15 @@ class GitCloner {
             return false;
         }
 
-        $builder = new ProcessBuilder(['/usr/bin/git']);
+        $task = "clone {$repo} {$name}";
+        $builder = new GitProcessBuilder($dir);
 
-        // TODO: use unique user keys for SSH Auth.
-        // $key = Auth::user()->auth_key;
-        // $builder->setEnv("GIT_SSH_COMMAND", "ssh -i {$key}");
-        if ($this->pub_key) {
-            $ssh_cmd = "ssh -i {$this->pub_key} -o StrictHostKeyChecking=no";
-            $builder->setEnv("GIT_SSH_COMMAND", $ssh_cmd);
-            \Log::info("Setting GIT_SSH_COMMAND {$ssh_cmd}");
-        } else {
-            \Log::info("No public key found");
-        }
-
-        $builder->setTimeout(300)
-                ->setWorkingDirectory($dir)
-                ->add('clone')
-                ->add('--progress')
-                ->add($repo)
-                ->add($name);
+        $builder->withPubKey($this->pub_key)
+                ->setTimeout(300)
+                ->setTask($task);
 
         $process = $builder->getProcess();
-        $process->run(function($type, $buffer) {
+        $process->run(function ($type, $buffer) {
             if (!empty($buffer)) {
                 $this->sendMessage($buffer);
             }
@@ -87,7 +71,8 @@ class GitCloner {
         return ($process->getExitCode() === 0);
     }
 
-    private function sendMessage($buffer, $error = false, $firstLineOnly = true) {
+    private function sendMessage(string $buffer, $error = false, $firstLineOnly = true)
+    {
         if ($this->callback) {
             // The [K character is used to clear the terminal
             // We need to strip it out from the raw string

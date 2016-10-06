@@ -5,7 +5,7 @@ namespace App\Jobs;
 use App\Events\RepositoryCloneMessage;
 use App\Jobs\Job;
 use App\Models\Project;
-use App\Services\GitCloner;
+use App\Services\Git\GitCloner;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;

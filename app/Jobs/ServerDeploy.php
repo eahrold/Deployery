@@ -151,7 +151,7 @@ class ServerDeploy extends Job implements ShouldQueue
         $history->user_name = $this->user_name;
         $history->project_id = $this->server->project->id;
 
-        $history->from_commit = $this->fromCommit ?: "BOT";
+        $history->from_commit = $this->fromCommit ?: "Beginning of time.";
         $history->to_commit = $this->toCommit;
 
         $history->success = ($rc == 0);

@@ -28,7 +28,7 @@ trait MiddlewareResponder
         if ($this->wantsJson()) {
             return response($message, $code);
         } else {
-            return redirect(url($path));
+            return redirect($path);
         }
     }
 

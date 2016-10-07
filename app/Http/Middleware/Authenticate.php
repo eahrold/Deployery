@@ -2,11 +2,13 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Middleware\Traits\MiddlewareResponder;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 
 class Authenticate
 {
+    use MiddlewareResponder;
     /**
      * Handle an incoming request.
      *
@@ -18,13 +20,8 @@ class Authenticate
     public function handle($request, Closure $next, $guard = null)
     {
         if (Auth::guard($guard)->guest()) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response('Unauthorized.', 401);
-            } else {
-                return redirect()->guest('login');
-            }
+            $this->redirectToLogin();
         }
-
         return $next($request);
     }
 }

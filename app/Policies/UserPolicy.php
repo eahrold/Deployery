@@ -24,6 +24,19 @@ class UserPolicy
 
     public function destroy(User $user, Model $model)
     {
-        return ($user->id != $model->id);
+        $adminDestroyingOther = $user->is_admin && ($user->id != $model->id);
+        $adminDestroyingSelf  = $user->is_admin && ($user->id == $model->id);
+        $otherDestroyingSelf  = !$user->is_admin && ($user->id == $model->id);
+        return ($adminDestroyingOther || $otherDestroyingSelf) && !$adminDestroyingSelf;
+    }
+
+    public function update(User $user, Model $model)
+    {
+        return ($user->id == $model->id);
+    }
+
+    public function show(User $user, Model $model)
+    {
+        return ($user->id == $model->id);
     }
 }

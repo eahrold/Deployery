@@ -10,50 +10,95 @@ class DeploymentProcess
     private $errors;
 
     private $server;
+
     private $callback;
+
     private $errorCallback;
+
+    /**
+     * Is the operation canceled
+     *
+     * @var boolean
+     */
+    private $canceled = false;
+
+    public function __construct(Server $server, \Closure $callback = null)
+    {
+        $this->server = $server;
+
+        $this->callback = $callback ?: function ($line) {
+            \Log::debug("Deployment Process Message: {$line}");
+        };
+
+        $this->errorCallback = function ($line) {
+            \Log::error("Deployment Process Error: {$line}");
+        };
+    }
+
+    /**
+     * Set the Callback
+     *
+     * @param \Closure $callback Callback
+     *
+     * @return  Current DeploymentProcess object
+     */
+    public function setCallback(\Closure $callback)
+    {
+        $this->callback = $callback;
+        return $this;
+    }
+
+    /**
+     * Set the Error callback
+     *
+     * @param \Closure $callback Error callback
+     *
+     * @return  Current DeploymentProcess object
+     */
+    public function setErrorCallback(\Closure $callback)
+    {
+        $this->errorCallback = $callback;
+        return $this;
+    }
 
     /**
      * Deploy the server
      *
-     * @param  Server   $server   [description]
      * @param  mixed    $from     [description]
      * @param  mixed    $to       [description]
-     * @param  \Closure $callback [description]
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
-    public function deploy(Server $server, $from = null, $to = null, $callback = null)
+    public function deploy($from = null, $to = null)
     {
-        $callback = $callback ?: function ($line) {
-            echo $line;
-        };
-        $to = $to ?: $server->git_info->newest_commit['hash'];
 
-        $callback($from ? "Deploying from {$from} to {$to}.\n" : "Deploying entire repo...");
+        $to = $to ?: $this->server->git_info->newest_commit['hash'];
 
-        $callback("Preparing Repo for deploy.\n");
-        $this->prepareGitRepo($server, $to);
+        $this->callback($from ? "Deploying from {$from} to {$to}.\n" : "Deploying entire repo...");
 
-        $callback("Getting changed files.\n");
+        $this->callback("Preparing Repo for deploy.\n");
+
+        $this->prepareGitRepo($to);
+
+        $this->callback("Getting changed files.\n");
 
         // If "from" was not supplied, then grab
         // the repo from the beginning of time.
-        $changes = $from ? $server->git_info->changes($from, $to) : $server->git_info->all();
+        $changes = $from ? $this->server->git_info->changes($from, $to) : $this->server->git_info->all();
 
         $status = 0;
         $actions = [
-            $this->runPreInstallScripts($server, $callback),
-            $this->upload($changes['changed'], $server, $callback),
-            $this->remove($changes['removed'], $server, $callback),
-            $this->uploadConfigFiles($server, $callback),
-            $this->runPostInstallScripts($server, $callback),
-            $this->updateServerLastCommit($server, $to)
+            $this->runPreInstallScripts(),
+            $this->upload($changes['changed']),
+            $this->remove($changes['removed']),
+            $this->uploadConfigFiles(),
+            $this->runPostInstallScripts(),
+            $this->updateServerLastCommit($to)
         ];
 
         foreach ($actions as $action) {
             $status = $action;
-            if ($status !== 0) {
+            if ($this->canceled || $status !== 0) {
                 break;
             }
         }
@@ -67,84 +112,76 @@ class DeploymentProcess
      */
     public function cancel()
     {
-        if ($this->manager && $this->manager->isRunning()) {
-            $this->manager->killall();
-        }
+        $this->canceled = true;
     }
 
     /**
      * Updates the Server's last commit property
      *
-     * @param  Server   $server the server to update
-     * @param  string   $to     the deployed commit
+     * @param  string $to the deployed commit
      *
-     * @return integer
+     * @return int  This will return 0 for success, anything else indicated a failure.
      */
-    private function updateServerLastCommit(Server $server, string $to)
+    private function updateServerLastCommit(string $to)
     {
-        $server->last_deployed_commit = $to;
-        $server->save();
+        $this->server->last_deployed_commit = $to;
+        $this->server->save();
         return 0;
     }
 
     /**
      * Upload a list of files
      *
-     * @param  array    $files          Local files to upload to remote
-     * @param  Server   $server         Server to upload the files
-     * @param  \Closure $callback       File uploaded callback,
-     * @param  \Closure $errorCallback  Error callback
+     * @param  array  $files Local files to upload to remote
      *
-     * @return int  This will return 0 for success, anything else indicated a failure.
+     * @return int    This will return 0 for success, anything else indicated a failure.
      */
-    private function upload(array $files, Server $server, $callback, $errorCallback = null)
+    private function upload(array $files)
     {
         $file_count = count($files);
-        $callback("{$file_count} files need uploading".PHP_EOL);
+        $this->callback("{$file_count} files need uploading".PHP_EOL);
 
         $previous_dir = "";
         foreach ($files as $idx => $file) {
-            $local_file = "{$server->repo}/{$file}";
-            $remote_file = "{$server->deployment_path}/{$file}";
+            $local_file = "{$this->server->repo}/{$file}";
+            $remote_file = "{$this->server->deployment_path}/{$file}";
 
             // SFTP won't automatically create the directory so we need to check
             // and do it ourselves.  We hold on to the previous parent directory
             // to minimize the number of times the remote is queried.
             $pardir = dirname($remote_file);
             if ($pardir != $previous_dir) {
-                if (!$server->connection->exists($pardir)) {
+                if (!$this->server->connection->exists($pardir)) {
                     // We need to access the SFTP Connection directly.
-                    $server->connection->getGateway()->getConnection()->mkdir($pardir, -1, true);
+                    $this->server->connection->getGateway()->getConnection()->mkdir($pardir, -1, true);
                 }
                 $previous_dir = $pardir;
             }
 
-            $server->connection->put($local_file, $remote_file);
+            $this->server->connection->put($local_file, $remote_file);
             $percent = (int)(($idx / $file_count) * 100);
-            $callback("[{$percent}%] Uploaded {$remote_file}".PHP_EOL);
+            $this->callback("[{$percent}%] Uploaded {$remote_file}".PHP_EOL);
         }
         return 0;
     }
 
     /**
      * Remove a list of files from the server
-     * @param  array    $files          Local files to upload to remote
-     * @param  Server   $server         Server to upload the files
-     * @param  \Closure $callback       File removed callback,
-     * @param  \Closure $errorCallback  Error callback
+     *
+     * @param  array  $files  Local files to upload to remote
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
-    private function remove($files, $server, $callback, $errorCallback = null)
+    private function remove($files)
     {
         $file_count = count($files);
-        $callback("{$file_count} files need removed".PHP_EOL);
+        $this->callback("{$file_count} files need removed".PHP_EOL);
 
         foreach ($files as $file) {
-            $file_path = "{$server->deployment_path}/$file";
-            if ($server->connection->exists($file_path)) {
-                $server->connection->delete($file_path);
-                $callback("Removed {$file_path}".PHP_EOL);
+            $file_path = "{$this->server->deployment_path}/$file";
+            if ($this->server->connection->exists($file_path)) {
+                $this->server->connection->delete($file_path);
+                $this->callback("Removed {$file_path}".PHP_EOL);
             }
         }
         return 0;
@@ -152,69 +189,67 @@ class DeploymentProcess
 
     /**
      * Upload configuration files
-     * @param  Server   $server         Server to upload the files
-     * @param  \Closure $callback       Config file written callback,
-     * @param  \Closure $errorCallback  Error callback
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
-    private function uploadConfigFiles(Server $server, $callback = null, $errorCallback = null)
+    private function uploadConfigFiles()
     {
-        $status = $server->configs->count() == 0;
-        $callback = $callback ?: function ($msg) {
-            \Log::debug($msg);
-        };
-        $errorCallback = $errorCallback ?: $callback;
-
-        foreach ($server->configs as $config) {
-            $path = "{$server->deployment_path}/{$config->path}";
+        $status = $this->server->configs->count() == 0;
+        foreach ($this->server->configs as $config) {
+            $path = "{$this->server->deployment_path}/{$config->path}";
             $contents = $config->contents;
-            $status = $server->connection->putString($path, $contents);
+            $status = $this->server->connection->putString($path, $contents);
             if ($status) {
-                $callback("Successfully wrote config file to {$config->path}.");
+                $this->callback("Successfully wrote config file to {$config->path}.");
             } else {
-                $errorCallback("There was a problem writing to {$path} {$status}.");
+                $this->errorCallback("There was a problem writing to {$path} {$status}.");
             }
         }
         return $status ? 0 : -1;
     }
 
     /**
+     * Run pre-install scripts
+     *
      * @param Server $server
+     *
+     * @return int  This will return 0 for success, anything else indicated a failure.
      */
-    private function runPreInstallScripts(Server $server, $callback = null, $errorCallback = null)
+    private function runPreInstallScripts()
     {
-        $callback("Starting Preinstall Scripts");
-        $scripts = $server->pre_install_scripts;
-        return $this->runScripts($scripts, $server, $callback, $errorCallback);
+        $this->callback("Starting Preinstall Scripts");
+        $scripts = $this->server->pre_install_scripts;
+        return $this->runScripts($scripts);
     }
 
     /**
+     * Run post-install scripts
+     *
      * @param Server $server
+     *
+     * @return int  This will return 0 for success, anything else indicated a failure.
      */
-    private function runPostInstallScripts(Server $server, $callback = null, $errorCallback = null)
+    private function runPostInstallScripts()
     {
-        $callback("Starting Postinstall Scripts");
-        $scripts = $server->post_install_scripts;
-        return $this->runScripts($scripts, $server, $callback, $errorCallback);
+        $this->callback("Starting Postinstall Scripts");
+        $scripts = $this->server->post_install_scripts;
+        return $this->runScripts($scripts);
     }
 
     /**
      * Execute scripts on server
-     * @param  array    $scripts        Array of scripts to execute
-     * @param  Server   $server         Server to execute the scripts on
-     * @param  \Closure $callback       Progress callback (std_out)
-     * @param  \Closure $errorCallback  Error callback (std_err)
+     *
+     * @param  array  $scripts  Array of scripts to execute
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
-    private function runScripts($scripts, Server $server, $callback = null, $errorCallback = null)
+    private function runScripts($scripts)
     {
         $status = 0;
-        $connection = $server->connection;
+        $connection = $this->server->connection;
         foreach ($scripts as $script) {
-            $callback("Running {$script->description}");
-            $scriptContents = $script->parse($server);
+            $this->callback("Running {$script->description}");
+            $scriptContents = $script->parse($this->server);
 
             if (empty($scriptContents)) {
                 continue;
@@ -229,12 +264,12 @@ class DeploymentProcess
             $commands = array_filter($commands, function ($i) {
                 return !empty($i);
             });
-            $connection->run($commands, $callback);
+            $connection->run($commands, $this->callback);
 
             if ($script->stop_on_failure) {
                 $status = $connection->status();
                 if ($status !== 0) {
-                    $callback("Install Script failed!");
+                    $this->callback("Install Script failed!");
                     return $status;
                 }
             }
@@ -251,13 +286,43 @@ class DeploymentProcess
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
-    private function prepareGitRepo(Server $server, string $toCommit)
+    private function prepareGitRepo(string $toCommit)
     {
         $preparer = new GitPreparer();
-        \Log::info("SERVER KEY {$server->project->user->auth_key}");
-        $preparer->withPubKey($server->project->user->auth_key);
-        return $preparer->prepare($server->repo, $server->branch, $toCommit, function ($line) {
-            \Log::info("Preparing Repo: {$line}");
+        $key = $this->server->project->user->auth_key;
+        $repo = $this->server->repo;
+        $branch =  $this->server->branch;
+
+        \Log::debug("SERVER KEY {$key}");
+
+        $preparer->withPubKey($key);
+        return $preparer->prepare($repo, $branch, $toCommit, function ($line) {
+            \Log::debug("Preparing Repo: {$line}");
         });
+    }
+
+
+    //----------------------------------------------------------
+    // Magic Methods
+    //-------------------------------------------------------
+
+    /**
+     * Determine if the method is a callable method
+     *
+     * @param  string  $name Name of the property
+     *
+     * @return boolean true if the property is whitelisted as callable, false otherwise.
+     */
+    private function isCallable($name)
+    {
+        return in_array($name, ['callback', 'errorCallback']);
+    }
+
+    public function __call($name, $args)
+    {
+        if ($this->isCallable($name)) {
+            return call_user_func_array($this->$name, $args);
+        }
+        return parent::__call($name, $args);
     }
 }

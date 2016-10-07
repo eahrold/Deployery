@@ -62,17 +62,14 @@ class ServerDeploy extends Job implements ShouldQueue
             $this->server->present()->deployment_started_message
         );
 
-        $process = new DeploymentProcess();
 
-        $rc = $process->deploy(
-            $this->server,
-            $this->fromCommit,
-            $this->toCommit,
-            function($message) {
-                $this->sendMessage($message);
-                $this->server->is_deploying = true;
-            }
-        );
+        $process = (new DeploymentProcess($this->server))->setCallback( function($message) {
+            $this->sendMessage($message);
+            $this->server->is_deploying = true;
+        });
+
+        $rc = $process->deploy( $this->fromCommit, $this->toCommit);
+
         $this->registerDeploymentEnded(
             $this->server->present()->deployment_completed_message, $rc
         );

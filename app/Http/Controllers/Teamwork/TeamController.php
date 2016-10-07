@@ -57,9 +57,11 @@ class TeamController extends Controller
      * Switch to the given team.
      *
      * @param  int $id
+     * @param  string $type
+
      * @return \Illuminate\Http\Response
      */
-    public function switchTeam($id)
+    public function switchTeam($id, $type='')
     {
         $teamModel = config('teamwork.team_model');
         $team = $teamModel::findOrFail($id);
@@ -67,6 +69,13 @@ class TeamController extends Controller
             auth()->user()->switchTeam($team);
         } catch ( UserNotInTeamException $e ) {
             abort(403);
+        }
+
+        switch ($type) {
+            case 'menu':
+                return redirect('/');
+            default:
+                break;
         }
 
         return redirect(route('teams.index'));

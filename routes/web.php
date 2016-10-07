@@ -49,6 +49,7 @@ Route::group(['prefix' => 'teams', 'namespace' => 'Teamwork'], function()
     Route::put('edit/{id}', 'TeamController@update')->name('teams.update');
     Route::delete('destroy/{id}', 'TeamController@destroy')->name('teams.destroy');
     Route::get('switch/{id}', 'TeamController@switchTeam')->name('teams.switch');
+    Route::get('switch/{id}/{type}', 'TeamController@switchTeam')->name('teams.switch.alt');
 
     Route::get('members/{id}', 'TeamMemberController@show')->name('teams.members.show');
     Route::get('members/resend/{invite_id}', 'TeamMemberController@resendInvite')->name('teams.members.resend_invite');

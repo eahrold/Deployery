@@ -28,15 +28,6 @@ abstract class Base extends Model
         return array_merge($this->validation_rules, $unique, $append);
     }
 
-    public function scopeFindUserModels($query)
-    {
-        if (Schema::hasColumn($this->getTable(), 'user_id')) {
-            $uid = Auth::user() ? Auth::user()->id : -1;
-            $query->where('user_id', $uid);
-        };
-        return $query;
-    }
-
     public function scopeOrder($query)
     {
         return $query->orderBy('created_at');

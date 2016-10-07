@@ -207,13 +207,26 @@ final class Project extends Base
     //----------------------------------------------------------
     // Scopes & Lookups
     //-------------------------------------------------------
+    public function scopeFindUserModels($query)
+    {
+        $user = Auth::user();
+        $tid = $user ?  $user->current_team_id : -1;
+
+        return $query->where('team_id', $tid);
+    }
+
     public function scopeGetUserModel($query, $id)
     {
-        $uid = Auth::user() ? Auth::user()->id : -1;
+        $user = Auth::user();
+        $uid = $user ? $user->id : -1;
+        $tid = $user ? $user->current_team_id : -1;
 
-        return $query->where('user_id', $uid)
-            ->where('id', $id)
-            ->firstOrFail();
+        return $query->where(function($query) use ($uid ,$tid){
+                    $query->where('user_id', $uid)
+                          ->orWhere('team_id',$tid);
+                })
+                ->where('id', $id)
+                ->firstOrFail();
     }
 
     public function scopeFindServer($query, $id, $model_id)
@@ -244,20 +257,21 @@ final class Project extends Base
         parent::boot();
 
         // Register for events
-        static::creating(function($model){
+        static::creating(function ($model) {
             $model->uid = uniqid();
             $model->user_id = Auth::user()->id;
+            $model->team_id = Auth::user()->current_team_id;
         });
 
         // Register for events
-        static::created(function($model){
+        static::created(function ($model) {
             $keyer = new SSHKeyer();
             $keyer->generate($model->keyPath(), true);
         });
 
         static::deleting(
             function ($model) {
-                if($model->uid){
+                if ($model->uid) {
                     \File::deleteDirectory($model->fileStore());
                 }
                 // Clears any cached keys

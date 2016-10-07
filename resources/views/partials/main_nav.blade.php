@@ -3,32 +3,12 @@
 
     <ul class="nav navbar-nav">
         @if (!Auth::guest())
-        <li class="dropdown">
-            <a href="#" class="dropdown-toggle"
-                        data-toggle="dropdown"
-                        role="button"
-                        aria-expanded="false">
-                Projects<span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu" role="menu">
-                @foreach(Project::findUserModels()->get() as $project)
-                <li>
-                    <a href="{{ route('projects.edit', $project->id) }}">
-                        {{ $project->name }}
-                    </a>
-                </li>
-                @endforeach
-                <li>
-                    <a href="{{ url('/projects/create') }}">
-                        <b>Create New Project</b>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li>
-            <a href="{{ url('/projects') }}">Dashbaord</a>
-        </li>
-        <li class="disabled"><a href="#">Account</a></li>
+            @include('partials.main_nav_projects')
+            @include('partials.main_nav_teams')
+
+            <li>
+                <a href="{{ url('/projects') }}">Dashbaord</a>
+            </li>
         @endif
     </ul>
 

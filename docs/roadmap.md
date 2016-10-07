@@ -10,7 +10,7 @@
 - [ ] Validate the source of the webhook request
 - [x] Migrate API Auth to JWT
 - [ ] Add unit tests, setup [TravisCI](https://travis-ci.org)
-- [ ] Setup [Scrutinizer CI](https://scrutinizer-ci.com/pricing)
+- [x] Setup [Scrutinizer CI](https://scrutinizer-ci.com/pricing)
 
 ### Frontend
 - [ ] Add Settings page
@@ -19,7 +19,10 @@
 - [ ] Add global deploy button somewhere
 - [ ] Add more info to the dashborad
 - [ ] Change deployment panel, Make `to` and `from` disabled by default
+- [x] Update deployment panel to be filterable.
 - [ ] Change local of deploying message on main project page.
+- [ ] Display Server IP address and message about whitelisting it on deployment targets
+- [ ] Add display of SSH pubkey in server tab.
 
 
 ## v0.3

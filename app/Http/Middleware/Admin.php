@@ -25,7 +25,7 @@ class Admin
         if ($user && ($user->is_admin || $user->id == $route_user)) {
             return $next($request);
         } else {
-            return $this->redirectToDefault();
+            return $this->redirectToDefault("Unauthorized", 401);
         }
     }
 }

@@ -20,7 +20,7 @@ class Authenticate
     public function handle($request, Closure $next, $guard = null)
     {
         if (Auth::guard($guard)->guest()) {
-            $this->redirectToLogin();
+            $this->redirectToLogin("Unauthorized", 401);
         }
         return $next($request);
     }

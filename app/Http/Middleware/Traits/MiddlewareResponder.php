@@ -37,6 +37,7 @@ trait MiddlewareResponder
      *
      * @param  string $message Error message
      * @param  int $code       Status Code For Response
+     *
      * @return mixed           The redirect or response
      */
     protected function redirectToDefault(string $message, $code)

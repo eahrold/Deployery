@@ -4,10 +4,13 @@ namespace App\Models;
 
 use App\Services\SSHKeyer;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Mpociot\Teamwork\Traits\UserHasTeams;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
+    use UserHasTeams;
+
     /**
      * The attributes that are mass assignable.
      *

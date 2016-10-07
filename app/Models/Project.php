@@ -125,6 +125,11 @@ final class Project extends Base
         return $this->belongsTo('App\Models\User');
     }
 
+    public function team()
+    {
+        return $this->belongsTo('App\Models\Team');
+    }
+
     public function servers()
     {
         return $this->hasMany('App\Models\Server')->order();

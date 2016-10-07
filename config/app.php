@@ -168,6 +168,7 @@ return [
          */
         AdamWathan\BootForms\BootFormsServiceProvider::class,
         Collective\Remote\RemoteServiceProvider::class,
+        Mpociot\Teamwork\TeamworkServiceProvider::class,
 
         /**
          * Main Deployery Service Provider..

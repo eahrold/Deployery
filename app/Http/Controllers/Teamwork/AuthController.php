@@ -27,8 +27,9 @@ class AuthController extends Controller
             Teamwork::acceptInvite($invite);
             return redirect()->route('teams.index');
         } else {
+            $user_exists = (\User::where('email', $invite->email)->first() !== null);
             session(['invite_token' => $token]);
-            return redirect()->to('login');
+            return redirect()->to($user_exists ? 'login':'register');
         }
     }
 

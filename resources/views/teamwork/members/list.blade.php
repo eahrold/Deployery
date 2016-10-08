@@ -3,7 +3,7 @@
 @section('content')
     <div class="container">
         <div class="row">
-            <div class="col-md-8 col-md-offset-2">
+            <div class="col-md-10 col-md-offset-1">
                 <div class="panel panel-default">
                     <div class="panel-heading clearfix">
                         Members of team "{{$team->name}}"
@@ -16,21 +16,21 @@
                             <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Action</th>
+                                <th class="text-right">Action</th>
                             </tr>
                             </thead>
-                            @foreach($team->users AS $user)
+                            @foreach($team->users as $user)
                                 <tr>
-                                    <td>{{$user->name}}</td>
-                                    <td>
+                                    <td>{{ $user->username }}</td>
+                                    <td class="text-right">
                                         @if(auth()->user()->isOwnerOfTeam($team))
                                             @if(auth()->user()->getKey() !== $user->getKey())
-                                                <form style="display: inline-block;" action="{{route('teams.members.destroy', [$team, $user])}}" method="post">
-                                                    {!! csrf_field() !!}
-                                                    <input type="hidden" name="_method" value="DELETE" />
-                                                    <button class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i> Delete</button>
-                                                </form>
+                                               @include('teamwork.partials.delete_button')
+                                            @else
+                                                <b>Owner</b>
                                             @endif
+                                        @elseif(auth()->user()->getKey() === $user->getKey())
+                                            @include('teamwork.partials.leave_button')
                                         @endif
                                     </td>
                                 </tr>
@@ -38,6 +38,8 @@
                         </table>
                     </div>
                 </div>
+
+                @if($team->invites->count())
                 <div class="panel panel-default">
                     <div class="panel-heading clearfix">Pending invitations</div>
                     <div class="panel-body">
@@ -48,7 +50,7 @@
                                 <th>Action</th>
                             </tr>
                             </thead>
-                            @foreach($team->invites AS $invite)
+                            @foreach($team->invites as $invite)
                                 <tr>
                                     <td>{{$invite->email}}</td>
                                     <td>
@@ -61,7 +63,7 @@
                         </table>
                     </div>
                 </div>
-
+                @endif
 
                 <div class="panel panel-default">
                     <div class="panel-heading clearfix">Invite to team "{{$team->name}}"</div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Teamwork;
 
+use App\Models\Team;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Mpociot\Teamwork\Exceptions\UserNotInTeamException;
@@ -20,8 +21,14 @@ class TeamController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
+        if ($user->can('joinTeams', $user)) {
+            $teams = Team::all();
+        } else {
+            $teams = $user->teams;
+        }
         return view('teamwork.index')
-            ->with('teams', auth()->user()->teams);
+            ->withTeams($teams);
     }
 
     /**

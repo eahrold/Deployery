@@ -55,6 +55,8 @@
 
                      @can("manage", Auth::user())
                         {!! BootForm::checkbox("Is Admin", 'is_admin') !!}
+                        {!! BootForm::checkbox("Can Manage Teams", 'can_manage_teams') !!}
+                        {!! BootForm::checkbox("Can Join Any Team", 'can_join_teams') !!}
                     @endcan
 
                 </div>

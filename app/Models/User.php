@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Presenters\PresentableTrait;
 use App\Services\SSHKeyer;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Mpociot\Teamwork\Traits\UserHasTeams;
@@ -10,6 +11,9 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 class User extends Authenticatable implements JWTSubject
 {
     use UserHasTeams;
+    use PresentableTrait;
+
+    protected $presenter = 'App\Presenters\User';
 
     /**
      * The attributes that are mass assignable.
@@ -32,11 +36,13 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
         'remember_token',
+        'can_join_teams',
+        'can_manage_teams',
+        'is_admin',
         'uid'
     ];
 
-
-    public function getValidationRules($user_id = null)
+    public static function getValidationRules($user_id = null)
     {
         if ($user_id) {
             return [
@@ -67,6 +73,19 @@ class User extends Authenticatable implements JWTSubject
     {
         $path = ltrim($path, '/');
         return storage_path("users/{$this->uid}/{$path}");
+    }
+
+    //----------------------------------------------------------
+    // Teams
+    //-------------------------------------------------------
+    /**
+     * Wrapper method for "isOwner"
+     *
+     * @return bool
+     */
+    public function isTeamMember($team)
+    {
+        return $this->teams->contains('id', is_numeric($team) ? $team : $team->id);
     }
 
     //----------------------------------------------------------
@@ -130,6 +149,12 @@ class User extends Authenticatable implements JWTSubject
         static::created(function ($model) {
             $keyer = new SSHKeyer();
             $keyer->generate($model->keyPath(), true);
+
+            if($token = \Session::pull('invite_token')){
+                $invite = \Teamwork::getInviteFromAcceptToken($token);
+                $model->attachTeam($invite->team);
+                $invite->delete();
+            }
         });
 
         static::deleting(

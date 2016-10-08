@@ -104,11 +104,8 @@ final class UsersController extends Controller
             $this->model->getValidationRules($id)
         );
 
-        if ($id) {
-            $model = $this->model->findOrFail($id);
-        } else {
-            $model = $this->model->newInstance();
-        }
+        $model = $id ? $this->model->findOrFail($id):
+                       $this->model->newInstance();
 
         $model->fill($this->sanatizeRequestData());
         $isAdmin = Auth::user()->is_admin;
@@ -117,7 +114,13 @@ final class UsersController extends Controller
         // But they can't remove their own admin status...
         if ($isAdmin && ($model->id != Auth::user()->id)) {
             $model->is_admin = $this->request
-                                    ->get('is_admin') ? true : false;
+                ->get('is_admin') ? true : false;
+
+            $model->can_manage_teams = $this->request
+                ->get('can_manage_teams') ? true : false;
+
+            $model->can_join_teams = $this->request
+                ->get('can_join_teams') ? true : false;
         }
 
         $model->save();

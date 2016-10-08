@@ -4,19 +4,30 @@
 
 <div class="container container-lg">
     <div class="row">
-        <div class="col-md-12">
+        @if(!$projects->count())
+        <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">
-            @if(!$projects->count())
-
                 <div class="panel-body">
                     <div class='row text-center'>
                         <a href='{{ route("projects.create") }}'>
                             <h3>Add your first project</h3>
                         </a>
+                        <div>
+                            If you're deploying the project from a private repo, add this ssh key to the repo host.
+                            <a href="#sshkey" data-toggle="collapse">
+                                (Click to show)
+                            </a>
+                            <div id="sshkey" class="collapse">
+                                <textarea  class="form-control" rows="10">{{ Auth::user()->pubkey }}</textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            @else
-
+            </div>
+        </div>
+        @else
+        <div class="col-md-12">
+            <div class="panel panel-default">
                 <div class="panel-heading">
                     Projects
                     <span aria-hidden="true" class="pull-right">
@@ -55,10 +66,9 @@
                         </tbody>
                     </table>
                 </div>
-            @endif
-
             </div>
         </div>
+        @endif
     </div>
 </div>
 

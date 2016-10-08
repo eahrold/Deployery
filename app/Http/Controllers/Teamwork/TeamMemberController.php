@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Teamwork;
 
+use App\Models\Team;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Mail;
@@ -25,6 +26,9 @@ class TeamMemberController extends Controller
     {
         $teamModel = config('teamwork.team_model');
         $team = $teamModel::findOrFail($id);
+
+        $userModel = config('teamwork.user_model');
+        $user = $userModel::findOrFail(auth()->user()->id);
 
         return view('teamwork.members.list')->withTeam($team);
     }
@@ -54,6 +58,48 @@ class TeamMemberController extends Controller
         $user->detachTeam($team);
 
         return redirect(route('teams.index'));
+    }
+
+
+    /**
+     * Join the team
+     *
+     * @param int $team_id
+     * @return \Illuminate\Http\Response
+     */
+    public function join($id)
+    {
+        $userModel = config('teamwork.user_model');
+        $user = $userModel::findOrFail(auth()->user()->id);
+        if($user->can('joinTeams', $user)){
+            $user->attachTeam($id);
+        }
+        return redirect(route('teams.index'));
+    }
+
+    /**
+     * Leave the specified resource from storage.
+     *
+     * @param int $team_id
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function leave($team_id)
+    {
+        $teamModel = config('teamwork.team_model');
+        $team = $teamModel::findOrFail($team_id);
+        if (auth()->user()->isOwnerOfTeam($team)) {
+            abort(403, 'The Owner cannot leave the team.');
+        }
+
+        $userModel = config('teamwork.user_model');
+        $user = $userModel::findOrFail(auth()->user()->id);
+        $user->detachTeam($team);
+
+        if($user->teams->count()){
+            return redirect()->back();
+        }
+        return redirect('/');
     }
 
     /**

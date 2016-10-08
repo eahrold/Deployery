@@ -39,4 +39,13 @@ class UserPolicy
     {
         return ($user->id == $model->id);
     }
+
+    public function manageTeams(User $auth, User $user)
+    {
+        return $user->can_manage_teams;
+    }
+
+    public function joinTeams(User $auth, User $user){
+        return $user->can_join_teams;
+    }
 }

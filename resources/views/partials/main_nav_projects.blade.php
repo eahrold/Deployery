@@ -6,14 +6,17 @@
         Projects<span class="caret"></span>
     </a>
     <ul class="dropdown-menu" role="menu">
-        @foreach(Project::findUserModels()->get() as $project)
-        <li>
-            <a href="{{ route('projects.edit', $project->id) }}">
-                {{ $project->name }}
-            </a>
-        </li>
-        @endforeach
-        <li role="separator" class="divider"></li>
+        <?php $projects = Project::findUserModels()->get(); ?>
+        @if($projects->count())
+            @foreach( $projects as $project)
+            <li>
+                <a href="{{ route('projects.edit', $project->id) }}">
+                    {{ $project->name }}
+                </a>
+            </li>
+            @endforeach
+            <li role="separator" class="divider"></li>
+        @endif
         <li>
             <a href="{{ url('/projects/create') }}">
                 Create New Project

@@ -17,10 +17,12 @@ elixir(mix => {
 
     mix.sass([
       'app.scss',
+      'btn.scss',
       'table.scss',
       'form.scss',
       'project.scss',
       'deployment.scss',
+      'fa-extensions.scss'
     ], 'public/css/');
 
     mix.webpack('header-helper.js');

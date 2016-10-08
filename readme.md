@@ -68,15 +68,16 @@ Licensed under the [MIT license](http://opensource.org/licenses/MIT).
 ## Credits
 This project takes advantage of numerous open source projects.
 
-- Laravel
-- Dingo API
-- JWT Auth
-- Laravel Collective Remote
-- Laravel Debugbar
-- Shell Wrapper
-- Bootforms
-- Vue.js
-- Vue Select
+- [Laravel](https://github.com/laravel/laravel)
+- [Dingo API](https://github.com/dingo/api)
+- [JWT Auth](https://github.com/tymondesigns/jwt-auth)
+- [Laravel Collective Remote](https://github.com/LaravelCollective/remote)
+- [Laravel Debugbar](https://github.com/barryvdh/laravel-debugbar)
+- [PHP Shell Wrapper](https://github.com/adambrett/php-shell-wrapper)
+- [Bootforms](https://github.com/adamwathan/bootforms)
+- [Teamwork](https://github.com/mpociot/teamwork)
+- [Vue.js](https://github.com/vuejs/vue)
+- [Vue Select](https://github.com/sagalbot/vue-select)
 
 And numerous other includes.
 

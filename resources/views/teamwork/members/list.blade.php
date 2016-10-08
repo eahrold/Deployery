@@ -7,8 +7,8 @@
                 <div class="panel panel-default">
                     <div class="panel-heading clearfix">
                         Members of team "{{$team->name}}"
-                        <a href="{{route('teams.index')}}" class="btn btn-sm btn-default pull-right">
-                            <i class="fa fa-arrow-left"></i> Back
+                        <a href="{{route('teams.index')}}" class="pull-right">
+                            <i class="fa fa-arrow-left"></i>
                         </a>
                     </div>
                     <div class="panel-body">
@@ -47,16 +47,20 @@
                             <thead>
                             <tr>
                                 <th>E-Mail</th>
-                                <th>Action</th>
+                                <th>Invited on</th>
+                                <th class="text-right">Action</th>
                             </tr>
                             </thead>
                             @foreach($team->invites as $invite)
                                 <tr>
-                                    <td>{{$invite->email}}</td>
-                                    <td>
+                                    <td>{{ $invite->email }}</td>
+                                    <td>{{ $invite->updated_at }}</td>
+                                    <td class="text-right">
+                                        {{-- @can('invite', $team) --}}
                                         <a href="{{route('teams.members.resend_invite', $invite)}}" class="btn btn-sm btn-default">
                                             <i class="fa fa-envelope-o"></i> Resend invite
                                         </a>
+                                        {{-- @endcan --}}
                                     </td>
                                 </tr>
                             @endforeach
@@ -65,15 +69,16 @@
                 </div>
                 @endif
 
+                @can('invite', $team)
                 <div class="panel panel-default">
                     <div class="panel-heading clearfix">Invite to team "{{$team->name}}"</div>
                     <div class="panel-body">
                         <form class="form-horizontal" method="post" action="{{route('teams.members.invite', $team)}}">
                             {!! csrf_field() !!}
                             <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
-                                <label class="col-md-4 control-label">E-Mail Address</label>
+                                <label class="col-md-2 control-label">E-Mail Address</label>
 
-                                <div class="col-md-6">
+                                <div class="col-md-7">
                                     <input type="email" class="form-control" name="email" value="{{ old('email') }}">
 
                                     @if ($errors->has('email'))
@@ -82,11 +87,7 @@
                                             </span>
                                     @endif
                                 </div>
-                            </div>
-
-
-                            <div class="form-group">
-                                <div class="col-md-6 col-md-offset-4">
+                                <div class="col-md-2">
                                     <button type="submit" class="btn btn-primary">
                                         <i class="fa fa-btn fa-envelope-o"></i>Invite to Team
                                     </button>
@@ -95,6 +96,8 @@
                         </form>
                     </div>
                 </div>
+                @endcan
+
             </div>
         </div>
     </div>

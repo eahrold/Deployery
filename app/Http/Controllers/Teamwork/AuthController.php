@@ -33,4 +33,26 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Accept the given invite
+     * @param $token
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function rejectInvite($token)
+    {
+        $invite = Teamwork::getInviteFromAcceptToken($token);
+        if (!$invite) {
+            abort(404);
+        }
+
+        if (auth()->check()) {
+            Teamwork::acceptInvite($invite);
+            return redirect()->route('teams.index');
+        } else {
+            $user_exists = (\User::where('email', $invite->email)->first() !== null);
+            session(['invite_token' => $token]);
+            return redirect()->to($user_exists ? 'login':'register');
+        }
+    }
+
 }

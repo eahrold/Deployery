@@ -2,13 +2,9 @@
 namespace App\Policies;
 
 use App\Models\User;
-use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Database\Eloquent\Model;
 
-class UserPolicy
+class UserPolicy extends BasePolicy
 {
-    use HandlesAuthorization;
-
     /**
      * Handel checks that happen before anything else
      * @param  App\Model\User $user  the user to check
@@ -22,30 +18,42 @@ class UserPolicy
         }
     }
 
-    public function destroy(User $user, Model $model)
+    public function destroy(User $user, User $model)
     {
-        $adminDestroyingOther = $user->is_admin && ($user->id != $model->id);
-        $adminDestroyingSelf  = $user->is_admin && ($user->id == $model->id);
-        $otherDestroyingSelf  = !$user->is_admin && ($user->id == $model->id);
-        return ($adminDestroyingOther || $otherDestroyingSelf) && !$adminDestroyingSelf;
+        return ($this->adminDestroyingOther($user, $model) ||
+               !$this->nonAdminDestroyingSelf($user, $model)) &&
+               !$this->adminDestroyingSelf($user, $model);
     }
 
-    public function update(User $user, Model $model)
+    public function update(User $user, User $model)
     {
-        return ($user->id == $model->id);
+        return $this->isSelf($user, $model);
     }
 
-    public function show(User $user, Model $model)
+    public function show(User $user, User $model)
     {
-        return ($user->id == $model->id);
+        return $this->isSelf($user, $model);
     }
 
-    public function manageTeams(User $auth, User $user)
+    //----------------------------------------------------------
+    // Private Helpers
+    //-------------------------------------------------------
+    private function isSelf(User $user, Model $model)
     {
-        return $user->can_manage_teams;
+        return ($user->id === $model->id);
     }
 
-    public function joinTeams(User $auth, User $user){
-        return $user->can_join_teams;
+    private function adminDestroyingOther(User $user, Model $model) {
+        return $user->is_admin &&  !$this->isSelf($user, $model);
+    }
+
+    private function adminDestroyingSelf(User $user, Model $model)
+    {
+        return $user->is_admin && $this->isSelf($user, $model);
+    }
+
+    private function nonAdminDestroyingSelf(User $user, Model $model)
+    {
+        return !$user->is_admin && $this->isSelf($user, $model);
     }
 }

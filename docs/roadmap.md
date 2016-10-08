@@ -11,6 +11,7 @@
 - [x] Migrate API Auth to JWT
 - [ ] Add unit tests, setup [TravisCI](https://travis-ci.org)
 - [x] Setup [Scrutinizer CI](https://scrutinizer-ci.com/pricing)
+- [x] Migrate to Users -> Teams
 
 ### Frontend
 - [ ] Add Settings page
@@ -24,11 +25,9 @@
 - [ ] Display Server IP address and message about whitelisting it on deployment targets
 - [ ] Add display of SSH pubkey in server tab.
 
-
 ## v0.3
 
 ### Backend
-- [ ] Migrate to Users -> Accounts
 - [ ] Cancel deployment operation
 - [ ] Auto spawn project specific queues
 - [ ] Support cloud file storage

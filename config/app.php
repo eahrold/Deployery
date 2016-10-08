@@ -233,6 +233,8 @@ return [
          */
         'Project' => App\Models\Project::class,
         'User' => App\Models\User::class,
+        'Team' => App\Models\Team::class,
+
     ],
 
 ];

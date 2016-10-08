@@ -22,7 +22,7 @@ class TeamController extends Controller
     public function index()
     {
         $user = auth()->user();
-        if ($user->can('joinTeams', $user)) {
+        if ($user->can('joinTeams', Team::class)) {
             $teams = Team::all();
         } else {
             $teams = $user->teams;

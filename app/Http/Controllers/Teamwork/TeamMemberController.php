@@ -19,17 +19,12 @@ class TeamMemberController extends Controller
     /**
      * Show the members of the given team.
      *
-     * @param  int $id
+     * @param  int $team_id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($team_id)
     {
-        $teamModel = config('teamwork.team_model');
-        $team = $teamModel::findOrFail($id);
-
-        $userModel = config('teamwork.user_model');
-        $user = $userModel::findOrFail(auth()->user()->id);
-
+        $team = $this->getTeam($team_id);
         return view('teamwork.members.list')->withTeam($team);
     }
 
@@ -43,17 +38,10 @@ class TeamMemberController extends Controller
      */
     public function destroy($team_id, $user_id)
     {
-        $teamModel = config('teamwork.team_model');
-        $team = $teamModel::findOrFail($team_id);
-        if (!auth()->user()->isOwnerOfTeam($team)) {
-            abort(403);
-        }
+        $team = $this->getTeam($team_id);
+        $user = $this->getUser($user_id);
 
-        $userModel = config('teamwork.user_model');
-        $user = $userModel::findOrFail($user_id);
-        if ($user->getKey() === auth()->user()->getKey()) {
-            abort(403);
-        }
+        $this->authorize($team);
 
         $user->detachTeam($team);
 
@@ -69,9 +57,8 @@ class TeamMemberController extends Controller
      */
     public function join($id)
     {
-        $userModel = config('teamwork.user_model');
-        $user = $userModel::findOrFail(auth()->user()->id);
-        if($user->can('joinTeams', $user)){
+        $user = $this->getUser(auth()->user()->id);
+        if($user->can('joinTeams', Team::class)){
             $user->attachTeam($id);
         }
         return redirect(route('teams.index'));
@@ -86,14 +73,13 @@ class TeamMemberController extends Controller
      */
     public function leave($team_id)
     {
-        $teamModel = config('teamwork.team_model');
-        $team = $teamModel::findOrFail($team_id);
-        if (auth()->user()->isOwnerOfTeam($team)) {
+        $team = $this->getTeam($team_id);
+        $user = $this->getUser(auth()->user()->id);
+
+        if ($user->isOwnerOfTeam($team)) {
             abort(403, 'The Owner cannot leave the team.');
         }
 
-        $userModel = config('teamwork.user_model');
-        $user = $userModel::findOrFail(auth()->user()->id);
         $user->detachTeam($team);
 
         if($user->teams->count()){
@@ -109,8 +95,9 @@ class TeamMemberController extends Controller
      */
     public function invite(Request $request, $team_id)
     {
-        $teamModel = config('teamwork.team_model');
-        $team = $teamModel::findOrFail($team_id);
+        $team = $this->getTeam($team_id);
+        $user = $this->getUser(auth()->user()->id);
+        $this->authorize($team);
 
         if( !Teamwork::hasPendingInvite( $request->email, $team) )
         {
@@ -140,6 +127,17 @@ class TeamMemberController extends Controller
         return redirect(route('teams.members.show', $invite->team));
     }
 
+    private function getUser($user_id)
+    {
+        $userModel = config('teamwork.user_model');
+        return $userModel::findOrFail($user_id);
+    }
+
+    private function getTeam($team_id)
+    {
+        $teamModel = config('teamwork.team_model');
+        return $teamModel::findOrFail($team_id);
+    }
     /**
      * Send Email to the user
      *

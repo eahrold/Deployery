@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Teamwork;
 
 use App\Models\Team;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Mail;
@@ -11,6 +12,8 @@ use Mpociot\Teamwork\TeamInvite;
 
 class TeamMemberController extends Controller
 {
+    use AuthorizesRequests;
+
     public function __construct()
     {
         $this->middleware('auth');

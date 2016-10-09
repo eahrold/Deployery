@@ -96,7 +96,7 @@
 
                                     <div class='form-group'>
                                         <ul class='list-unstyled deploy-messages'>
-                                            <li v-for='message in messages'>
+                                            <li v-for='message in messages' track-by="$index">
                                                 <h4>{{{ message }}}</h4>
                                             </li>
                                         </ul>

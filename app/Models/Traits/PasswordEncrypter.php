@@ -2,6 +2,8 @@
 
 namespace App\Models\Traits;
 
+use Illuminate\Contracts\Encryption\DecryptException;
+
 /**
  * Crypt/Decrypt Passwords using mutators
  *

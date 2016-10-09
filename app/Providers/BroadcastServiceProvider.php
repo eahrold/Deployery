@@ -27,7 +27,10 @@ class BroadcastServiceProvider extends ServiceProvider
          * Authenticate the Project channel
          */
         Broadcast::channel('project.*', function($user, $projectId) {
-            return !is_null($user->projects->find($projectId));
+            if ($project = \Project::find($projectId)) {
+                return $user->isTeamMember($project->team);
+            }
+            return false;
         });
 
         /*

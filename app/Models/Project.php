@@ -26,6 +26,19 @@ final class Project extends Base
         'guid'
     ];
 
+    /**
+     * Item to only be appended during the getUserModel() method.
+     *
+     * @var array
+     */
+    protected $signular_append = [
+        'repo_size',
+        'repo_exists'
+    ];
+
+    protected $appends = [
+    ];
+
     public function initializeProject($data)
     {
         $data['slug'] = str_slug($data['name']);
@@ -100,8 +113,18 @@ final class Project extends Base
         return "project.{$this->id}";
     }
 
+    public function getRepoExistsAttribute($value = '')
+    {
+        return file_exists($this->repoPath());
+    }
+
     public function getRepoSizeAttribute($value = '')
     {
+        $key = "project-{$this->uid}-repo-size";
+        if($size = \Cache::get($key)) {
+            return $size;
+        }
+        \Log::info('Getting zie the hard way');
         $path = $this->repoPath();
         $builder = new ProcessBuilder(['/usr/bin/du']);
         $builder->add('-ch')
@@ -113,6 +136,8 @@ final class Project extends Base
         $stdOut = $proc->getOutput();
         $lines = array_filter(explode(PHP_EOL, $stdOut));
         list($size, $repo) = explode("\t", end($lines), 2);
+
+        \Cache::put($key, $size, 5);
 
         return $size;
     }
@@ -226,7 +251,8 @@ final class Project extends Base
                           ->orWhere('team_id',$tid);
                 })
                 ->where('id', $id)
-                ->firstOrFail();
+                ->firstOrFail()
+                ->append($this->signular_append);
     }
 
     public function scopeFindServer($query, $id, $model_id)

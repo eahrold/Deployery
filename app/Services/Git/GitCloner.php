@@ -68,6 +68,11 @@ class GitCloner
                 $this->sendMessage($buffer);
             }
         });
+
+        $this->errors = array_filter(
+            explode(PHP_EOL, $process->getErrorOutput())
+        );
+
         return ($process->getExitCode() === 0);
     }
 

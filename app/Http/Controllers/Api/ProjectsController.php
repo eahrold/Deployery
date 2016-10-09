@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\BaseRequest;
+use App\Jobs\RepositoryClone;
 use App\Models\Project;
 use App\Transformers\ProjectTransformer;
 
@@ -11,6 +12,22 @@ class ProjectsController extends APIController
     public function __construct(BaseRequest $request, Project $project, ProjectTransformer $transformer)
     {
         parent::__construct($request, $project, $transformer);
+    }
+
+    public function cloneRepo($id)
+    {
+        $project = $this->model->getUserModel($id);
+        if(!file_exists($project->repoPath())){
+            $clone = (new RepositoryClone($project))->onQueue('clones');
+            $this->dispatch($clone);
+        } else {
+            abort(400, 'The repository already exists. No need to reclone.');
+        }
+
+        return $this->response->array([
+            'message'=>'Trying to reclone the repo.',
+            'status_code'=>'200'
+        ]);
     }
 
     /**

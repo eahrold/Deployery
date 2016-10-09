@@ -23,14 +23,11 @@ abstract class AbstractEventMessage extends AbstractEchoEvent
     public function __construct($data)
     {
         $this->message = $data['message'];
-        $this->errors = $data['errors'];
 
-        if (isset($data['type'])) {
-            $this->type = $data['type'];
-        }
-
-        if (isset($data['channel_id'])) {
-            $this->channel_id = $data['channel_id'];
+        foreach (['errors', 'type', 'channel_id'] as $key) {
+            if (isset($data[$key])) {
+                $this->{$key} = $data[$key];
+            }
         }
     }
 

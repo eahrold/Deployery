@@ -56,14 +56,13 @@
         </div>
     </nav>
 
-    <!-- Cloning Status message -->
-    <div class="container container-lg">
-        @include('partials.project_cloning', ['project'=>$model])
-    </div>
-
     <div class="container container-lg">
         <!-- tabs content -->
         <div class="tab-content col-md-12">
+
+            <!-- Cloning Status message -->
+            @include('partials.project_cloning', ['project'=>$model])
+            @include('includes.server_pub_key_modal', ['project'=>$model])
 
             <!-- Overview -->
             <div class='tab-pane active' id='overview'>
@@ -155,7 +154,9 @@
 var isDeploying = '{!! $model->is_deploying !!}' ? true : false;
 var isCloning = '{!! $model->is_cloning !!}' ? true : false;
 var project = {!! $model->toJson() !!};
-var projectVue = CreateProjectVue("#project-vm", project, isDeploying);
+var projectVue = CreateProjectVue("#project-vm", project, isDeploying, isCloning);
+
+console.log("PROJ:: ", JSON.parse(JSON.stringify(project)));
 
 </script>
 

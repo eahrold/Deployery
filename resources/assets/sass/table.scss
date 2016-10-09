@@ -10,6 +10,10 @@ table.servers {
     }
 }
 
+.center {
+    text-align: center !important;
+}
+
 .panel {
     &.full {
         min-height: 90vh;

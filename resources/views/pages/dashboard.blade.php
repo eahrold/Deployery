@@ -18,7 +18,7 @@
                                 (Click to show)
                             </a>
                             <div id="sshkey" class="collapse">
-                                <textarea  class="form-control" rows="10">{{ Auth::user()->pubkey }}</textarea>
+                                <textarea class="form-control" rows="10">{{ Auth::user()->pubkey }}</textarea>
                             </div>
                         </div>
                     </div>

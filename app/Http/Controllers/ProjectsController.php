@@ -68,6 +68,7 @@ final class ProjectsController extends Controller
     public function edit($id) {
         $with = ['servers', 'history', 'history.server', 'scripts', 'configs'];
         $model = $this->model->with($with)->getUserModel($id);
+
         return view('pages.project', compact('model'));
     }
 
@@ -80,6 +81,12 @@ final class ProjectsController extends Controller
     public function update($id) {
         $model = $this->model->getUserModel($id);
         $model->update($this->request->all());
+
+        if(!file_exists($model->repoPath())){
+            $clone = (new RepositoryClone($model))->onQueue('clones');
+            $this->dispatch($clone);
+        }
+
         return redirect()->route('projects.edit', $id);
     }
 

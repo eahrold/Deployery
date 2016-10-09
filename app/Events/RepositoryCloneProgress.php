@@ -4,7 +4,7 @@ namespace App\Events;
 
 use App\Events\Abstracts\AbstractEventMessage;
 
-final class RepositoryCloneMessage extends AbstractEventMessage
+final class RepositoryCloneProgress extends AbstractEventMessage
 {
 
     /**

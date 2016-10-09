@@ -11,8 +11,9 @@
             <th>Hostname</th>
             <th>Branch</th>
             <th>Path</th>
-            <th class='crunch'>Deploy</th>
-            <th class='crunch'>Status</th>
+            <th class='crunch center'>Deploy</th>
+            <th class='crunch center'>SSH Key</th>
+            <th class='crunch center'>Status</th>
             <th class='crunch'>
                 <a href='{{ endpoint }}/create'>
                     <i class="fa fa-plus-circle" aria-hidden="true"></i>
@@ -30,14 +31,17 @@
                 <td>{{ server.hostname }}</td>
                 <td>{{ server.branch }}</td>
                 <td>{{ server.deployment_path }}</td>
-                <td v-if='server.is_deploying'>
+                <td v-if='server.is_deploying' class="center">
                     <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
                 </td>
-                <td v-else>
+                <td v-else class="center">
                      <i class="fa fa-cloud-download"
                         aria-hidden="true"
                         @click="deploy(server)">
                     </i>
+                </td>
+                <td class='center'>
+                    <a data-toggle="modal" data-target="#serverPubKey"><i class="fa fa-key" aria-hidden="true"></i></a>
                 </td>
                 <td class="status-icon center">
                     <div id='status-indicator'

@@ -14,6 +14,7 @@
 $api = app('Dingo\Api\Routing\Router');
 $api->version('v1', function ($api) {
     $api->group(["prefix" => "projects", "middleware" => "api.auth"], function ($api) {
+
         $api->group(["prefix"=>"{project}/servers/{server}"], function ($api) {
             $api->post("/deploy", [
                 "as"=>"api.projects.servers.deploy",
@@ -30,6 +31,11 @@ $api->version('v1', function ($api) {
                 "uses"=>"App\Http\Controllers\Api\ServersController@commit_details"
             ]);
         });
+
+        $api->post('{project}/clone-repo', [
+            "as"=>"api.projects.clone-repo",
+            "uses"=>"App\Http\Controllers\Api\ProjectsController@cloneRepo"
+        ]);
 
         $api->resource("/", "App\Http\Controllers\Api\ProjectsController", [
             "only"=>["store","update","destroy"],

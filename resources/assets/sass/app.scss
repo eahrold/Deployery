@@ -20,6 +20,10 @@ body {
   font-family: 'Lato';
 }
 
+.modal-footer {
+    border-top: none;
+}
+
 .fa-btn {
     margin-right: 6px;
 }
@@ -114,6 +118,7 @@ td.status-icon {
     width: 12px;
     height: 12px;
     border-radius: 50%;
+    display: inline-block;
 }
 
 .status-red {

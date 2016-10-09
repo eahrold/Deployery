@@ -1,5 +1,5 @@
 <script>
-window.CreateProjectVue = (el, project, isDeploying) => {
+window.CreateProjectVue = (el, project, isDeploying, isCloning) => {
     return new Vue({
         el:el,
         http: { headers: globalHeaders },
@@ -8,7 +8,8 @@ window.CreateProjectVue = (el, project, isDeploying) => {
             deployingServer: null,
             viewers: [],
             status: {
-                cloning: false,
+                cloning: isCloning,
+                cloningError: false,
                 message: "",
                 errors: []
             },
@@ -79,7 +80,11 @@ window.CreateProjectVue = (el, project, isDeploying) => {
                     .listen('DeploymentProgress', this.handleDeployProgress)
                     .listen('DeploymentStarted', this.handleDeployStarted)
                     .listen('DeploymentEnded', this.handleDeployEnded)
-                    .listen('RepositoryCloneMessage', this.handleCloneMessage)
+
+                    .listen('RepositoryCloneProgress', this.handleCloneProgress)
+                    .listen('RepositoryCloneStarted', this.handleCloneStarted)
+                    .listen('RepositoryCloneEnded', this.handleCloneEnded)
+
                     .listen('HistoryCreatedEvent', this.handleHistoyrCreated);
 
                 echo.join('project-viewers.' + project.id)
@@ -90,19 +95,42 @@ window.CreateProjectVue = (el, project, isDeploying) => {
             },
 
             handleHistoyrCreated(data){
-                console.log("HEvent", data);
                 this.appendProjectData(data.history, 'history', true);
             },
 
             /**
-             * Handle the RepositoryCloneMessage event message
+             * Handle the RepositoryCloneStarted event message
              *
              * @param  object data event data
              */
-            handleCloneMessage(data){
+            handleCloneStarted(data){
+                this.status.cloning = true;
+                this.status.message = data.message;
+                this.status.errors = [];
+            },
+
+            /**
+             * Handle the RepositoryCloneProgress event message
+             *
+             * @param  object data event data
+             */
+            handleCloneProgress(data){
                 this.status.message = data.message;
                 this.status.errors = data.errors;
-                this.status.cloning = (data.type != 'complete');
+            },
+
+            /**
+             * Handle the RepositoryCloneEnded event message
+             *
+             * @param  object data event data
+             */
+            handleCloneEnded(data){
+                this.status.cloning = false;
+                this.status.message = data.message;
+                this.status.errors = data.errors;
+                this.status.cloningError = !data.success;
+                this.project.repo_exists = data.success;
+                this.project.repo_size = data.repo_size;
             },
 
             /**
@@ -173,6 +201,20 @@ window.CreateProjectVue = (el, project, isDeploying) => {
              */
             removeProjectData(object, type){
                 this.project[type].$remove(object);
+            },
+
+            cloneRepo(){
+                var endpoint = '/api/projects/'+this.project.id+'/clone-repo';
+                this.status.cloningError = false;
+                this.status.cloning = true;
+                this.$http.post(endpoint).then(
+                    (response) => {
+                        Alerter.success(response.data.message)
+                    },
+                    (response) => {
+                        this.status.false = true;
+                        Alerter.error(response.data.message)
+                    });
             },
 
             /**

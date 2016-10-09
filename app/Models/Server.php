@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\PasswordEncrypter;
 use App\Presenters\PresentableTrait;
 use App\Services\Git\GitInfo;
 use App\Services\SSHConnection as Connection;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Input;
 final class Server extends Base
 {
     use PresentableTrait;
+    use PasswordEncrypter;
 
     protected $presenter = 'App\Presenters\Server';
 
@@ -213,28 +215,7 @@ final class Server extends Base
 
     public function validateConnection()
     {
-        $status = Connection::CONNECTION_STATUS_SUCCESS;
-        $connection = $this->getConnectionAttribute();
-
-        if (!$connection->exists($this->deployment_path)) {
-            $status = Connection::CONNECTION_STATUS_INVALID_PATH;
-        } else {
-            $fauxf = strtoupper(md5(uniqid(rand(), true)));
-            $fauxPath = "{$this->deployment_path}/{$fauxf}";
-            $connection->putString($fauxPath, "hello world");
-            if (!$connection->exists($fauxPath)) {
-                $status = Connection::CONNECTION_STATUS_CANNOT_WRITE_TO_PATH;
-            } else {
-                $connection->delete($fauxPath);
-            }
-        }
-
-        // If the connection status wasn't caught by any of the
-        // above conditons, but there was a failure...
-        if ($status == 0 && $connection->status() != 0) {
-            $status = Connection::CONNECTION_STATUS_FAILURE;
-        }
-
+        $status = $this->getConnectionAttribute()->validate($this->deployment_path);
         $this->successfully_connected = $status;
         $this->save();
         return ($status === Connection::CONNECTION_STATUS_SUCCESS);

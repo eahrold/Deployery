@@ -51,4 +51,30 @@ class SSHConnection extends Connection {
     {
         return $this->getGateway()->getConnection()->put($remote, $contents);
     }
+
+    public function validate($path)
+    {
+        $status = self::CONNECTION_STATUS_SUCCESS;
+
+        if (!$this->exists($path)) {
+            $status = self::CONNECTION_STATUS_INVALID_PATH;
+        } else {
+            $fauxf = strtoupper(md5(uniqid(rand(), true)));
+            $fauxPath = "{$path}/{$fauxf}";
+            $this->putString($fauxPath, "hello world");
+            if (!$this->exists($fauxPath)) {
+                $status = self::CONNECTION_STATUS_CANNOT_WRITE_TO_PATH;
+            } else {
+                $this->delete($fauxPath);
+            }
+        }
+
+        // If the connection status wasn't caught by any of the
+        // above conditons, but there was a failure...
+        if ($status == 0 && $this->status() != 0) {
+            $status = self::CONNECTION_STATUS_FAILURE;
+        }
+
+        return $status;
+    }
 }

@@ -18,7 +18,8 @@
         "tymon/jwt-auth": "1.0.x@dev",
         "pusher/pusher-php-server": "~2.0",
         "predis/predis": "^1.1",
-        "mpociot/teamwork": "~4.0"
+        "mpociot/teamwork": "~4.0",
+        "doctrine/dbal": "^2.5"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

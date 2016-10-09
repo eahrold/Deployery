@@ -42,7 +42,7 @@ class CreateTableInstallScripts extends Migration
      */
     public function down()
     {
-        Schema::drop('hook_server');
-        Schema::drop('hooks');
+        Schema::drop('scripts_server');
+        Schema::drop('scripts');
     }
 }

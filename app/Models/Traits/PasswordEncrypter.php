@@ -35,7 +35,7 @@ trait PasswordEncrypter {
     public function setPasswordAttribute($value = '')
     {
         // Don't encrypt the password twice.
-        if ($value === $this->attributes['password']) {
+        if (!isset($this->attributes['password']) || $value === $this->attributes['password']) {
             return;
         }
         $this->attributes['password'] = empty($value) ? $value : encrypt($value);

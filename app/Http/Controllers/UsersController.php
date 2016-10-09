@@ -108,23 +108,33 @@ final class UsersController extends Controller
                        $this->model->newInstance();
 
         $model->fill($this->sanatizeRequestData());
-        $isAdmin = Auth::user()->is_admin;
 
-        // Only admins can change an admin status,
-        // But they can't remove their own admin status...
-        if ($isAdmin && ($model->id != Auth::user()->id)) {
-            $model->is_admin = $this->request
-                ->get('is_admin') ? true : false;
-
-            $model->can_manage_teams = $this->request
-                ->get('can_manage_teams') ? true : false;
-
-            $model->can_join_teams = $this->request
-                ->get('can_join_teams') ? true : false;
-        }
+        $this->updateAdminAttrs($model);
 
         $model->save();
         return $model;
+    }
+
+    /**
+     * Update the admin attributes on a model
+     * @param  User   &$model User getting updated
+     * @return void
+     */
+    private function updateAdminAttrs(User $model)
+    {
+        // Only admins can change an admin status,
+        // But they can't remove their own admin status...
+        if (Auth::user()->can('modifyAdminAttributes', $model)) {
+            $admin_attributes = [
+                'is_admin',
+                'can_manage_teams',
+                'can_join_teams',
+            ];
+
+            foreach ($admin_attributes as $attr) {
+                $model->{$attr} = $this->request->get($attr) ? true : false;
+            }
+        }
     }
 
     /**

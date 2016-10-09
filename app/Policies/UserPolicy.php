@@ -13,16 +13,21 @@ class UserPolicy extends BasePolicy
      */
     public function before($user, $ability)
     {
-        if ($user->is_admin && $ability != 'destroy') {
+        $restrice = [
+            'destroy',
+            'modifyAdminAttributes',
+        ];
+
+        if ($user->is_admin && !in_array($ability, $restrice)) {
             return true;
         }
     }
 
     public function destroy(User $user, User $model)
     {
-        return ($this->adminDestroyingOther($user, $model) ||
-               !$this->nonAdminDestroyingSelf($user, $model)) &&
-               !$this->adminDestroyingSelf($user, $model);
+        return ($this->adminModifyingOther($user, $model) ||
+               !$this->nonAdminModifyingSelf($user, $model)) &&
+               !$this->adminModifyingSelf($user, $model);
     }
 
     public function update(User $user, User $model)
@@ -35,24 +40,29 @@ class UserPolicy extends BasePolicy
         return $this->isSelf($user, $model);
     }
 
+    public function modifyAdminAttributes(User $user, User $model)
+    {
+        return $user->is_admin && !$this->isSelf($user, $model);
+    }
+
     //----------------------------------------------------------
     // Private Helpers
     //-------------------------------------------------------
-    private function isSelf(User $user, Model $model)
+    private function isSelf(User $user, User $model)
     {
         return ($user->id === $model->id);
     }
 
-    private function adminDestroyingOther(User $user, Model $model) {
+    private function adminModifyingOther(User $user, User $model) {
         return $user->is_admin &&  !$this->isSelf($user, $model);
     }
 
-    private function adminDestroyingSelf(User $user, Model $model)
+    private function adminModifyingSelf(User $user, User $model)
     {
         return $user->is_admin && $this->isSelf($user, $model);
     }
 
-    private function nonAdminDestroyingSelf(User $user, Model $model)
+    private function nonAdminModifyingSelf(User $user, User $model)
     {
         return !$user->is_admin && $this->isSelf($user, $model);
     }

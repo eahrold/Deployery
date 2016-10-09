@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Collective\Remote\Connection;
+use phpseclib\Net\SFTP;
 
 class SSHConnection extends Connection {
 
@@ -29,7 +30,7 @@ class SSHConnection extends Connection {
     public function put($local, $remote)
     {
         if (filesize($local)) {
-            return $this->getGateway()->getConnection()->put($local, $remote);
+            return $this->getGateway()->getConnection()->put($remote, $local, SFTP::SOURCE_LOCAL_FILE);
         } else {
             \Log::info("Found zero byte file {$local}");
             if ($this->exists($remote) && !$this->delete($remote)) {

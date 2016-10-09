@@ -81,13 +81,7 @@ final class ScriptsController extends ProjectChildController
             $model->getValidationRules()
         );
 
-        $bools = [
-            'run_pre_deploy',
-            'stop_on_failure'
-        ];
-        foreach ($bools as $key) {
-            $model->{$key} = $this->request->get($key) ? true : false;
-        }
+        $this->setBooleansForModel($model, [ 'run_pre_deploy', 'stop_on_failure']);
 
         $model->fill($this->request->all());
         $dirty = $model->isDirty();

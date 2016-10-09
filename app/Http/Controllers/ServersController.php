@@ -97,6 +97,10 @@ final class ServersController extends ProjectChildController
         );
 
         $model->fill($this->request->all());
+
+        $this->setBooleansForModel($model, ['autodeploy', 'use_ssk_key']);
+
+
         $dirty = $model->isDirty();
         $success = $model->save() || !$dirty;
 

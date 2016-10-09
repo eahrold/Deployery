@@ -105,7 +105,6 @@ class GitProcessManager
     // Proc
     //-------------------------------------------------------
 
-
     /**
      * Execute a script like process
      *

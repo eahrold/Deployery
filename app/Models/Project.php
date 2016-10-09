@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Git\GitInfo;
 use App\Services\SSHKeyer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -121,21 +122,11 @@ final class Project extends Base
     public function getRepoSizeAttribute($value = '')
     {
         $key = "project-{$this->uid}-repo-size";
+
         if($size = \Cache::get($key)) {
             return $size;
         }
-        \Log::info('Getting zie the hard way');
-        $path = $this->repoPath();
-        $builder = new ProcessBuilder(['/usr/bin/du']);
-        $builder->add('-ch')
-                ->add("--exclude={$path}/.git")
-                ->add($path);
-
-        $proc = $builder->getProcess();
-        $proc->run();
-        $stdOut = $proc->getOutput();
-        $lines = array_filter(explode(PHP_EOL, $stdOut));
-        list($size, $repo) = explode("\t", end($lines), 2);
+        $size = (new GitInfo($this->repoPath(), $this->branch))->size();
 
         \Cache::put($key, $size, 5);
 

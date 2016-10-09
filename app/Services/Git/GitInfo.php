@@ -254,6 +254,22 @@ class GitInfo
         return compact('changed', 'removed');
     }
 
+    public function size()
+    {
+        $builder = $this->gitBuilder()
+                        ->add('count-objects')
+                        ->add('-v')
+                        ->add('-H');
+
+        $stdout = $this->run($builder);
+        $size_pack = array_filter($stdout, function($line){
+            return Str::startsWith($line, 'size-pack');
+        });
+
+        list(/*'size-pack'*/, $size) = explode(':', end($size_pack));
+        return trim($size);
+    }
+
     /**
      * Get props dynamically
      *

@@ -51,7 +51,7 @@ $api->version('v1', function ($api) {
     });
 
     $api->group(["middleware" => "api.webhook"], function ($api) {
-        $api->get("webhooks/{webhook}", [
+        $api->post("webhooks/{webhook}", [
             "as"=>"api.projects.servers.webhooks",
             "uses"=>"App\Http\Controllers\Api\ServersController@webhook"
         ]);

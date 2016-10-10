@@ -41,7 +41,13 @@
                     </i>
                 </td>
                 <td class='center'>
-                    <a data-toggle="modal" data-target="#serverPubKey"><i class="fa fa-key" aria-hidden="true"></i></a>
+                    <a class="open-user-sshkey-modal"
+                       data-toggle="modal"
+                       data-host="{{ server.hostname }}"
+                       data-user="{{ server.username }}"
+                       data-target="#serverPubKey">
+                        <i class="fa fa-key" aria-hidden="true"></i>
+                    </a>
                 </td>
                 <td class="status-icon center">
                     <div id='status-indicator'

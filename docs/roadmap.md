@@ -36,3 +36,4 @@
 - [ ] Improve error handling
 - [ ] Explore alternative handling of run scripts, currently they don't support shebang.
 - [ ] Support HTTP login for remote git repositories
+- [ ] localize strings

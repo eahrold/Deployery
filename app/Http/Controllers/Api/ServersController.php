@@ -189,8 +189,6 @@ class ServersController extends APIController
         return $this->response->array(
             $this->ququeDeployment($server, null, $from, $sender)
         );
-
-        abort(400, "Missing required information");
     }
 
     //----------------------------------------------------------

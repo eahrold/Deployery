@@ -157,12 +157,24 @@ class User extends Authenticatable implements JWTSubject
             }
         });
 
-        static::deleting(
-            function ($model) {
-                if ($model->uid) {
-                    \File::deleteDirectory($model->fileStore());
+        static::deleted(function ($model) {
+            // Make sure the project is not completley lost
+            // This way at least some member of the team
+            // will still have access to the project.
+            $model->projects->each(function($project) use ($model) {
+                $owner = $project->team->owner;
+                if($owner->id !== $model->id){
+                    $project->user_id = $owner->id;
+                } else {
+                    $user = $project->team->users()->first();
+                    $project->user_id = $user ? $user->id : 1;
                 }
+                $project->save();
+            });
+
+            if ($model->uid) {
+                \File::deleteDirectory($model->fileStore());
             }
-        );
+        });
     }
 }

@@ -7,7 +7,7 @@
 - [ ] Slack / HipChat / Email notifications
 - [ ] Configure site settings in backend
 - [x] Subclass \Remote class to support SFTP zero byte issue
-- [ ] Validate the source of the webhook request
+- [x] Validate the source of the webhook request
 - [x] Migrate API Auth to JWT
 - [ ] Add unit tests, setup [TravisCI](https://travis-ci.org)
 - [x] Setup [Scrutinizer CI](https://scrutinizer-ci.com/pricing)
@@ -23,12 +23,13 @@
 - [x] Update deployment panel to be filterable.
 - [ ] Change local of deploying message on main project page.
 - [ ] Display Server IP address and message about whitelisting it on deployment targets
-- [ ] Add display of SSH pubkey in server tab.
+- [x] Add display of SSH pubkey in server tab.
 
 ## v0.3
 
 ### Backend
 - [ ] Cancel deployment operation
+- [ ] Add wider array of webhook sources (see config/webhook.php)
 - [ ] Auto spawn project specific queues
 - [ ] Support cloud file storage
 - [ ] Do a pre-run test on server to check writability of every directory

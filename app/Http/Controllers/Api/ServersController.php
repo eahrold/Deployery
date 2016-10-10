@@ -176,21 +176,20 @@ class ServersController extends APIController
                        ->where('webhook', $this->request->url())
                        ->firstOrFail();
 
-        // TODO: Figure out the sender from the request
-        $sender = 'github';
+        list($agent,/*version*/) = explode('/', $this->request->header('User-Agent'), 2);
+        $name = ucfirst($server->username);
+        $sender = "{$name} [ {$agent} ]";
 
         if (!$server->autodeploy) {
             return $this->response->error("Autodeploy is not enabled", 400);
         }
 
         $from = $server->last_deployed_commit;
-        $to = $server->newest_commit;
 
-        if ($from && $to) {
-            return $this->response->array(
-                $this->ququeDeployment($server, $to['hash'], $from, $sender)
-            );
-        }
+        return $this->response->array(
+            $this->ququeDeployment($server, null, $from, $sender)
+        );
+
         abort(400, "Missing required information");
     }
 

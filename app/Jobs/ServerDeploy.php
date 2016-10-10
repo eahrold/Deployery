@@ -62,13 +62,15 @@ class ServerDeploy extends Job implements ShouldQueue
             $this->server->present()->deployment_started_message
         );
 
+        $this->server->updateGitInfo();
+        $this->toCommit = $this->toCommit ?: $this->server->newest_commit['hash'];
 
         $process = (new DeploymentProcess($this->server))->setCallback( function($message) {
             $this->sendMessage($message);
             $this->server->is_deploying = true;
         });
 
-        $rc = $process->deploy( $this->fromCommit, $this->toCommit);
+        $rc = $process->deploy($this->toCommit, $this->fromCommit);
 
         $this->registerDeploymentEnded(
             $this->server->present()->deployment_completed_message, $rc
@@ -101,6 +103,7 @@ class ServerDeploy extends Job implements ShouldQueue
     private function registerDeploymentStarted(string $message) {
         $this->server->is_deploying = true;
         $this->deployment_started = \Carbon::now();
+
         event(new DeploymentStarted($this->server, $message));
     }
 
@@ -149,7 +152,7 @@ class ServerDeploy extends Job implements ShouldQueue
         $history->project_id = $this->server->project->id;
 
         $history->from_commit = $this->fromCommit ?: "Beginning of time.";
-        $history->to_commit = $this->toCommit;
+        $history->to_commit = $this->toCommit ?: $this->server->last_deployed_commit;
 
         $history->success = ($rc == 0);
         $history->save();

@@ -23,10 +23,10 @@ trait MiddlewareResponder
      * @param  string $path    the URL to redirect to
      * @return mixed           The redirect or response
      */
-    protected function redirectTo($message, $code, $path)
+    protected function redirectTo($message, $status_code, $path)
     {
         if ($this->wantsJson()) {
-            return response($message, $code);
+            return response()->json(compact('message', 'status_code'), $status_code);
         } else {
             return redirect($path);
         }

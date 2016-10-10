@@ -149,6 +149,11 @@ final class Server extends Base
         return $this->gitInfoInstance;
     }
 
+    public function updateGitInfo() {
+        $this->git_info->fetch();
+        return $this;
+    }
+
     //----------------------------------------------------------
     // Commits
     //-------------------------------------------------------

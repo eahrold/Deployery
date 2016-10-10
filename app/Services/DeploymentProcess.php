@@ -64,16 +64,13 @@ class DeploymentProcess
     /**
      * Deploy the server
      *
-     * @param  mixed    $from     [description]
-     * @param  mixed    $to       [description]
+     * @param  string   $to       The ending commit
+     * @param  mixed    $from     The beginning commit
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
-    public function deploy($from = null, $to = null)
+    public function deploy($to, $from = null)
     {
-
-        $to = $to ?: $this->server->git_info->newest_commit['hash'];
-
         $this->callback($from ? "Deploying from {$from} to {$to}.\n" : "Deploying entire repo...");
 
         $this->callback("Preparing Repo for deploy.\n");
@@ -292,8 +289,6 @@ class DeploymentProcess
         $key = $this->server->project->user->auth_key;
         $repo = $this->server->repo;
         $branch =  $this->server->branch;
-
-        \Log::debug("SERVER KEY {$key}");
 
         $preparer->withPubKey($key);
         return $preparer->prepare($repo, $branch, $toCommit, function ($line) {

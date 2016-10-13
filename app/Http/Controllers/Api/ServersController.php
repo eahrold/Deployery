@@ -186,11 +186,14 @@ class ServersController extends APIController
             return $this->response->error("Autodeploy is not enabled", 404);
         }
 
-        $from = $server->last_deployed_commit;
+        $server->updateGitInfo();
 
-        return $this->response->array(
-            $this->ququeDeployment($server, null, $from, $sender)
-        );
+        $from = $server->last_deployed_commit;
+        $to = $server->newest_commit['hash'];
+
+        $response = $this->ququeDeployment($server, $to, $from, $sender);
+
+        return $this->response->array($response);
     }
 
     //----------------------------------------------------------
@@ -221,6 +224,8 @@ class ServersController extends APIController
         $this->dispatch($deployment);
         return [
             'message'=>'Queued deployment',
+            'from' => $from ?: "Beginning of time",
+            'to' => $to ?: "Autodetecting"
         ];
     }
 }

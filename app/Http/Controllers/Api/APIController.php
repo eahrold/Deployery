@@ -8,7 +8,7 @@ use App\Models\Base;
 use App\Transformers\Transformer;
 use Dingo\Api\Routing\Helpers;
 
-class APIController extends Controller
+abstract class APIController extends Controller
 {
     use Helpers;
 

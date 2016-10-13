@@ -126,6 +126,8 @@ class ServersController extends APIController
     public function commit_details($project_id, $id)
     {
         $server = $this->projects->findServer($project_id, $id);
+        $server->updateGitInfo();
+
         $last_deployed_commit = $server->last_deployed_commit;
         $avaliable_commits = $server->commits;
 
@@ -181,7 +183,7 @@ class ServersController extends APIController
         $sender = "{$name} [ {$agent} ]";
 
         if (!$server->autodeploy) {
-            return $this->response->error("Autodeploy is not enabled", 400);
+            return $this->response->error("Autodeploy is not enabled", 404);
         }
 
         $from = $server->last_deployed_commit;

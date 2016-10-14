@@ -4,6 +4,7 @@ namespace App\Services\Git;
 
 use App\Services\Git\Exceptions\GitException;
 use App\Services\Git\Exceptions\GitInvalidBranchException;
+use App\Services\Git\GitProcessManager;
 use App\Services\Git\Traits\GitAuthenticatable;
 use Illuminate\Support\Str;
 use Symfony\Component\Process\Process;
@@ -118,10 +119,11 @@ class GitInfo
      */
     public function getNewestCommitProperty()
     {
-        $commits = $this->commits();
-        if (count($commits)) {
-            return $commits[0];
-        }
+        $task = "log origin/{$this->branch} -1 --oneline";
+        $builder = $this->gitBuilder()->setTask($task);
+        $stdout = $this->run($builder);
+        list($hash, $message) = explode(' ', end($stdout), 2);
+        return ['hash' => trim($hash), 'message' => trim($message)];
     }
 
     /**
@@ -193,8 +195,28 @@ class GitInfo
     {
         $builder = $this->gitBuilder()->setTask('fetch --all');
         $this->run($builder);
+        return $this;
     }
 
+    /**
+     * Do a heavy handed repo update
+     *
+     * @return  void
+     */
+    public function update()
+    {
+        $tasks = [
+            "fetch origin",
+            "reset --hard origin/{$this->branch}",
+            "pull"
+        ];
+
+        $manager = new GitProcessManager($this->repo);
+        $manager->withPubKey($this->pub_key)
+                ->run($tasks, null, null, true);
+
+        return $this;
+    }
     /**
      * Show Changes between two commits
      *

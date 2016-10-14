@@ -150,7 +150,7 @@ final class Server extends Base
     }
 
     public function updateGitInfo() {
-        $this->git_info->fetch();
+        $this->git_info->update();
         return $this;
     }
 

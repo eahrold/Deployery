@@ -36,12 +36,15 @@
                     {!! BootForm::hidden('id') !!}
 
                     @php $webhook = $model->webhook @endphp
+                    @php $branch = $model->branch ?: $project->branch @endphp
+
                     <input type="hidden" name="webhook" value="{{ $webhook }}">
                     <h3>Host Settings</h3>
                     {!! BootForm::text('Name', 'name') !!}
                     {!! BootForm::text('Hostname', 'hostname') !!}
-                    {!! BootForm::text("Port",'port') !!}
+                    {!! BootForm::text("Port",'port')->value($model->port) !!}
 
+                    <hr/>
                     <h3>Credentials</h3>
                     {!! BootForm::text("Username",'username') !!}
                     {!! BootForm::password("Password",'password') !!}
@@ -50,17 +53,18 @@
                         {!! BootForm::checkbox("Use SSH Key",'use_ssk_key') !!}
                         <a href="#sshkey" data-toggle="collapse">Show Public Key</a>
                         <div id="sshkey" class="collapse">
-                            <textarea  class="form-control" rows="8">{{ $project->pubkey }}</textarea>
+                            <textarea  class="form-control" rows="10" readonly>{{ $project->pubkey }}</textarea>
                         </div>
-
                     </div>
 
+                    <hr/>
                     <h3>Deployment Info</h3>
                     {!! BootForm::text("Deployment Path",'deployment_path') !!}
-                    {!! BootForm::text("Branch",'branch') !!}
+                    {!! BootForm::text("Branch",'branch')->value($branch) !!}
                     {!! BootForm::text("Environment",'environment') !!}
                     {!! BootForm::text("Sub Directory",'sub_directory') !!}
 
+                    <hr/>
                     <h3>Web Hooks</h3>
                     <div class='form-group'>
                         {!! BootForm::checkbox("AutoDeploy?",'autodeploy') !!}
@@ -71,6 +75,7 @@
                     @if($project->scripts->count())
                         @php $script_ids = isset($model->id) ? $model->scripts->pluck('id')->toArray() : []; @endphp
 
+                        <hr/>
                         <h3>Install Scripts</h3>
                         @if($project->preinstall_scripts->count())
                         <label>Run these scripts before deployment</label>

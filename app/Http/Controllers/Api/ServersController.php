@@ -116,12 +116,13 @@ class ServersController extends APIController
     {
         $server = $this->projects->findServer($project_id, $id);
         if ($server->validateConnection()) {
-                return $this->response->array([
+            return $this->response->array([
                 'success'=> true,
                 'message'=> $server->connection_status_message
-                ]);
+            ]);
         }
-        abort(412, $server->connection_status_message);
+
+        abort(412, $server->present()->connection_status_message);
     }
 
     public function commit_details($project_id, $id)
@@ -135,7 +136,8 @@ class ServersController extends APIController
         if ($server->validateConnection()) {
             return $this->response->array(compact('last_deployed_commit', 'avaliable_commits'));
         }
-        abort(412, $server->connection_status_message);
+
+        abort(412, $server->present()->connection_status_message);
     }
 
     //----------------------------------------------------------

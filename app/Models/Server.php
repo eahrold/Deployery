@@ -220,7 +220,13 @@ final class Server extends Base
 
     public function validateConnection()
     {
-        $status = $this->getConnectionAttribute()->validate($this->deployment_path);
+        try {
+            $status = $this->getConnectionAttribute()
+                           ->validate($this->deployment_path);
+        } catch (\Exception $e) {
+            $status = Connection::CONNECTION_STATUS_FAILURE;
+        }
+
         $this->successfully_connected = $status;
         $this->save();
         return ($status === Connection::CONNECTION_STATUS_SUCCESS);
@@ -233,19 +239,6 @@ final class Server extends Base
     {
         if ($this->project) {
             return $this->project->repo_path;
-        }
-    }
-
-    public function getBranchAttribute($value = "master")
-    {
-        return $value;
-    }
-
-    public function setBranchAttribute($value)
-    {
-        if ($this->project) {
-            $this->git_info->branch($value);
-            $this->attributes['branch'] = $value;
         }
     }
 

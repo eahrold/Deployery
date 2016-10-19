@@ -83,4 +83,7 @@ And numerous other includes.
 
 A special thanks to Samuel De Backer for [TypiCMS](http://typicms.org), an awesome Laravel based CMS, that was often referred to, and borrowed from.
 
+---
 
+__Big Club Digital__ is a St. Louis development house.  
+Check us out online [https://bigclubdigital.com](https://bigclubdigital.com)

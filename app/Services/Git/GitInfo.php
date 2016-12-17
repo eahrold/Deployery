@@ -241,15 +241,23 @@ class GitInfo
         $removed = [];
 
         foreach ($files as $result) {
-            $char = substr($result, 0, 1);
-            $file = substr($result, 1);
+            $parts = preg_split('/\s+/', $result);
+            $char = trim($parts[0]);
+            $file = trim($parts[1]);
+
             switch ($char) {
                 case 'A':
                 case 'M':
-                    $changed[] = trim($file);
+                    $changed[] = $file;
                     break;
                 case 'D':
-                    $removed[] = trim($file);
+                    $removed[] = $file;
+                    break;
+                case 'R':
+                    // Renamed files are formatted like this...
+                    // R087    app/Models/FromSomeFile.php  app/Services/ToSomeFile.php
+                    $removed[] = $file;
+                    $changed[] = trim($parts[2]);
                     break;
                 default:
                     break;

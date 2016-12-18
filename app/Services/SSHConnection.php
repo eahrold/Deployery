@@ -29,9 +29,15 @@ class SSHConnection extends Connection {
      */
     public function put($local, $remote)
     {
+        if (is_link($local)) {
+            $target = readlink($local);
+            return $this->getGateway()->getConnection()->symlink($target, $local);
+        }
+
         if (filesize($local)) {
             return $this->getGateway()->getConnection()->put($remote, $local, SFTP::SOURCE_LOCAL_FILE);
-        } else {
+        }
+        else {
             \Log::info("Found zero byte file {$local}");
             if ($this->exists($remote) && !$this->delete($remote)) {
                 return false;
@@ -63,6 +69,7 @@ class SSHConnection extends Connection {
             $fauxf = strtoupper(md5(uniqid(rand(), true)));
             $fauxPath = "{$path}/{$fauxf}";
             $this->putString($fauxPath, "hello world");
+
             if (!$this->exists($fauxPath)) {
                 $status = self::CONNECTION_STATUS_CANNOT_WRITE_TO_PATH;
             } else {

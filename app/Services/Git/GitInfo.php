@@ -242,7 +242,7 @@ class GitInfo
 
         foreach ($files as $result) {
             $parts = preg_split('/\s+/', $result);
-            $char = trim($parts[0]);
+            $char = trim($parts[0])[0];
             $file = trim($parts[1]);
 
             switch ($char) {

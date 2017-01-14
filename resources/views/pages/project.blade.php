@@ -75,7 +75,9 @@
             <!-- Servers -->
             <div class="tab-pane" id="servers">
                 <servers :servers='project.servers'
-                         :project-id='project.id'>
+                         :project-id='project.id'
+                         :deploying='deployment.deploying'
+                         :messages='deployment.messages'>
                 </servers>
             </div>
 
@@ -154,9 +156,8 @@
 var isDeploying = '{!! $model->is_deploying !!}' ? true : false;
 var isCloning = '{!! $model->is_cloning !!}' ? true : false;
 var project = {!! $model->toJson() !!};
-var projectVue = CreateProjectVue("#project-vm", project, isDeploying, isCloning);
 
-console.log("PROJ:: ", JSON.parse(JSON.stringify(project)));
+var projectVue = CreateProjectVue("#project-vm", project, isDeploying, isCloning);
 
 </script>
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 
-    <title>Deployery</title>
+    <title>Project {{ $model->name or "Deployery" }}</title>
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">

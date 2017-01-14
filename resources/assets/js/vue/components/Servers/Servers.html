@@ -35,10 +35,11 @@
                     <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
                 </td>
                 <td v-else class="center">
-                     <i class="fa fa-cloud-download"
-                        aria-hidden="true"
-                        @click="deploy(server)">
-                    </i>
+
+                    <a @click='openModal(server)' data-toggle="modal" data-target="#server-selector">
+                        <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                    </a>
+
                 </td>
                 <td class='center'>
                     <a class="open-user-sshkey-modal"
@@ -65,5 +66,13 @@
             </tr>
         </tbody>
     </table>
+
+    <deployment v-if='server'
+                :server='server'
+                :project-id='projectId'
+                :messages='messages'
+                :deploying='deploying'
+                @close='closeModal'>
+    </deployment>
 </div>
 

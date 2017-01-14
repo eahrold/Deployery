@@ -2,12 +2,11 @@ import vSelect from "vue-select"
 
 export default {
     components: {vSelect},
-    props: [ 'projectId', 'servers' , 'messages', 'deploying'],
+    props: [ 'projectId', 'server' , 'messages', 'deploying'],
     http: { headers: globalHeaders },
 
     data() {
         return {
-            currentServer: {},
             primary_status: null,
             fromCommit: {hash: null, message: null},
             toCommit: {hash: null, message: null},
@@ -22,6 +21,12 @@ export default {
     ready() {
         console.log('deployment is ready');
         this.avaliableFromCommits.push({'hash': 0, 'message': 'Beginning of time'});
+        this.getCommitDetails();
+        var self = this;
+        $('#server-selector').on('hidden.bs.modal', function () {
+            self.$emit('close');
+        });
+
         // this.toCommit = this.avaliableCommits[0].hash;
     },
 
@@ -30,12 +35,15 @@ export default {
         complete(){
             return !this.deploying;
         },
+
         hasErrors(){
             return this.errors.length;
         },
+
         apiEndpoint(){
-            return '/api/projects/'+this.projectId+'/servers/'+this.currentServer.id;
+            return '/api/projects/'+this.projectId+'/servers/'+this.server.id;
         },
+
         selectCommits(){
             return _.map(this.avaliableCommits, (obj)=>{
                 return {'label': obj.hash+": "+obj.message.substring(0, 60)+"...", value: obj.hash};
@@ -60,16 +68,8 @@ export default {
 
 
     methods: {
-        /**
-         * Set the current server
-         * @param object    server server
-         */
-        setServer(server){
-            this.currentServer = server;
-        },
 
-        getCommitDetails(server){
-            this.currentServer = server;
+        getCommitDetails(){
             this.loading = true;
 
             this.$http.get(this.apiEndpoint+'/commit-details')
@@ -95,7 +95,7 @@ export default {
          */
         beginDeployment(){
             console.log('Deployment began...');
-            this.$dispatch('deployment-began', this.currentServer);
+            this.$dispatch('deployment-began', this.server);
             // Something here...
         },
 

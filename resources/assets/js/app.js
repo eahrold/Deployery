@@ -16,6 +16,8 @@ Vue.component('servers', require('./vue/components/Servers/Servers.vue'));
 Vue.component('history', require('./vue/components/History/History.vue'));
 Vue.component('scripts', require('./vue/components/Scripts/Scripts.vue'));
 Vue.component('configs', require('./vue/components/Configs/Configs.vue'));
+
+Vue.component('deployment', require('./vue/components/Deployments/Deployment.vue'));
 Vue.component('deployments', require('./vue/components/Deployments/Deployments.vue'));
 
 Vue.component('trash-button', require('./vue/components/partials/TrashButton.vue'));

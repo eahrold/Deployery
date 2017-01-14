@@ -1,18 +1,4 @@
-<div class="dropdown">
-    <button class='icon' id="deploy-dropdown" type="button"
-            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <i class="fa fa-cloud-upload" aria-hidden="true"></i>
-    </button>
-
-    <ul class="dropdown-menu" aria-labelledby="deploy-dropdown">
-        <li v-for='server in servers'>
-            <a @click='getCommitDetails(server)'
-               data-toggle="modal"
-               data-target="#server-selector">{{ server.name }}
-            </a>
-        </li>
-    </ul>
-
+<div>
     <div class="deployments">
         <!-- Button HTML (to Trigger Modal) -->
         <!-- Modal HTML -->
@@ -32,7 +18,7 @@
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <h4 class="modal-title">Depoy {{ currentServer.name }}</h4>
+                        <h4 class="modal-title">Deploy {{ server.name }}</h4>
                     </div>
 
                     <div class="modal-body">

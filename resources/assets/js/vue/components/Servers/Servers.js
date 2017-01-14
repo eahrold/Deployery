@@ -2,7 +2,7 @@
  * Component to display a list of servers per project.
  */
 export default {
-    props: ['servers', 'projectId'],
+    props: ['servers', 'projectId', 'deploying', 'messages'],
     http: {
         headers: globalHeaders
     },
@@ -12,6 +12,7 @@ export default {
             status: {},
             testing: false,
             testing_id: null,
+            server: null
         }
     },
 
@@ -80,11 +81,12 @@ export default {
         /**
          * Start Deployment
          */
-        beginDeployment(server){
-            server.is_deploying = true;
-            console.log('deploying Server', server);
-            Alerter.success('Stared deployment on '+server.name);
-            this.$dispatch('deployment-began', server);
+        openModal(server){
+            this.server = server;
+        },
+
+        closeModal() {
+            this.server = null;
         }
     }
 }

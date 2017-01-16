@@ -7,17 +7,42 @@ use App\Services\Git\GitPreparer;
 
 class DeploymentProcess
 {
-    private $errors = [];
-
+    /**
+     * Server
+     * @var \App\Models\Server
+     */
     private $server;
 
+    /**
+     * Std Callback
+     * @var \Closure
+     */
     private $callback;
 
+    /**
+     * Error Callback
+     * @var \Closure
+     */
     private $errorCallback;
 
+    /**
+     * Uploaded Files
+     * @var array
+     */
     private $uploaded = [];
 
+    /**
+     * Removed Files
+     * @var array
+     */
     private $removed = [];
+
+    /**
+     * Errors
+     * @var array
+     */
+    private $errors = [];
+
 
     /**
      * Is the operation canceled

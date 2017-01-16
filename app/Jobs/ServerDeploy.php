@@ -30,10 +30,34 @@ class ServerDeploy extends Job implements ShouldQueue
      */
     private $channel;
 
+    /**
+     * From Commit
+     * @var string
+     */
     private $fromCommit;
+
+    /**
+     * To Commit
+     * @var string
+     */
     private $toCommit;
+
+    /**
+     * User Name
+     * @var string
+     */
     private $user_name;
 
+    /**
+     * Options
+     * @var array
+     */
+    private $options;
+
+    /**
+     * When the deployment started
+     * @var boolean
+     */
     private $deployment_started;
 
     /**

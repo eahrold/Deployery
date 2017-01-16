@@ -139,11 +139,6 @@ final class Project extends Base
         return $size;
     }
 
-    // public function getSlackWebhookUrlAttribute($value = null) {
-    //     dd(\Auth::user()->currentTeam());
-    //     return $value ?: \Auth::user()->currentTeam()->slack_webhook_url;
-    // }
-
     //----------------------------------------------------------
     // Relationships
     //-------------------------------------------------------

@@ -33,7 +33,7 @@ class DeploymentComplete extends Notification
      *
      * @param  \App\Models\Server  $server  Server object
      * @param  \App\Models\History $history History object
-     * @return void
+     *
      */
     public function __construct(Server $server, History $history)
     {
@@ -62,7 +62,8 @@ class DeploymentComplete extends Notification
     {
         $from = $this->history->from_commit;
         $to = $this->history->to_commit;
-        $successfully = $history->success ? "successfully" : "unsuccessfully";
+        $successfully = $this->history->success ? "successfully" : "unsuccessfully";
+
         return (new MailMessage)
                     ->line($this->primaryMessage())
                     ->line("The server was {$successfully} deployed from {$from} to {$to}");

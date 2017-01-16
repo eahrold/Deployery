@@ -23,7 +23,7 @@ export default {
         this.avaliableFromCommits.push({'hash': 0, 'message': 'Beginning of time'});
         this.getCommitDetails();
         var self = this;
-        $('#server-selector').on('hidden.bs.modal', function () {
+        $('#deployment-modal').on('hidden.bs.modal', function () {
             self.$emit('close');
         });
 

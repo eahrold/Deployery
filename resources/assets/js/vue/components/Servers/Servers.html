@@ -36,7 +36,7 @@
                 </td>
                 <td v-else class="center">
 
-                    <a @click='openModal(server)' data-toggle="modal" data-target="#server-selector">
+                    <a @click='openModal(server)' data-toggle="modal" data-target="#server-deployment-modal">
                         <i class="fa fa-cloud-download" aria-hidden="true"></i>
                     </a>
 
@@ -67,12 +67,21 @@
         </tbody>
     </table>
 
-    <deployment v-if='server'
-                :server='server'
-                :project-id='projectId'
-                :messages='messages'
-                :deploying='deploying'
-                @close='closeModal'>
-    </deployment>
+        <div class="deployments">
+            <!-- Button HTML (to Trigger Modal) -->
+            <!-- Modal HTML -->
+            <div id="server-deployment-modal" class="modal fade">
+                <div class="modal-dialog modal-lg modal-xl">
+                    <deployment v-if='server'
+                                :server='server'
+                                :project-id='projectId'
+                                :messages='messages'
+                                :deploying='deploying'
+                                @close='closeModal'>
+                    </deployment>
+                </div>
+            </div>
+        </div>
+
 </div>
 

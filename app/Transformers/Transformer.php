@@ -37,7 +37,14 @@ abstract class Transformer extends Fractal\TransformerAbstract
      *
      * @var array
      */
-    protected $guardedProperties =[];
+    protected $guardedProperties = [];
+
+    /**
+     * Any properties to expose
+     *
+     * @var array
+     */
+    protected $exposedProperties = [];
 
     /**
      * Transfrom the model
@@ -47,10 +54,12 @@ abstract class Transformer extends Fractal\TransformerAbstract
      */
     public function transform(Base $model)
     {
-        $this->model = $this->preProcess($model);
+        $model = $this->guardData(
+            $this->exposeProperties($model)
+        );
+        $model = $this->model = $this->preProcess($model);
 
         $data = $this->mapData($model->toArray());
-        $data = $this->guardData($data);
 
         return $this->postProcess($data);
     }
@@ -94,21 +103,45 @@ abstract class Transformer extends Fractal\TransformerAbstract
         return $item;
     }
 
-    /**
-     *  Remove guarded properties from the array
-     *
-     * @param  array $item data in
-     * @return array       data out
-     */
-    protected function guardData($item)
+    protected function authUser()
     {
-        if (!Auth::user()) {
-            foreach ($this->guardedProperties as $key) {
-                if (isset($item[$key])) {
-                    unset($item[$key]);
-                }
-            }
+        return app('Dingo\Api\Auth\Auth')->user() ?: Auth::user();
+    }
+
+    /**
+     * Make the given, typically hidden, attributes visible.
+     *
+     * @param  array|string  $attributes
+     * @return $this
+     */
+    public function makeVisible($attributes)
+    {
+        $this->exposedProperties = (array) $attributes;
+        return $this;
+    }
+
+    /**
+     * Handle the internals of exposing the attributes.
+     *
+     */
+    protected function exposeProperties($model)
+    {
+        $model->makeVisible($this->exposedProperties);
+        return $model;
+    }
+
+
+    /**
+     *  Hide properties if the user isn't authenticated
+     *
+     * @param  Base   $model model in
+     * @return Base          model out
+     */
+    protected function guardData($model)
+    {
+        if (!$this->authUser()) {
+            $model->makeHidden($this->guardedProperties);
         }
-        return $item;
+        return $model;
     }
 }

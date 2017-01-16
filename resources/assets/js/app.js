@@ -14,6 +14,8 @@ require('./bootstrap');
  */
 Vue.component('servers', require('./vue/components/Servers/Servers.vue'));
 Vue.component('history', require('./vue/components/History/History.vue'));
+Vue.component('history-modal', require('./vue/components/History/HistoryModal.vue'));
+
 Vue.component('scripts', require('./vue/components/Scripts/Scripts.vue'));
 Vue.component('configs', require('./vue/components/Configs/Configs.vue'));
 

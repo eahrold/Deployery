@@ -7,13 +7,17 @@ use App\Services\Git\GitPreparer;
 
 class DeploymentProcess
 {
-    private $errors;
+    private $errors = [];
 
     private $server;
 
     private $callback;
 
     private $errorCallback;
+
+    private $uploaded = [];
+
+    private $removed = [];
 
     /**
      * Is the operation canceled
@@ -112,6 +116,17 @@ class DeploymentProcess
         $this->canceled = true;
     }
 
+    public function getChanges () {
+        return [
+            'uploaded' => $this->uploaded,
+            'removed' => $this->removed
+        ];
+    }
+
+    public function getErrors () {
+        return $this->errors;
+    }
+
     /**
      * Updates the Server's last commit property
      *
@@ -155,7 +170,13 @@ class DeploymentProcess
                 $previous_dir = $pardir;
             }
 
-            $this->server->connection->put($local_file, $remote_file);
+            if ($this->server->connection->put($local_file, $remote_file)) {
+                $this->uploaded['success'][] = $file;
+            } else {
+                $this->uploaded['failed'][] = $file;
+                $this->errors[] = "Could not upload {$file}";
+            }
+
             $percent = (int)(($idx / $file_count) * 100);
             $this->callback("[{$percent}%] Uploaded {$remote_file}".PHP_EOL);
         }
@@ -177,7 +198,12 @@ class DeploymentProcess
         foreach ($files as $file) {
             $file_path = "{$this->server->deployment_path}/$file";
             if ($this->server->connection->exists($file_path)) {
-                $this->server->connection->delete($file_path);
+                if($this->server->connection->delete($file_path)) {
+                    $this->removed['success'][] = $file;
+                } else {
+                    $this->errors[] = "Could not remove {$file}";
+                    $this->removed['failed'][] = $file;
+                }
                 $this->callback("Removed {$file_path}".PHP_EOL);
             }
         }
@@ -199,7 +225,9 @@ class DeploymentProcess
             if ($status) {
                 $this->callback("Successfully wrote config file to {$config->path}.");
             } else {
-                $this->errorCallback("There was a problem writing to {$path} {$status}.");
+                $msg = "There was a problem writing to {$path} {$status}.";
+                $this->errors[] = $msg;
+                $this->errorCallback($msg);
             }
         }
         return $status ? 0 : -1;
@@ -261,12 +289,15 @@ class DeploymentProcess
             $commands = array_filter($commands, function ($i) {
                 return !empty($i);
             });
+
             $connection->run($commands, $this->callback);
 
-            if ($script->stop_on_failure) {
-                $status = $connection->status();
-                if ($status !== 0) {
-                    $this->callback("Install Script failed!");
+            $status = $connection->status();
+            if ($status !== 0) {
+                $msg = "Install Script '{$script->description}' failed. [code: {$status}]";
+                $this->errors[] = $msg;
+                $this->callback($msg);
+                if ($script->stop_on_failure) {
                     return $status;
                 }
             }

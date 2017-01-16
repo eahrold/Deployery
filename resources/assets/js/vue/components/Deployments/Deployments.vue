@@ -9,17 +9,26 @@
             <li v-for='server in servers'>
                 <a @click='openModal(server)'
                    data-toggle="modal"
-                   data-target="#server-selector">{{ server.name }}
+                   data-target="#deployment-modal">{{ server.name }}
                 </a>
             </li>
         </ul>
-        <deployment v-if='server'
-                    :server='server'
-                    :project-id='projectId'
-                    :messages='messages'
-                    :deploying='deploying'
-                    @close='closeModal'>
-        </deployment>
+
+        <div class="deployments">
+            <!-- Button HTML (to Trigger Modal) -->
+            <!-- Modal HTML -->
+            <div id="deployment-modal" class="modal fade">
+                <div class="modal-dialog modal-lg modal-xl">
+                    <deployment v-if='server'
+                                :server='server'
+                                :project-id='projectId'
+                                :messages='messages'
+                                :deploying='deploying'
+                                @close='closeModal'>
+                    </deployment>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 

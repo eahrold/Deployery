@@ -48,6 +48,10 @@ $api->version('v1', function ($api) {
         $api->resource("{project}/configs", "App\Http\Controllers\Api\ConfigsController", [
             "only"=>["store","update","destroy"],
         ]);
+
+        $api->resource("{project}/history", "App\Http\Controllers\Api\HistoryController", [
+            "only"=>["index","show"],
+        ]);
     });
 
     $api->group(["middleware" => "api.webhook"], function ($api) {

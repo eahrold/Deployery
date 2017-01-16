@@ -15,14 +15,19 @@ final class History extends Base
     protected $presenter = 'App\Presenters\History';
 
     protected $fillable = [
-        'name',
         'user_name',
         'from_commit',
         'to_commit',
+        'details',
     ];
 
     protected $casts = [
         'success' => 'boolean',
+        'details' => 'json'
+    ];
+
+    protected $hidden = [
+        'details'
     ];
 
     // We have both a project, and server relationship here
@@ -30,12 +35,12 @@ final class History extends Base
     // keep the history attached to something.
     public function project()
     {
-        return $this->belongsTo('App\Models\Project')->order();
+        return $this->belongsTo('App\Models\Project');
     }
 
     public function server()
     {
-        return $this->belongsTo('App\Models\Server')->order();
+        return $this->belongsTo('App\Models\Server');
     }
 
     public function scopeOrder($query)

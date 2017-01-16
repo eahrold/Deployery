@@ -71,9 +71,11 @@ class ServerDeploy extends Job implements ShouldQueue
         });
 
         $rc = $process->deploy($this->toCommit, $this->fromCommit);
+        $changes = $process->getChanges();
+        $errors = $process->getErrors();
 
         $this->registerDeploymentEnded(
-            $this->server->present()->deployment_completed_message, $rc
+            $this->server->present()->deployment_completed_message, $rc, $changes, $errors
         );
     }
 
@@ -112,9 +114,10 @@ class ServerDeploy extends Job implements ShouldQueue
      *
      * @param  string $message The on start message
      */
-    private function registerDeploymentEnded(string $message, int $rc, array $errors = []) {
+    private function registerDeploymentEnded(string $message, int $rc, array $changes = [], array $errors = []) {
         event(new DeploymentEnded($this->server, $message, $errors));
-        $this->saveHistory($rc);
+        $history = $this->saveHistory($rc, $changes, $errors);
+
         $this->server->is_deploying = false;
     }
 
@@ -143,7 +146,7 @@ class ServerDeploy extends Job implements ShouldQueue
      * @param  int code $rc TaskWrapper exit code.
      * @param integer $rc
      */
-    private function saveHistory($rc)
+    private function saveHistory($rc, $changes, $errors)
     {
         $history = new History();
 
@@ -154,8 +157,15 @@ class ServerDeploy extends Job implements ShouldQueue
         $history->from_commit = $this->fromCommit ?: "Beginning of time.";
         $history->to_commit = $this->toCommit ?: $this->server->last_deployed_commit;
 
+        $history->details = [
+            'changes' => $changes,
+            'errors' => $errors,
+        ];
+
         $history->success = ($rc == 0);
         $history->save();
+
+        return $history;
     }
 
     public function failed()

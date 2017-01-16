@@ -16,7 +16,7 @@ final class Config extends Base
 
     public function project()
     {
-        return $this->belongsTo('App\Models\Project')->order();
+        return $this->belongsTo('App\Models\Project');
     }
 
     public function servers()

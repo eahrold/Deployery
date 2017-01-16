@@ -83,7 +83,9 @@
 
             <!-- History -->
             <div id='history' class="tab-pane fade">
-                <history :history='project.history'></history>
+                <history :history='project.history'
+                         :project-id='project.id'>
+                </history>
             </div>
 
             <!-- Configuration Files -->

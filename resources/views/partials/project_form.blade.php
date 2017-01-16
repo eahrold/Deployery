@@ -20,6 +20,9 @@
 {!! BootForm::text('Git Clone URL', 'repo') !!}
 {!! BootForm::text('Default Branch', 'branch') !!}
 
+{!! BootForm::checkbox('Send Slack Notification', 'send_slack_messages') !!}
+{!! BootForm::text('Slack Webhook URL', 'slack_webhook_url') !!}
+
 <div class='pin-right projects'>
     @include('includes.save_buttons')
 </div>

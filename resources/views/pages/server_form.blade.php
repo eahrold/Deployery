@@ -71,10 +71,14 @@
                         <div><b>Webhook URL:</b> {{ $webhook }}</div>
                     </div>
 
+                    <hr/>
+                    <h3>Notifications</h3>
+                    {!! BootForm::checkbox('Send Slack Notification', 'send_slack_messages') !!}
+                    {!! BootForm::text('Slack Webhook URL', 'slack_webhook_url') !!}
 
                     @if($project->scripts->count())
-                        @php $script_ids = isset($model->id) ? $model->scripts->pluck('id')->toArray() : []; @endphp
 
+                        @php $script_ids = isset($model->id) ? $model->scripts->pluck('id')->toArray() : []; @endphp
                         <hr/>
                         <h3>Install Scripts</h3>
                         @if($project->preinstall_scripts->count())

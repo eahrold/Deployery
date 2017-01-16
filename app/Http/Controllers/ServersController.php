@@ -91,14 +91,19 @@ final class ServersController extends ProjectChildController
         $path = $model->repo;
         $key = $model->project->user->auth_key;
 
+        $rules = $model->getValidationRules($id, ['branch'=>"git_branch:{$path},{$key}"]);
         $this->validate(
             $this->request,
-            $model->getValidationRules($id, ['branch'=>"git_branch:{$path},{$key}"])
+            $rules
         );
 
         $model->fill($this->request->all());
 
-        $this->setBooleansForModel($model, ['autodeploy', 'use_ssk_key']);
+        $this->setBooleansForModel($model, [
+            'autodeploy',
+            'use_ssk_key',
+            'send_slack_messages'
+        ]);
 
 
         $dirty = $model->isDirty();

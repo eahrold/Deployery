@@ -8,6 +8,7 @@ use App\Events\DeploymentStarted;
 use App\Jobs\Job;
 use App\Models\History;
 use App\Models\Server;
+use App\Notifications\DeploymentComplete;
 use App\Services\DeploymentProcess;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -40,13 +41,14 @@ class ServerDeploy extends Job implements ShouldQueue
      * @param null|string $from
      * @param null|string $to
      */
-    public function __construct(Server $server, $user_name, $from, $to)
+    public function __construct(Server $server, $user_name, $from, $to, $options = [])
     {
         $this->server = $server;
         $this->fromCommit = $from;
         $this->toCommit = $to;
         $this->channel = $server->channel_id;
         $this->user_name = $user_name;
+        $this->options = $options;
     }
 
     /**
@@ -65,7 +67,7 @@ class ServerDeploy extends Job implements ShouldQueue
         $this->server->updateGitInfo();
         $this->toCommit = $this->toCommit ?: $this->server->newest_commit['hash'];
 
-        $process = (new DeploymentProcess($this->server))->setCallback( function($message) {
+        $process = (new DeploymentProcess($this->server))->setCallback(function ($message) {
             $this->sendMessage($message);
             $this->server->is_deploying = true;
         });
@@ -75,7 +77,10 @@ class ServerDeploy extends Job implements ShouldQueue
         $errors = $process->getErrors();
 
         $this->registerDeploymentEnded(
-            $this->server->present()->deployment_completed_message, $rc, $changes, $errors
+            $this->server->present()->deployment_completed_message,
+            $rc,
+            $changes,
+            $errors
         );
     }
 
@@ -102,7 +107,8 @@ class ServerDeploy extends Job implements ShouldQueue
      *
      * @param  string $message The on start message
      */
-    private function registerDeploymentStarted(string $message) {
+    private function registerDeploymentStarted(string $message)
+    {
         $this->server->is_deploying = true;
         $this->deployment_started = \Carbon::now();
 
@@ -114,11 +120,13 @@ class ServerDeploy extends Job implements ShouldQueue
      *
      * @param  string $message The on start message
      */
-    private function registerDeploymentEnded(string $message, int $rc, array $changes = [], array $errors = []) {
+    private function registerDeploymentEnded(string $message, int $rc, array $changes = [], array $errors = [])
+    {
         event(new DeploymentEnded($this->server, $message, $errors));
         $history = $this->saveHistory($rc, $changes, $errors);
 
         $this->server->is_deploying = false;
+        $this->server->notify(new DeploymentComplete($this->server, $history));
     }
 
     /**

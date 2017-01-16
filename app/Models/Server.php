@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use App\Models\Traits\PasswordEncrypter;
+use App\Models\Traits\Slackable;
 use App\Presenters\PresentableTrait;
 use App\Services\Git\GitInfo;
 use App\Services\SSHConnection as Connection;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Input;
 
@@ -13,15 +15,19 @@ final class Server extends Base
 {
     use PresentableTrait;
     use PasswordEncrypter;
+    use Slackable;
+    use Notifiable;
 
     protected $presenter = 'App\Presenters\Server';
 
     protected $unique_validation_key = ['name'];
+
     protected $validation_rules = [
         'name' => 'required:max:255',
         'hostname' => 'required:active_url',
         'username' => 'required:max:255',
         'deployment_path' => 'required:max:255',
+        'slack_webhook_url' => 'active_url',
     ];
 
     protected $fillable = [
@@ -37,7 +43,9 @@ final class Server extends Base
         'environment',
         'sub_directory',
         'autodeploy',
-        'webhook'
+        'webhook',
+        'slack_webhook_url',
+        'send_slack_messages',
     ];
 
     public function getConfigAttribute()
@@ -133,6 +141,11 @@ final class Server extends Base
     public function getConnectionDetailsAttribute($value = '')
     {
         return "{$this->username}@{$this->hostname}";
+    }
+
+    public function getSlackWebhookUrlAttribute($value = null)
+    {
+        return $value ?: ($this->project ? $this->project->slack_webhook_url : $value);
     }
 
     //----------------------------------------------------------
@@ -266,7 +279,7 @@ final class Server extends Base
     }
 
     //----------------------------------------------------------
-    // Hook extras
+    // Script extras
     //-------------------------------------------------------
     public function getPreInstallScriptsAttribute()
     {

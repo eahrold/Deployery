@@ -166,7 +166,7 @@ class ServersController extends APIController
         }
 
         return $this->response->array(
-            $this->ququeDeployment($server, $to, $from)
+            $this->queueDeployment($server, $to, $from)
         );
     }
 
@@ -194,7 +194,7 @@ class ServersController extends APIController
         $from = $server->last_deployed_commit;
         $to = $server->newest_commit['hash'];
 
-        $response = $this->ququeDeployment($server, $to, $from, $sender);
+        $response = $this->queueDeployment($server, $to, $from, $sender);
 
         return $this->response->array($response);
     }
@@ -212,7 +212,7 @@ class ServersController extends APIController
      * @param  string|null $user_name User deploying
      * @return array  Message
      */
-    private function ququeDeployment(Server $server, string $to = null, string $from = null, $user_name = null)
+    private function queueDeployment(Server $server, string $to = null, string $from = null, $user_name = null)
     {
         if ($user_name === '' || $user_name === null) {
             if ($user = Auth::user()) {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Slackable;
 use App\Services\Git\GitInfo;
 use App\Services\SSHKeyer;
 use Illuminate\Support\Facades\Auth;
@@ -10,10 +11,13 @@ use Symfony\Component\Process\ProcessBuilder;
 
 final class Project extends Base
 {
+    use Slackable;
+
     protected $unique_validation_key = ['name', 'repo'];
     public $validationRules = [
         'name' => 'required|string',
         'repo' => 'required|string',
+        'slack_webhook_url' => 'url',
     ];
 
     protected $fillable = [
@@ -21,6 +25,8 @@ final class Project extends Base
         'slug',
         'repo',
         'branch',
+        'slack_webhook_url',
+        'send_slack_messages',
     ];
 
     protected $hidden = [
@@ -132,6 +138,11 @@ final class Project extends Base
 
         return $size;
     }
+
+    // public function getSlackWebhookUrlAttribute($value = null) {
+    //     dd(\Auth::user()->currentTeam());
+    //     return $value ?: \Auth::user()->currentTeam()->slack_webhook_url;
+    // }
 
     //----------------------------------------------------------
     // Relationships

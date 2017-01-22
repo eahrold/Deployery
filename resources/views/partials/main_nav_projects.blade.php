@@ -18,7 +18,8 @@
             <li role="separator" class="divider"></li>
         @endif
         <li>
-            <a href="{{ url('/projects/create') }}">
+            <a data-toggle="modal"
+               data-target="#projectForm">
                 Create New Project
             </a>
         </li>

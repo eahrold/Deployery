@@ -12,10 +12,6 @@ export default {
     ready() {
     },
 
-    http: {
-        headers: globalHeaders
-    },
-
     methods: {
         getHistory (history) {
             this.loading = true;

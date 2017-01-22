@@ -67,21 +67,20 @@
         </tbody>
     </table>
 
-        <div class="deployments">
-            <!-- Button HTML (to Trigger Modal) -->
-            <!-- Modal HTML -->
-            <div id="server-deployment-modal" class="modal fade">
-                <div class="modal-dialog modal-lg modal-xl">
-                    <deployment v-if='server'
-                                :server='server'
-                                :project-id='projectId'
-                                :messages='messages'
-                                :deploying='deploying'
-                                @close='closeModal'>
-                    </deployment>
-                </div>
+    <div class="deployments">
+        <!-- Button HTML (to Trigger Modal) -->
+        <!-- Modal HTML -->
+        <div id="server-deployment-modal" class="modal fade">
+            <div class="modal-dialog modal-lg modal-xl">
+                <deployment v-if='server'
+                            :server='server'
+                            :project-id='projectId'
+                            :messages='messages'
+                            :deploying='deploying'
+                            @close='closeModal'>
+                </deployment>
             </div>
         </div>
-
+    </div>
 </div>
 

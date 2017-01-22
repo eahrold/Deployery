@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Jobs\RepositoryClone;
 use App\Models\Traits\Slackable;
 use App\Services\Git\GitInfo;
 use App\Services\SSHKeyer;
@@ -13,8 +14,8 @@ final class Project extends Base
 {
     use Slackable;
 
-    protected $unique_validation_key = ['name', 'repo'];
-    public $validationRules = [
+    protected $unique_validation_keys = ['name'];
+    protected $validation_rules = [
         'name' => 'required|string',
         'repo' => 'required|string',
         'slack_webhook_url' => 'url',
@@ -48,7 +49,6 @@ final class Project extends Base
 
     public function initializeProject($data)
     {
-        $data['slug'] = str_slug($data['name']);
         $project = $this->newInstance($data);
         $project->save();
 
@@ -100,6 +100,17 @@ final class Project extends Base
         }
     }
 
+    /**
+     * Get the broadcast channel
+     *
+     * @param  string $value
+     * @return string        broadcast channel
+     */
+    public function getChannelIdAttribute($value = '')
+    {
+        return "project.{$this->id}";
+    }
+
     public function getRepoPathAttribute()
     {
         return $this->repoPath();
@@ -115,21 +126,15 @@ final class Project extends Base
         return 'repo';
     }
 
-    public function getChannelIdAttribute($value = '')
-    {
-        return "project.{$this->id}";
-    }
-
     public function getRepoExistsAttribute($value = '')
     {
         return file_exists($this->repoPath());
     }
 
-    public function getRepoSizeAttribute($value = '')
+    public function getRepoSizeAttribute($value = false)
     {
         $key = "project-{$this->uid}-repo-size";
-
-        if($size = \Cache::get($key)) {
+        if(!$value && $size = \Cache::get($key)) {
             return $size;
         }
         $size = (new GitInfo($this->repoPath(), $this->branch))->size();
@@ -248,8 +253,7 @@ final class Project extends Base
                           ->orWhere('team_id',$tid);
                 })
                 ->where('id', $id)
-                ->firstOrFail()
-                ->append($this->signular_append);
+                ->firstOrFail();
     }
 
     public function scopeFindServer($query, $id, $model_id)
@@ -279,6 +283,23 @@ final class Project extends Base
     {
         parent::boot();
 
+        static::updating(function ($model) {
+            if( $model->repo_exists && $model->isDirty('repo')) {
+                // Run git updateRepoName //
+            }
+        });
+
+        static::saved(function ($model) {
+            if (!$model->repo_exists) {
+                \Log::debug("Saved, dispatching repo clone to {$model->repoPath()}");
+                dispatch((new RepositoryClone($model))->onQueue('clones'));
+            }
+        });
+
+        static::saving(function ($model) {
+            $model->slug = str_slug($model->slug ?: $model->name);
+        });
+
         // Register for events
         static::creating(function ($model) {
             $model->uid = uniqid();
@@ -286,7 +307,6 @@ final class Project extends Base
             $model->team_id = Auth::user()->current_team_id;
         });
 
-        // Register for events
         static::created(function ($model) {
             $keyer = new SSHKeyer();
             $keyer->generate($model->keyPath(), true);

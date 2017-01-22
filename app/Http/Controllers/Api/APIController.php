@@ -22,4 +22,23 @@ abstract class APIController extends Controller
         $this->model = $model;
         $this->transformer = $transformer;
     }
+
+    public function options ($project_id=null)
+    {
+        return  $this->response->array([
+            'options' => new \stdClass
+        ]);
+    }
+
+    protected function apiValidate(Request $request, array $rules)
+    {
+        $validator = \Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            $class_name = class_basename($this->model);
+            throw new \Dingo\Api\Exception\UpdateResourceFailedException(
+                "Could not update the {$class_name}.",
+                $validator->errors()
+            );
+        }
+    }
 }

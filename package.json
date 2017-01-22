@@ -6,17 +6,14 @@
   },
 
   "devDependencies": {
-    "bootstrap-sass": "^3.3.7",
+    "babel-helper-vue-jsx-merge-props": "^2.0.1",
+    "babel-plugin-syntax-jsx": "^6.18.0",
+    "babel-plugin-transform-vue-jsx": "^3.1.0",
     "gulp": "^3.9.1",
-    "jquery": "^3.1.0",
     "laravel-elixir": "^6.0.0-9",
-    "laravel-elixir-vue": "^0.1.4",
+    "laravel-elixir-vue-2": "^0.3.0",
     "laravel-elixir-webpack-official": "^1.0.2",
-    "lodash": "^4.14.0",
-    "vue": "^1.0.26",
-    "vue-resource": "^0.9.3",
-    "vue-validator": "^2.1.7",
-    "noty": "^2.3.8"
+    "vue-template-compiler": "^2.1.4"
   },
 
   "dependencies": {
@@ -24,6 +21,27 @@
     "ioredis": "^2.3.0",
     "laravel-echo": "^1.0.1",
     "pusher-js": "^3.2.1",
-    "socket.io": "^1.4.8"
+    "socket.io": "^1.4.8",
+
+    "jquery": "^3.1.0",
+    "lodash": "^4.14.0",
+    "moment": "^2.15.2",
+
+    "font-awesome": "^4.7.0",
+    "bootstrap-sass": "^3.3.7",
+
+    "bootstrap-daterangepicker": "^2.1.24",
+    "bootstrap-select": "^1.12.1",
+    "dropzone": "^4.3.0",
+    "jquery-colorbox": "^1.6.4",
+    "sortablejs": "^1.5.0-rc1",
+    "tinymce": "^4.5.1",
+    "sweetalert": "^1.1.3",
+
+    "vue": "^2.0.1",
+    "vue-resource": "^1.0.3",
+    "vue-router": "^2.1.1",
+
+    "noty": "^2.3.8"
   }
 }

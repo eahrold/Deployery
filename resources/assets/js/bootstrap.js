@@ -17,9 +17,7 @@ require('bootstrap-sass');
  */
 
 window.Vue = require('vue');
-// require('vue-resource');
-require('vue-validator');
-require('vue-select');
+require('vue-resource');
 
 window.noty = require('noty');
 
@@ -30,10 +28,26 @@ window.noty = require('noty');
  * included with Laravel will automatically verify the header's value.
  */
 
-// Vue.http.interceptors.push((request, next) => {
-//     // request.headers['X-CSRF-TOKEN'] = Laravel.csrfToken;
-//     next();
-// });
+Vue.http.interceptors.push((request, next) => {
+
+    request.headers.set('Accept', 'application/json');
+    request.headers.set('Content-Type', 'application/json');
+    request.headers.set('X-CSRF-TOKEN', Laravel.csrfToken);
+
+    if (Laravel.apiToken) {
+        request.headers.set('Authorization', 'Bearer ' + Laravel.apiToken);
+    }
+
+    // continue to next interceptor
+    next((response) => {
+        if(!response.ok) {
+            if(response.status == 401) {
+                alert('Oops, looks like the your session has expired. reloading the page');
+                window.location = window.location;
+            }
+        }
+    });
+});
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
@@ -43,12 +57,11 @@ window.noty = require('noty');
 
 import Echo from "laravel-echo"
 
-window.getPusherKey = function () {
-    return $("meta[name='pusherkey']").attr('content');
-};
+if (Laravel.pusherKey) {
+    window.echo = new Echo({
+        broadcaster: 'pusher',
+        key: Laravel.pusherKey
+    });
+}
 
-window.echo = new Echo({
-    broadcaster: 'pusher',
-    key: window.getPusherKey()
-});
 

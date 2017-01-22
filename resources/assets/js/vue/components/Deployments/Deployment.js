@@ -3,7 +3,6 @@ import vSelect from "vue-select"
 export default {
     components: {vSelect},
     props: [ 'projectId', 'server' , 'messages', 'deploying'],
-    http: { headers: globalHeaders },
 
     data() {
         return {

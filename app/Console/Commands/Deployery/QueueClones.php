@@ -28,6 +28,6 @@ class QueueClones extends Command
      */
     public function handle()
     {
-        $this->call('queue:listen', ['--queue' => 'clones', '--timeout' => '300']);
+        $this->call('queue:listen', ['--queue' => 'clones', '--timeout' => '600']);
     }
 }

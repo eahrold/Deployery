@@ -261,8 +261,6 @@ class DeploymentProcess
     /**
      * Run pre-install scripts
      *
-     * @param Server $server
-     *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
     private function runPreInstallScripts()
@@ -274,8 +272,6 @@ class DeploymentProcess
 
     /**
      * Run post-install scripts
-     *
-     * @param Server $server
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
@@ -334,7 +330,6 @@ class DeploymentProcess
      * Prepare local git repo for deployment, fetch and pull remote data,
      * do a hard reset, and clean.
      *
-     * @param  Server $server   Server with the properties to configure
      * @param  string $toCommit Commit sha to reset to
      *
      * @return int  This will return 0 for success, anything else indicated a failure.

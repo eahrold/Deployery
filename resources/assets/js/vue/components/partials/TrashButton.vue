@@ -6,7 +6,17 @@
 
 <script>
     export default {
-        props: ['object', 'type'],
+        props: {
+            object: {
+                type: Object,
+                required: true
+            },
+            type: {
+                type: String,
+                required: true
+            }
+        },
+
         methods: {
             trash: function(){
                 this.$dispatch('delete-item', this.object, this.type);

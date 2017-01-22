@@ -1,5 +1,10 @@
 @import 'mixins';
 @import 'colors';
+@import 'transitions';
+
+// Bootstrap
+@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+@import "node_modules/font-awesome/scss/font-awesome";
 
 /**
  * Variables
@@ -17,7 +22,7 @@ html {
 }
 body {
   margin-bottom: $footerHeight;
-  font-family: 'Lato';
+  font-family: 'Lato' , sans-serif;
 }
 
 .modal-footer {

@@ -38,12 +38,13 @@ class ServersController extends APIController
      */
     public function store($project_id)
     {
-        $this->validate(
+        $this->apiValidate(
             $this->request,
             $this->model->getValidationRules()
         );
 
         $project = $this->projects->getUserModel($project_id);
+        $this->authorize($project);
 
         $data = $this->request->all();
         $data["project_id"] = $project_id;
@@ -65,6 +66,8 @@ class ServersController extends APIController
     public function show($project_id, $id)
     {
         $model = $this->projects->findServer($project_id, $id);
+        $this->authorize($model->project);
+
         return $this->response->item($model, new $this->transformer);
     }
 
@@ -77,12 +80,12 @@ class ServersController extends APIController
      */
     public function update($project_id, $id)
     {
-        $this->validate(
-            $this->request,
-            $this->model->getValidationRules($id)
-        );
+        $rules = $this->model->getValidationRules($id);
+        $this->apiValidate($this->request, $rules);
 
         $model = $this->projects->findServer($project_id, $id);
+        $this->authorize($model->project);
+
         $model->scripts()->sync($this->request->get('script_ids') ?: []);
 
         if ($model->update($this->request->all()) || !$model->isDirty()) {
@@ -101,6 +104,8 @@ class ServersController extends APIController
     public function destroy($project_id, $id)
     {
         $model = $this->projects->findServer($project_id, $id);
+        $this->authorize($model->project);
+
         if (!$model->delete()) {
             $this->response->error('Could not detete the server.', 422);
         }
@@ -111,10 +116,23 @@ class ServersController extends APIController
         ]);
     }
 
+    public function options ($project_id=null)
+    {
+        $protocols = [
+            'ssh',
+            'sftp'
+        ];
+
+        return $this->response
+            ->array(['options' => compact('protocols')]);
+    }
+
 
     public function test($project_id, $id)
     {
         $server = $this->projects->findServer($project_id, $id);
+        $this->authorize('deploy', $server->project);
+
         if ($server->validateConnection()) {
             return $this->response->array([
                 'success'=> true,
@@ -128,6 +146,8 @@ class ServersController extends APIController
     public function commit_details($project_id, $id)
     {
         $server = $this->projects->findServer($project_id, $id);
+        $this->authorize('deploy', $server->project);
+
         $server->updateGitInfo();
 
         $last_deployed_commit = $server->last_deployed_commit;
@@ -138,6 +158,16 @@ class ServersController extends APIController
         }
 
         abort(412, $server->present()->connection_status_message);
+    }
+
+    public function pubkey($id)
+    {
+        $project = $this->projects->findOrFail($id);
+        $this->authorize('deploy', $project);
+
+        return $this->response->array([
+            'key' => $project->pubkey
+        ]);
     }
 
     //----------------------------------------------------------
@@ -151,11 +181,9 @@ class ServersController extends APIController
      */
     public function deploy($project_id, $id)
     {
-        // $this->validate($this->request, [
-        //     'to' => 'required|string|max:40|min:6',
-        // ]);
 
         $server = $this->projects->findServer($project_id, $id);
+        $this->authorize('deploy', $server->project);
 
         if ($this->request->get('deploy_entire_repo')) {
             $to = $server->newest_commit['hash'];

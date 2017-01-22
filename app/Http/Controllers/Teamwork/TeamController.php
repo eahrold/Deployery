@@ -9,9 +9,15 @@ use Mpociot\Teamwork\Exceptions\UserNotInTeamException;
 
 class TeamController extends Controller
 {
+
+    private $teamModel;
+
     public function __construct()
     {
         $this->middleware('auth');
+
+        $Team = config('teamwork.team_model');
+        $this->teamModel = new $Team();
     }
 
     /**
@@ -49,9 +55,7 @@ class TeamController extends Controller
      */
     public function store(Request $request)
     {
-        $teamModel = config('teamwork.team_model');
-
-        $team = $teamModel::create([
+        $team = $this->teamModel->create([
             'name' => $request->name,
             'owner_id' => $request->user()->getKey()
         ]);
@@ -70,8 +74,7 @@ class TeamController extends Controller
      */
     public function switchTeam($id, $type='')
     {
-        $teamModel = config('teamwork.team_model');
-        $team = $teamModel::findOrFail($id);
+        $team = $this->teamModel->findOrFail($id);
         try {
             auth()->user()->switchTeam($team);
         } catch ( UserNotInTeamException $e ) {
@@ -96,8 +99,7 @@ class TeamController extends Controller
      */
     public function edit($id)
     {
-        $teamModel = config('teamwork.team_model');
-        $team = $teamModel::findOrFail($id);
+        $team = $this->teamModel->findOrFail($id);
 
         if (!auth()->user()->isOwnerOfTeam($team)) {
             abort(403);
@@ -115,9 +117,8 @@ class TeamController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $teamModel = config('teamwork.team_model');
 
-        $team = $teamModel::findOrFail($id);
+        $team = $this->teamModel->findOrFail($id);
         $team->name = $request->name;
         $team->save();
 
@@ -132,9 +133,7 @@ class TeamController extends Controller
      */
     public function destroy($id)
     {
-        $teamModel = config('teamwork.team_model');
-
-        $team = $teamModel::findOrFail($id);
+        $team = $this->teamModel->findOrFail($id);
         if (!auth()->user()->isOwnerOfTeam($team)) {
             abort(403);
         }

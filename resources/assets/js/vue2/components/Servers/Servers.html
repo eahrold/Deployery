@@ -1,0 +1,96 @@
+<div class='panel panel-default panel-full'>
+    <div class='panel-body'>
+        <div class='col-md-12 text-center' v-if='!servers.length'>
+            <a data-toggle="modal"
+               data-target="#serverForm">
+                <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                Add Your first server.
+            </a>
+        </div>
+
+        <div v-else>
+            <table class='table table-hover'>
+                <thead>
+                    <th>Name</th>
+                    <th>Hostname</th>
+                    <th>Branch</th>
+                    <th>Path</th>
+                    <th class='crunch center'>Deploy</th>
+                    <th class='crunch center'>SSH Key</th>
+                    <th class='crunch center'>Status</th>
+                    <th class='crunch'>
+                        <a data-toggle="modal"
+                           data-target="#serverForm">
+                            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                        </a>
+                    </th>
+                </thead>
+                <tbody>
+                    <tr v-for='server in servers'>
+                        <td>
+                            <a data-toggle="modal"
+                               :data-model-id="server.id"
+                               data-target="#serverForm">
+                                {{ server.name }}
+                            </a>
+                        </td>
+                        <td>{{ server.hostname }}</td>
+                        <td>{{ server.branch }}</td>
+                        <td>{{ server.deployment_path }}</td>
+                        <td v-if='server.is_deploying' class="center">
+                            <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                        </td>
+                        <td v-else class="center">
+
+                            <a @click='openModal(server)' data-toggle="modal" data-target="#server-deployment-modal">
+                                <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                            </a>
+
+                        </td>
+                        <td class='center'>
+                            <a class="open-user-sshkey-modal"
+                               data-toggle="modal"
+                               :data-host="server.hostname"
+                               :data-user="server.username"
+                               data-target="#serverPubKey">
+                                <i class="fa fa-key" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                        <td class="status-icon center">
+                            <div id='status-indicator'
+                                v-bind:class="[statusClass(server)]">
+                            </div>
+                        </td>
+                        <td>
+                            <i :id="'server_status_'+server.id"
+                               class="fa fa-refresh"
+                               aria-hidden="true"
+                               :class=''
+                               @click="test(server)">
+                            </i>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="deployments">
+                <!-- Button HTML (to Trigger Modal) -->
+                <!-- Modal HTML -->
+                <div id="server-deployment-modal" class="modal fade">
+                    <div class="modal-dialog modal-lg modal-xl">
+                        <deployment v-if='server'
+                                    :server='server'
+                                    :project-id='projectId'
+                                    :messages='messages'
+                                    :deploying='deploying'
+                                    @close='closeModal'>
+                        </deployment>
+                    </div>
+                </div>
+            </div>
+
+            <server-pubkey-modal :endpoint='apiEndpoint'></server-pubkey-modal>
+        </div>
+    </div>
+    <server-form :endpoint='apiEndpoint'></server-form>
+</div>

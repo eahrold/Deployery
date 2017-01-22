@@ -1,0 +1,38 @@
+<div v-if='history.length'>
+    <table class='table table-hover table-condensed table-responsive header-fixed history'>
+        <thead>
+            <th>Server</th>
+            <th>Date</th>
+            <th>From</th>
+            <th>To</th>
+            <th>By</th>
+        </thead>
+        <tbody id='historyTable'>
+            <tr v-for='h in history' @click='getHistory(h)'
+                data-toggle="modal"
+                data-target="#history-modal">
+                <td>{{ h.server.name }}</td>
+                <td>{{ localTime(h.created_at) }}</td>
+                <td>{{ h.from_commit }}</td>
+                <td>{{ h.to_commit }}</td>
+                <td>{{ h.user_name }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="col-md-12 text-center">
+        <ul class="pagination pagination-lg pager" id="histroyPager"></ul>
+    </div>
+
+
+    <div id="history-modal" class="modal fade">
+        <div class="modal-dialog modal-lg modal-xl">
+            <history-modal :history='aHistory' :loading='loading' @close='closeModal'></history-modal>
+        </div>
+    </div>
+</div>
+
+<div v-else>
+    Never been deployed
+</div>
+

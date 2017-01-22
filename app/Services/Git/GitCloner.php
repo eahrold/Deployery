@@ -76,6 +76,31 @@ class GitCloner
         return ($process->getExitCode() === 0);
     }
 
+    public function updateRepoUrl(string $repo, string $url, \Closure $callback = null)
+    {
+        $this->callback = $callback;
+
+        $builder = new GitProcessBuilder($repo);
+
+        $task = "remote set-url origin {$url}";
+        $builder->withPubKey($this->pub_key)
+                ->setTimeout(300)
+                ->setTask($task);
+
+        $process = $builder->getProcess();
+        $process->run(function ($type, $buffer) {
+            if (!empty($buffer)) {
+                $this->sendMessage($buffer);
+            }
+        });
+
+        $this->errors = array_filter(
+            explode(PHP_EOL, $process->getErrorOutput())
+        );
+
+        return ($process->getExitCode() === 0);
+    }
+
     private function sendMessage(string $buffer, $error = false, $firstLineOnly = true)
     {
         if ($this->callback) {

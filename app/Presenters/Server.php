@@ -43,7 +43,12 @@ class Server extends Presenter
                 $message = "The user doesn't have write access to {$this->deployment_path}";
                 break;
             case SSHConnection::CONNECTION_STATUS_FAILURE:
-                $message = "Failed to connected to the server";
+                $message = "Failed to connected to the server, check the username and ";
+                if($this->entity->use_ssh_key) {
+                    $message .= "make sure to add the ssh key to the user's ~/.ssh/authorized_keys file";
+                } else {
+                    $message .= 'password';
+                }
                 break;
             default:
                 break;

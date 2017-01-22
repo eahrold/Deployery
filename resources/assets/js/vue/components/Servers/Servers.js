@@ -3,9 +3,6 @@
  */
 export default {
     props: ['servers', 'projectId', 'deploying', 'messages'],
-    http: {
-        headers: globalHeaders
-    },
 
     data() {
         return {

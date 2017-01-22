@@ -10,22 +10,23 @@ abstract class Base extends Model
 {
 
     protected $validation_rules = [];
-    protected $unique_validation_rules = [];
+    protected $unique_validation_keys = [];
 
     /**
      * @param integer $id
      */
     public function getValidationRules($id = null, $append=[])
     {
-        $unique = [];
-        foreach ($this->unique_validation_rules as $key) {
+        $unique = $this->validation_rules;
+        foreach ($this->unique_validation_keys as $key) {
+            $rule = $this->validation_rules[$key];
             if ($id ?: $this->id) {
-                $unique[] = [$key=>"required|unique:{$this->getTable()},{$key},{$this->id}"];
+                $unique[$key] = "{$rule}|unique:{$this->getTable()},{$key},{$this->id}";
             } else {
-                $unique[] = [$key => "required|unique:{$this->getTable()}"];
+                $unique[$key] = "{$rule}|unique:{$this->getTable()}";
             }
         }
-        return array_merge($this->validation_rules, $unique, $append);
+        return array_merge($unique, $append);
     }
 
     public function scopeOrder($query)

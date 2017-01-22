@@ -5,13 +5,14 @@ namespace App\Models;
 final class Config extends Base
 {
 
+    protected $validation_rules = [
+        'path' => 'required:max:255',
+        'contents' => 'required'
+    ];
+
     protected $fillable = [
         'path',
         'contents',
-    ];
-
-    protected $hidden = [
-        'server_ids',
     ];
 
     public function project()
@@ -22,14 +23,5 @@ final class Config extends Base
     public function servers()
     {
         return $this->belongsToMany('App\Models\Server')->order();
-    }
-
-    public function getServersAttirbute()
-    {
-        if ($ids = $this->server_ids) {
-            $whereIns = explode($ids);
-            return $this->projects()->servers()->whereIn('id', $whereIns);
-        }
-        return collect([]);
     }
 }

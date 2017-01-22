@@ -11,23 +11,35 @@ final class Script extends Base
     const RUN_ON_FIRST_DEPLOYMENT = 1;
     const RUN_ON_ALL_BUT_FIRST_DEPLOYMENT = 2;
 
+    protected $validation_rules = [
+        'description' => 'required:max:255',
+        'script' => 'required'
+    ];
+
     protected $fillable = [
-        // bool indicating whether the script
-        // should be run before deployment
+        // Human descripton of the file
+        'description',
+
+        // The bash-like script to be run on the server
+        'script',
+
+        // Should the script should be run before deployment?
         'run_pre_deploy',
 
-        'description',
+        // Shold the deployment stop on script failure?
         'stop_on_failure',
+
+        // Which deployments should the server be run (SEE RUN_ON consts)
         'on_deployment',
+
+        // Should the script be available to all servers?
         'available_to_all_servers',
-        // The bash-like script to
-        // be run on the server
-        'script',
     ];
 
     protected $casts = [
         'run_pre_deploy' => 'bool',
-        'stop_on_failure' => 'bool'
+        'stop_on_failure' => 'bool',
+        'available_to_all_servers' => 'bool',
     ];
 
     private $_parsable = [
@@ -64,16 +76,6 @@ final class Script extends Base
     {
         return $this->belongsToMany('App\Models\Server')->order();
     }
-
-    public function getServersAttirbute()
-    {
-        if ($ids = $this->server_ids) {
-            $whereIns = explode($ids);
-            return $this->projects()->servers()->whereIn('id', $whereIns);
-        }
-        return collect([]);
-    }
-
 
     /**
      * Select/Options key/value pair

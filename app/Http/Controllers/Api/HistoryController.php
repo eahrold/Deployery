@@ -25,6 +25,8 @@ class HistoryController extends APIController
     public function index($project_id)
     {
         $project = $this->project->findOrFail($project_id);
+        $this->authorize('listChildren', $project);
+
         return $this->response->collection($project->history, $this->transformer);
     }
 
@@ -37,6 +39,8 @@ class HistoryController extends APIController
     public function show($project_id, $id)
     {
         $project = $this->project->findOrFail($project_id);
+        $this->authorize($project);
+
         $history = $project->history()->findOrFail($id);
 
         $this->transformer->makeVisible(['details']);

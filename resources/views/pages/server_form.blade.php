@@ -50,7 +50,7 @@
                     {!! BootForm::password("Password",'password') !!}
 
                     <div class='form-group'>
-                        {!! BootForm::checkbox("Use SSH Key",'use_ssk_key') !!}
+                        {!! BootForm::checkbox("Use SSH Key",'use_ssh_key') !!}
                         <a href="#sshkey" data-toggle="collapse">Show Public Key</a>
                         <div id="sshkey" class="collapse">
                             <textarea  class="form-control" rows="10" readonly>{{ $project->pubkey }}</textarea>

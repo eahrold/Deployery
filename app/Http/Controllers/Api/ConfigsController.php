@@ -22,6 +22,22 @@ class ConfigsController extends APIController
      *
      * @return \Illuminate\Http\Response
      */
+    public function show($project_id, $id)
+    {
+        $model = $this->project->findConfig($project_id, $id);
+        $this->authorize($model->project);
+
+        $model->server_ids = $model->servers()->get()->pluck('id');
+
+        $this->transformer->makeVisible('server_ids');
+        return $this->response->item($model, $this->transformer);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function store($project_id)
     {
         $this->validate(
@@ -30,6 +46,7 @@ class ConfigsController extends APIController
         );
 
         $project = $this->project->getUserModel($project_id);
+        $this->authorize($project);
 
         $data = $this->request->all();
 
@@ -37,6 +54,7 @@ class ConfigsController extends APIController
         $project->configs()->save($model);
 
         $model->servers()->sync($this->request->get('server_ids') ?: []);
+        $this->transformer->makeVisible('server_ids');
 
         return $this->response->item($model, $this->transformer);
     }
@@ -55,8 +73,11 @@ class ConfigsController extends APIController
         );
 
         $model = $this->project->findConfig($project_id, $id);
+        $this->authorize($model->project);
+
         $model->update($this->request->all());
         $model->servers()->sync($this->request->get('server_ids') ?: []);
+        $this->transformer->makeVisible('server_ids');
 
         return $this->response->item($model, $this->transformer);
     }
@@ -70,6 +91,8 @@ class ConfigsController extends APIController
     public function destroy($project_id, $id)
     {
         $model = $this->project->findConfig($project_id, $id);
+        $this->authorize($model->project);
+
         if (!$model->delete()) {
             $this->response->error('Could not delete the configuration file.', 422);
         }
@@ -77,5 +100,14 @@ class ConfigsController extends APIController
             'message'=>'Successfully deleted the config file.',
             'status_code'=>'200'
         ]);
+    }
+
+    public function options ($project_id=null)
+    {
+        $project = $this->project->findOrFail($project_id);
+        $this->authorize('update', $project);
+
+        $servers = $project->servers->pluck('name', 'id');
+        return  $this->response->array(['options' => compact('servers')]);
     }
 }

@@ -21,6 +21,32 @@ class ScriptsController extends APIController
      *
      * @return \Illuminate\Http\Response
      */
+    public function show($project_id, $id)
+    {
+        $model = $this->projects->findScript($project_id, $id);
+        $this->authorize($model->project);
+
+        $model->server_ids = $model->servers()->get()->pluck('id');
+
+        $this->transformer->makeVisible('server_ids');
+        return $this->response->item($model, $this->transformer);
+
+        if($this->request->options) {
+            $servers = $this->projects->find($project_id)->servers->pluck('name', 'id');
+            $deployments = $model->deployment_opts;
+            $parsables = $model->parsable;
+
+            $response->addMeta('options', compact('servers','deployments','parsables'));
+        }
+
+        return $response;
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function store($project_id)
     {
         $this->validate(
@@ -29,11 +55,14 @@ class ScriptsController extends APIController
         );
 
         $project = $this->projects->findOrFail($project_id);
+        $this->authorize($project);
+
         $data = $this->request->all();
 
         $model = $this->model->newInstance($data);
         $project->scripts()->save($model);
 
+        $this->transformer->makeVisible('server_ids');
         $model->servers()->sync($this->request->get('server_ids') ?: []);
         return $this->response->item($model, $this->transformer);
     }
@@ -52,7 +81,11 @@ class ScriptsController extends APIController
             $this->model->getValidationRules($id)
         );
         $model = $this->projects->findScript($project_id, $id);
+        $this->authorize($model->project);
+
         $model->update($this->request->all());
+
+        $this->transformer->makeVisible('server_ids');
         $model->servers()->sync($this->request->get('server_ids') ?: []);
 
         return $this->response->item($model, $this->transformer);
@@ -68,6 +101,8 @@ class ScriptsController extends APIController
     public function destroy($project_id, $id)
     {
         $model = $this->model->findOrFail($id);
+        $this->authorize($model->project);
+
         if (!$model->delete()) {
             $this->response->error('Could not detete the model.', 422);
         }
@@ -75,5 +110,15 @@ class ScriptsController extends APIController
             'message'=>'Successfully deleted the install script.',
             'status_code'=>'200'
         ]);
+    }
+
+    public function options ($project_id=null)
+    {
+        $servers = $this->projects->findOrFail($project_id)->servers->pluck('name', 'id');
+        $deployments = $this->model->deployment_opts;
+        $parsables = $this->model->parsable;
+
+        return $this->response
+            ->array(['options' => compact('servers','deployments','parsables')]);
     }
 }

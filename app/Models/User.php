@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Presenters\PresentableTrait;
 use App\Services\SSHKeyer;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Mpociot\Teamwork\Traits\UserHasTeams;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
@@ -12,6 +13,7 @@ class User extends Authenticatable implements JWTSubject
 {
     use UserHasTeams;
     use PresentableTrait;
+    use Notifiable;
 
     protected $presenter = 'App\Presenters\User';
 
@@ -130,7 +132,7 @@ class User extends Authenticatable implements JWTSubject
     {
         $path = $this->keyPath('id_rsa.pub');
         if (file_exists($path)) {
-            return file_get_contents($path);
+            return trim(file_get_contents($path));
         }
     }
 

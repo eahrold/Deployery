@@ -12,7 +12,7 @@
         @if(Auth::user()->teams->count())
             @foreach(Auth::user()->teams as $team)
             <li>
-                <a href="{{ route('teams.switch.alt', [$team, 'menu']) }}"'>
+                <a href="{{ route('teams.switch.alt', [$team, 'menu']) }}">
                     {!! $team->present()->menuName !!}
                 </a>
             </li>

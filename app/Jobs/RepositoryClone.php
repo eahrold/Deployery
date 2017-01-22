@@ -31,6 +31,7 @@ class RepositoryClone extends Job implements ShouldQueue
     public function __construct(Project $project)
     {
         $this->project = $project;
+        $this->project->is_cloning = true;
         $this->sendStartedMessage("Adding repository clone to the queue...");
     }
 
@@ -47,6 +48,7 @@ class RepositoryClone extends Job implements ShouldQueue
     public function handle()
     {
         $this->sendStartedMessage("Creating cache of repository...");
+        \Log::debug('Repo Clone started');
 
         $project = $this->project;
         $cloner = (new GitCloner())->withPubKey($project->user->auth_key);

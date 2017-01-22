@@ -20,7 +20,7 @@ final class Server extends Base
 
     protected $presenter = 'App\Presenters\Server';
 
-    protected $unique_validation_key = ['name'];
+    protected $unique_validation_keys = ['name'];
 
     protected $validation_rules = [
         'name' => 'required:max:255',
@@ -37,7 +37,7 @@ final class Server extends Base
         'port',
         'username',
         'password',
-        'use_ssk_key',
+        'use_ssh_key',
         'deployment_path',
         'branch',
         'environment',
@@ -63,7 +63,7 @@ final class Server extends Base
     }
 
     protected $casts = [
-        'use_ssk_key' => 'boolean',
+        'use_ssh_key' => 'boolean',
         'autodeploy' => 'boolean',
     ];
 
@@ -199,7 +199,7 @@ final class Server extends Base
     //-------------------------------------------------------
     private function getConnectionAuth()
     {
-        if ($this->use_ssk_key) {
+        if ($this->use_ssh_key) {
             return ['key' => $this->project->ssh_key,
                     'keyphrase' => ''];
         } else {

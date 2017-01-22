@@ -1,0 +1,62 @@
+var moment = require('moment');
+
+export default {
+    props: ['projectId'],
+
+    data () {
+        return {
+            history: [],
+            ready: false,
+            aHistory: null,
+            loading: true
+        }
+    },
+
+    mounted () {
+        this.load();
+        this.listen();
+    },
+
+    methods: {
+        load () {
+            var endpoint = this.$parent.endpoint + '/history';
+            console.log("calling", endpoint);
+             this.$http.get(endpoint).then((response)=>{
+                this.history = response.data.data;
+                this.ready = true;
+            }, (response)=>{
+                this.ready = true;
+                console.log("error", response);
+            });
+        },
+
+        listen () {
+            echo.private('project.'+ this.$route.params.id)
+                .listen('HistoryCreatedEvent', this.handleHistoryCreated);
+        },
+
+        handleHistoryCreated(data){
+            this.history.unshift(data.history);
+        },
+
+        getHistory (history) {
+            this.loading = true;
+            var endpoint = this.$parent.endpoint + '/history/'+ history.id;
+
+            this.$http.get(endpoint).then((response)=>{
+                this.aHistory = response.data.data;
+                this.loading = false;
+            }, (response)=>{
+                console.log("error", response);
+                this.loading = false;
+            });
+        },
+
+        closeModal () {
+            this.aHistory = {};
+        }
+    }
+}
+
+
+

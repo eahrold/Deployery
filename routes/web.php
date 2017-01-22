@@ -15,22 +15,16 @@ $router = app("Illuminate\Routing\Router");
 
 $router->group(["middleware" => "auth"], function ($router) {
     $router->get("/", "ProjectsController@index");
-    $router->resource("projects", "ProjectsController");
 
     $router->group(["prefix"=>"projects/{project}"], function ($router) {
-        $router->group(["prefix"=>"servers"], function ($router) {
-            $router->get("/{servers}/deploy", [
-                "as"=>"servers.deploy",
-                "uses"=>"ServersController@deploy"
-            ]);
-        });
-        $router->resource("servers", "ServersController", ["except"=>["index","show"]]);
-        $router->resource("configs", "ConfigController", ["except"=>["index","show"]]);
-        $router->resource("scripts", "ScriptsController", ["except"=>["index","show"]]);
+        $router->get('', [
+            'uses' => 'ProjectsController@show',
+            'as' => 'projects.edit'
+        ]);
     });
 
     $router->group(["middleware" => "admin"], function ($router) {
-        $router->resource("users", "UsersController", ["except"=>["show"]]);
+        $router->resource("users", "UsersController", [ "except"=>[ "show" ]]);
     });
 });
 
@@ -40,27 +34,27 @@ $router->auth();
 /**
  * Teamwork routes
  */
-Route::group(['prefix' => 'teams', 'namespace' => 'Teamwork'], function()
+$router->group(['prefix' => 'teams', 'namespace' => 'Teamwork'], function($router)
 {
-    Route::get('/', 'TeamController@index')->name('teams.index');
-    Route::get('create', 'TeamController@create')->name('teams.create');
-    Route::post('teams', 'TeamController@store')->name('teams.store');
-    Route::get('edit/{id}', 'TeamController@edit')->name('teams.edit');
-    Route::put('edit/{id}', 'TeamController@update')->name('teams.update');
-    Route::delete('destroy/{id}', 'TeamController@destroy')->name('teams.destroy');
+    $router->get('/', 'TeamController@index')->name('teams.index');
+    $router->get('create', 'TeamController@create')->name('teams.create');
+    $router->post('teams', 'TeamController@store')->name('teams.store');
+    $router->get('edit/{id}', 'TeamController@edit')->name('teams.edit');
+    $router->put('edit/{id}', 'TeamController@update')->name('teams.update');
+    $router->delete('destroy/{id}', 'TeamController@destroy')->name('teams.destroy');
 
-    Route::get('switch/{id}', 'TeamController@switchTeam')->name('teams.switch');
-    Route::get('switch/{id}/{type}', 'TeamController@switchTeam')->name('teams.switch.alt');
+    $router->get('switch/{id}', 'TeamController@switchTeam')->name('teams.switch');
+    $router->get('switch/{id}/{type}', 'TeamController@switchTeam')->name('teams.switch.alt');
 
 
-    Route::get('members/{id}', 'TeamMemberController@show')->name('teams.members.show');
-    Route::get('members/resend/{invite_id}', 'TeamMemberController@resendInvite')->name('teams.members.resend_invite');
-    Route::post('members/{id}', 'TeamMemberController@invite')->name('teams.members.invite');
+    $router->get('members/{id}', 'TeamMemberController@show')->name('teams.members.show');
+    $router->get('members/resend/{invite_id}', 'TeamMemberController@resendInvite')->name('teams.members.resend_invite');
+    $router->post('members/{id}', 'TeamMemberController@invite')->name('teams.members.invite');
 
-    Route::delete('members/leave/{id}', 'TeamMemberController@leave')->name('teams.members.leave');
-    Route::post('members/join/{id}', 'TeamMemberController@join')->name('teams.members.join');
+    $router->delete('members/leave/{id}', 'TeamMemberController@leave')->name('teams.members.leave');
+    $router->post('members/join/{id}', 'TeamMemberController@join')->name('teams.members.join');
 
-    Route::delete('members/{id}/{user_id}', 'TeamMemberController@destroy')->name('teams.members.destroy');
+    $router->delete('members/{id}/{user_id}', 'TeamMemberController@destroy')->name('teams.members.destroy');
 
-    Route::get('accept/{token}', 'AuthController@acceptInvite')->name('teams.accept_invite');
+    $router->get('accept/{token}', 'AuthController@acceptInvite')->name('teams.accept_invite');
 });

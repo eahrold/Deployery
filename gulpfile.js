@@ -1,5 +1,6 @@
 const elixir = require('laravel-elixir');
-require('laravel-elixir-vue');
+
+require('laravel-elixir-vue-2');
 
 /*
  |--------------------------------------------------------------------------
@@ -14,6 +15,7 @@ require('laravel-elixir-vue');
 
 elixir(mix => {
     var node_module_path = "../../../node_modules";
+    var fontPath = 'public/fonts';
 
     mix.sass([
       'app.scss',
@@ -23,28 +25,34 @@ elixir(mix => {
       'project.scss',
       'deployment.scss',
       'fa-extensions.scss'
-    ], 'public/css/');
+    ], 'public/css/')
 
-    mix.webpack('header-helper.js');
-    mix.webpack('app.js');
+    .webpack('header-helper.js')
+       .webpack('app.js')
+
+    .styles([
+      "./node_modules/jquery-colorbox/example1/colorbox.css"
+    ], 'public/css/vendor.css')
 
     // Passing in
-    mix.scripts([
+    .scripts([
+      // 'vue/vue-resource.js',
       'vue/vue-globals.js',
-      'vue/vue-resource.js',
-    ], 'public/js/vue/vue-kit.js');
+    ], 'public/js/vue/vue-kit.js')
 
     // Passing in
-    mix.scripts([
+    .scripts([
        // node_module_path+'/noty/js/noty/packaged/jquery.noty.packaged.min.js',
-       node_module_path+'/socket.io-client/socket.io.js',
        'alerter.js',
     ], 'public/js/vendor.js')
 
-    mix.version([
-        'public/js/vue/vue-kit.js',
-        'public/js/vendor.js',
-        'public/css/app.css',
-    ]);
+    // Fonts
+    .copy('node_modules/font-awesome/fonts', fontPath)
+    .copy('node_modules/bootstrap-sass/assets/fonts/bootstrap', fontPath +'/bootstrap');
+
+    // mix.version([
+    //     'public/js/vue/vue-kit.js',
+    //     'public/css/app.css',
+    // ], 'public/build');
 });
 

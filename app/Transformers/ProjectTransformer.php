@@ -1,6 +1,8 @@
 <?php
 namespace App\Transformers;
 
+use App\Transformers\ServerTransformer;
+
 class ProjectTransformer extends Transformer
 {
     protected $defaultIncludes = [];
@@ -9,8 +11,8 @@ class ProjectTransformer extends Transformer
 
     public function includeServers($model)
     {
-        if ($data = $model->blocks) {
-            return $this->collection($data, new BlockTransformer, false);
+        if ($data = $model->servers) {
+            return $this->collection($data, new ServerTransformer, false);
         }
     }
 }

@@ -2,7 +2,6 @@
 window.CreateProjectVue = (el, project, isDeploying, isCloning) => {
     return new Vue({
         el: el,
-        http: { headers: globalHeaders },
         data: {
             project: project,
             deployingServer: null,

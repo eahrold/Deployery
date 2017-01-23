@@ -80,11 +80,11 @@ class ServersController extends APIController
      */
     public function update($project_id, $id)
     {
-        $rules = $this->model->getValidationRules($id);
-        $this->apiValidate($this->request, $rules);
-
         $model = $this->projects->findServer($project_id, $id);
         $this->authorize($model->project);
+
+        $rules = $model->getValidationRules($id);
+        $this->apiValidate($this->request, $rules);
 
         $model->scripts()->sync($this->request->get('script_ids') ?: []);
 
@@ -119,8 +119,8 @@ class ServersController extends APIController
     public function options ($project_id=null)
     {
         $protocols = [
-            'ssh',
-            'sftp'
+            [ 'text' => 'ssh', 'value' => 'ssh'],
+            [ 'text' => 'sftp', 'value' => 'sftp']
         ];
 
         return $this->response

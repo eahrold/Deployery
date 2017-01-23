@@ -5,9 +5,8 @@
         @if (!Auth::guest())
             @include('partials.main_nav_projects')
             @include('partials.main_nav_teams')
-
             <li>
-                <a href="{{ url('/projects') }}">Dashbaord</a>
+                <a href="{{ url('/') }}">Dashbaord</a>
             </li>
         @endif
     </ul>

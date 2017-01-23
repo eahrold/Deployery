@@ -59,7 +59,7 @@ export default {
                     server.successfully_connected = 1;
                 },
                 (response) => {
-                    console.log('error:', response);
+                    console.error('error:', response);
                     s.toggleClass('fa-spin');
                     server.successfully_connected = -1;
                     Alerter.error(response.data.message);

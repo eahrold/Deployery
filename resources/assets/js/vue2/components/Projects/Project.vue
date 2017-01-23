@@ -113,13 +113,12 @@ export default {
                     this.loading = false;
                 },
                 (response)=>{
-                    console.log('Error getting project', response, this.endpoint);
+                    console.error('Error getting project', response, this.endpoint);
                     this.loading = false;
             });
         },
 
         updateInfo (info) {
-            console.log('updating info', info);
             this.deployment.deploying = info.status.is_deploying;
             this.status.cloning = info.status.is_cloning;
             this.status.cloningError = info.status.clone_failed;
@@ -134,7 +133,6 @@ export default {
         },
 
         deploymentBegan (server) {
-            console.log('Hearing Deployment Began', server);
             this.deployingServer = server;
             this.handleDeployStarted({
                 server: server,
@@ -153,12 +151,11 @@ export default {
                     this.saving = false;
                     this.formErrors = response.data.errors || {};
                     this.status.cloning = response.data.is_cloning;
-                    console.log("saved", response);
                 },
                 (response) => {
                     this.saving = false;
                     this.formErrors = response.data.errors;
-                    console.log('Error saving project', response);
+                    console.error('Error saving project', response);
             });
         },
 
@@ -169,7 +166,7 @@ export default {
                     window.location = '/';
                 },
                 (response) => {
-                    console.log('Error Deleting Project', response);
+                    console.error('Error Deleting Project', response);
             });
         },
 
@@ -215,7 +212,7 @@ export default {
                         this.removeProjectData(object, type);
                     },
                     (response) => {
-                        console.log('[Error Deleting '+type+' ]', response);
+                        console.error('[Error Deleting '+type+' ]', response);
                 });
             }
         },

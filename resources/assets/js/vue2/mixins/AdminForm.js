@@ -8,9 +8,8 @@ var modalForm = {
     methods : {
         prepareModal() {
             var modal = $(this.$el);
-
+            var self = this;
             modal.on('hide.bs.modal',(e)=>{
-                console.log('checking pristine');
                 if(!this.isPristine && !confirm("You have unsaved data, continue?")){
                     e.preventDefault();
                 }
@@ -38,10 +37,12 @@ var form = {
         return {
             model: null,
             errors: {},
+            message: '',
             options: {},
             pristine: null,
             saving: false,
             isNew: false,
+            loading: false
         }
     },
 
@@ -51,12 +52,27 @@ var form = {
         },
 
         isPristine () {
-            return Boolean(this.pristine === JSON.stringify(this.model));
+            var diff = _.omitBy(this.model, (v, k) => {
+                var obj = this.pristine[k];
+                var val = v;
+
+                if(typeof obj === 'object')  {
+                    return _.isEmpty(_.omitBy(obj, (k, v) => {
+                        return val[v] === obj[v];
+                    }));
+                }
+
+                return obj === v;
+            });
+            return _.isEmpty(diff);
         },
 
         heading () {
-            var updating = "Updating " + _.get(this, 'model.name', "the resource");
-            return _.get(this, 'model.id') ?  "Updating " + _.get(this, 'model.name', "the resource") : "Adding new";
+            if(this.loading) {
+                return "Loading...";
+            }
+            var updating = "Updating " + _.get(this, 'model.name', this.type || "");
+            return Boolean(_.get(this.model, 'id')) ? updating : ("");
         },
 
         apiEndpoint () {
@@ -64,7 +80,7 @@ var form = {
         },
 
         errorsHtml () {
-            var msg = '<ul class="list-unstyled">';
+            var msg = '<h4>'+this.message+'</h4><ul class="list-unstyled">';
             if (this.errors) {
                 _.each(this.errors, (e)=>{
                     msg += '<li>'+e+'<li>'
@@ -78,7 +94,9 @@ var form = {
     methods : {
         finally (response) {
             this.errors = response.data.errors;
+            this.message = response.data.message;
             this.saving = false;
+            this.loading = false;
         },
 
         success (response) {
@@ -96,20 +114,21 @@ var form = {
         },
 
         presentError () {
-            swal({title: this.message, text: this.errorsHtml, html: true, type: 'error'});
+            Alerter.error(this.errorsHtml);
         },
 
         makePristine (data) {
             var model = this.model = data || {};
-            this.pristine = JSON.stringify(model);
+            this.pristine = JSON.parse(JSON.stringify(model));
+            // this.pristine = JSON.stringify(model);
             return model;
         },
 
         load (id) {
             // Get the select options
+            this.loading = true;
             this.$http.get(this.endpoint+'/options').then(
                 (response)=>{
-                    console.log('opts', _.get(response.data, 'options'));
                     this.options = _.get(response.data, 'options', {});
             });
 
@@ -124,6 +143,7 @@ var form = {
                     // Handle Error getting model 401...
                 });
             } else {
+                this.loading = false;
                 this.makePristine({});
             }
         },

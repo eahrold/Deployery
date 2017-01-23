@@ -88,7 +88,6 @@ export default {
     },
 
     mounted () {
-        // console.log('sp init', JSON.parse(JSON.stringify(this.options)));
         this.$nextTick(()=>{
             if(this.value) {
                 this.aValue = this.value;

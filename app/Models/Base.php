@@ -20,8 +20,8 @@ abstract class Base extends Model
         $unique = $this->validation_rules;
         foreach ($this->unique_validation_keys as $key) {
             $rule = $this->validation_rules[$key];
-            if ($id ?: $this->id) {
-                $unique[$key] = "{$rule}|unique:{$this->getTable()},{$key},{$this->id}";
+            if ($id = $id ?: $this->id) {
+                $unique[$key] = "{$rule}|unique:{$this->getTable()},{$key},{$id}";
             } else {
                 $unique[$key] = "{$rule}|unique:{$this->getTable()}";
             }

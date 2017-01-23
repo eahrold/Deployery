@@ -27,8 +27,7 @@ elixir(mix => {
       'fa-extensions.scss'
     ], 'public/css/')
 
-    .webpack('header-helper.js')
-       .webpack('app.js')
+    .webpack('app.js')
 
     .styles([
       "./node_modules/jquery-colorbox/example1/colorbox.css"
@@ -36,13 +35,11 @@ elixir(mix => {
 
     // Passing in
     .scripts([
-      // 'vue/vue-resource.js',
       'vue/vue-globals.js',
     ], 'public/js/vue/vue-kit.js')
 
     // Passing in
     .scripts([
-       // node_module_path+'/noty/js/noty/packaged/jquery.noty.packaged.min.js',
        'alerter.js',
     ], 'public/js/vendor.js')
 

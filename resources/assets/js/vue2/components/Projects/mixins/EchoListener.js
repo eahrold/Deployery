@@ -22,7 +22,7 @@ var EchoListener = {
 
             echo.join('project-viewers.' + this.$route.params.id)
                 .here(viewers => {
-                    console.log(JSON.stringify(viewers));
+                    // console.log(JSON.stringify(viewers));
                     this.viewers = viewers;
             });
         },
@@ -79,8 +79,6 @@ var EchoListener = {
          * @param  object data event data
          */
         handleDeployStarted(data, locallyTriggered){
-            console.log('localy locallyTriggered', locallyTriggered);
-
             this.deployment.messages = [ data.message ];
             this.deployment.server_id = data.server.id;
             this.deployment.server_name = data.server.name;

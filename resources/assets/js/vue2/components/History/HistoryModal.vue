@@ -115,7 +115,6 @@ export default {
         },
 
         successfulUploads () {
-            console.log(_.get(this.history, 'details', 'No details'), this.history);
             return _.get(this.history, 'details.changes.uploaded.success',[]);
         },
 

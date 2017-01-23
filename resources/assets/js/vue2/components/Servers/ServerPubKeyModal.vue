@@ -52,7 +52,7 @@
                 this.$http.get(this.endpoint + '/pubkey').then((response)=>{
                     this.pubkey = response.data.key;
                 }, (response) => {
-                    console.log('error getting pubkey');
+                    console.error('error getting pubkey');
                 });
             },
 

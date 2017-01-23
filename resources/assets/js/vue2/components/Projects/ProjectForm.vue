@@ -26,6 +26,20 @@
                             </div>
                         </div>
 
+                        <div class='panel panel-default'>
+                            <div class="panel-heading">
+                                <i class="fa fa-clipboard clipboard"
+                                    aria-hidden="true"
+                                    data-clipboard-action="copy"
+                                    data-clipboard-target='#pubkey'>
+                                </i>
+                                <span>Add this key to your repo host</span>
+                            </div>
+                            <div class='panel-body'>
+                                <code id='pubkey'>{{ userPubKey }}</code>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -37,10 +51,40 @@
 </template>
 
 <script>
+    var Clipboard = require('clipboard');
+
+    $('.clipboard').tooltip({
+        trigger: 'click',
+        placement: 'bottom'
+    });
+
+    var setTooltip = (btn, message) => {
+      $(btn).attr('data-original-title', message)
+            .tooltip('show');
+    }
+
+    var hideTooltip = (btn) => {
+      setTimeout(function() {
+        $(btn).tooltip('hide');
+      }, 3000);
+    }
+
     import { form, modalForm } from "../../mixins/AdminForm.js";
 
     export default {
         mixins: [ form, modalForm ],
+
+        mounted () {
+            var clipboard = new Clipboard('.clipboard');
+
+            clipboard.on('success', function(e) {
+                setTooltip(e.trigger, 'Copied!');
+                hideTooltip(e.trigger);
+            }).on('error', function(e) {
+                setTooltip(e.trigger, 'Press Ctrl-C to copy');
+                hideTooltip(e.trigger);
+            })
+        },
 
         props: {
             endpoint: {
@@ -56,7 +100,15 @@
         },
 
         computed : {
-
+            userPubKey () {
+                return _.get(window.Laravel, 'userPubKey', '');
+            }
         }
     }
 </script>
+
+<style>
+#pubkey {
+    word-wrap: break-word;
+}
+</style>

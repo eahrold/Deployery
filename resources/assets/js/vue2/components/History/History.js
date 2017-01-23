@@ -20,13 +20,13 @@ export default {
     methods: {
         load () {
             var endpoint = this.$parent.endpoint + '/history';
-            console.log("calling", endpoint);
+            // console.log("calling", endpoint);
              this.$http.get(endpoint).then((response)=>{
                 this.history = response.data.data;
                 this.ready = true;
             }, (response)=>{
                 this.ready = true;
-                console.log("error", response);
+                console.error("error", response);
             });
         },
 

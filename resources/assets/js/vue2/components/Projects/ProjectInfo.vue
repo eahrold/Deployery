@@ -93,7 +93,6 @@ export default {
     methods : {
         load () {
             this.$http.get(this.endpoint).then((response)=>{
-                console.log('updating project info (internal)');
                 var info = this.info = response.data;
                 bus.$emit('project-info', info);
             });

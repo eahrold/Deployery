@@ -2,6 +2,7 @@
 
 @section('content')
 
+{{-- Projects Plural --}}
 <projects></projects>
 
 @endsection

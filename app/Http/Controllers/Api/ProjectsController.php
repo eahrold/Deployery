@@ -40,7 +40,7 @@ class ProjectsController extends APIController
      */
     public function store()
     {
-        $rules = $model->getValidationRules(v);
+        $rules = $this->model->getValidationRules();
         $this->apiValidate($this->request, $rules);
 
         $model = $this->model->create($this->request->all());

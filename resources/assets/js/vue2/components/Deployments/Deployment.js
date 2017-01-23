@@ -10,13 +10,13 @@ export default {
             deployEntireRepo: false,
             avaliableFromCommits: [],
             avaliableCommits: [],
-            loading: true
+            loading: true,
+            disabled: false
         }
     },
 
 
     mounted () {
-        console.log('deployment is ready');
         this.avaliableFromCommits.push({'hash': 0, 'message': 'Beginning of time'});
         this.getCommitDetails();
         var self = this;
@@ -47,22 +47,6 @@ export default {
         }
     },
 
-
-    filters: {
-        hashMessage(hash){
-            console.log("hash", hash);
-            if(!hash || hash === "0")return "Deploy the entire repo";
-
-            for(var i = 0; i < this.avaliableCommits.length; i++){
-                if(this.avaliableCommits[i].hash == hash){
-                    return this.avaliableCommits[i].message;
-                }
-            }
-            return 'Unknown commit message';
-        }
-    },
-
-
     methods: {
 
         getCommitDetails(){
@@ -90,9 +74,7 @@ export default {
          * Start Deployment
          */
         beginDeployment(){
-            console.log('Triggering deployment began...', this.server);
             bus.$emit('deployment-began', this.server);
-            // Something here...
         },
 
 
@@ -103,13 +85,14 @@ export default {
                 'to': this.toCommit.hash,
                 'deploy_entire_repo': this.deployEntireRepo
             };
-
+            this.disabled = true;
             this.$http.post(endpoint, data)
                 .then((response) => {
                     this.beginDeployment();
+                    this.disabled = false;
                 },
                 (response) => {
-                    console.log('starting running deployment', response);
+                    this.disabled = false;
                     Alerter.error(response.data.message);
             });
         },

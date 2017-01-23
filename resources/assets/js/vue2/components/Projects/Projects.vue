@@ -2,20 +2,28 @@
  <div class="container container-lg">
     <transition name='fade'>
         <div v-if='!loading && !projects.length' class="col-md-8 col-md-offset-2">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <div class='row text-center'>
-                        <a href='/projects/create'>
-                            <h3>Add your first project</h3>
-                        </a>
-                        <div>
-                            If you're deploying the project from a private repo, add this ssh key to the repo host.
-                            <a href="#sshkey" data-toggle="collapse">
-                                (Click to show)
-                            </a>
-                            <div id="sshkey" class="collapse">
-                                <textarea class="form-control" rows="10"> Auth::user()->pubkey </textarea>
-                            </div>
+
+            <div class='text-left panel panel-default'>
+                <div class="panel-heading">
+                    <a data-toggle="modal"
+                       data-target="#projectForm">
+                        <h4>Add your first project <i class="fa fa-plus-circle" aria-hidden="true"></i></h4>
+                    </a>
+                </div>
+
+                <div class='panel-body'>
+                    <p class="text-center">
+                        <i class="fa fa-clipboard clipboard"
+                            aria-hidden="true"
+                            data-clipboard-action="copy"
+                            data-clipboard-target='#pubkey'>
+                            If you plan on deploying the project from a private repo, add this ssh key to the repo host.
+                        </i>
+                    </p>
+
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <code id='pubkey'>{{ Laravel.userPubKey }}</code>
                         </div>
                     </div>
                 </div>
@@ -41,7 +49,7 @@
                         <thead>
                             <th>Name</th>
                             <th>Last Deployed</th>
-                            <th class='crunch'>Servers</th>
+                            <th class='center crunch'>Servers</th>
                         </thead>
                         <tbody>
                             <tr v-for='project in projects'>
@@ -53,7 +61,7 @@
                                 <td>
                                     {{ lastDeployed(project) }}
                                 </td>
-                                <td>{{ servers(project).length }}</td>
+                                <td class='center crunch'>{{ servers(project).length }}</td>
                             </tr>
                         </tbody>
                     </table>

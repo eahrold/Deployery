@@ -54,10 +54,9 @@
             <div class='row'>
                 <div class="col-md-12">
                     <div class='btn-deploy'>
-                        IS Deploying: {{ deploying }}
                         <button class="btn btn-primary"
                                 @click='deploy'
-                                :disabled='deploying'>
+                                :disabled='disabled || deploying'>
                             <i v-if='deploying' class="fa fa-spinner fa-spin"></i>
                             {{ deploying ? "Deploying..." : "Deploy Now" }}
                         </button>

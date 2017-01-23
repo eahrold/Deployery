@@ -1,34 +1,39 @@
 <template>
-    <div>
-        <table class='table'>
-            <thead>
-                <th>Path</th>
-                <th class='crunch'>
-                    <a data-toggle="modal"
-                        data-target="#configForm">
-                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                    </a>
-                </th>
-            </thead>
-            <tbody>
-                <tr v-for="config in configs">
-                    <td>
-                        <a data-toggle="modal"
-                           :data-model-id="config.id"
-                           data-target="#configForm">
-                            {{ config.path }}
-                        </a>
-                    </td>
-                    <td>
-                        <trash-button type='configs' :object='config'></trash-button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div class='panel panel-default'>
+        <div class="pannel-nav navbar navbar-default navbar-static">
+            <div class="nav navbar-nav navbar-left">Configuration Files</div>
+            <div class="nav navbar-nav navbar-right">
+                <a data-toggle="modal"
+                   data-target="#configForm">
+                    <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+        <div class='panel-body'>
+            <table class='table'>
+                <thead>
+                    <th>Path</th>
+                    <th class='center crunch'></th>
+                </thead>
+                <tbody>
+                    <tr v-for="config in configs">
+                        <td>
+                            <a data-toggle="modal"
+                               :data-model-id="config.id"
+                               data-target="#configForm">
+                                {{ config.path }}
+                            </a>
+                        </td>
+                        <td class='center crunch'>
+                            <trash-button type='configs' :object='config'></trash-button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         <config-form :endpoint='apiEndpoint'></config-form>
     <div>
 </template>
-
 
 <script>
     Vue.component('config-form', require('./ConfigForm.vue'));

@@ -62,7 +62,6 @@ export default {
         setupElfinder() {
             var self = this;
             window.document.addEventListener('fileSelected', (event)=>{
-                console.log(event.detail);
                 if(event.detail.el === this.element) {
                     self.aValue = "/" + event.detail.file;
                 }

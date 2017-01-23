@@ -68,6 +68,7 @@
         @include('includes.errors_flash')
         @yield('content')
 
+        <!-- Project Form -->
         <project-form endpoint='/api/projects'></project-form>
 
         <footer class="footer">

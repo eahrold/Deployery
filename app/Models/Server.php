@@ -20,15 +20,23 @@ final class Server extends Base
 
     protected $presenter = 'App\Presenters\Server';
 
-    protected $unique_validation_keys = ['name'];
+    /**
+     * @param integer $id
+     */
+    public function getValidationRules($id = null, $append=[])
+    {
+        $id = $id ?: $this->id;
+        $name = "unique:servers";
+        $name .= $id ? (",name,{$this->id},id,project_id,{$this->project_id}") : "";
 
-    protected $validation_rules = [
-        'name' => 'required:max:255',
-        'hostname' => 'required:active_url',
-        'username' => 'required:max:255',
-        'deployment_path' => 'required:max:255',
-        'slack_webhook_url' => 'active_url',
-    ];
+        return [
+            'name' => $name,
+            'hostname' => 'required:active_url',
+            'username' => 'required:max:255',
+            'deployment_path' => 'required:max:255',
+            'slack_webhook_url' => 'active_url',
+        ];
+    }
 
     protected $fillable = [
         'name',

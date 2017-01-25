@@ -6,6 +6,8 @@ use App\Services\SSHConnection;
 
 trait SSHAble {
 
+    abstract function save();
+
     /**
      * Underlying Connection
      * @var [type]

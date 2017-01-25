@@ -13,17 +13,17 @@ abstract class APIController extends Controller
     use Helpers;
 
     /**
-     * @var App\Http\Requests\BaseRequest
+     * @var \App\Http\Requests\BaseRequest
      */
     protected $request;
 
     /**
-     * @var App\Models\Base
+     * @var \App\Models\Base
      */
     protected $model;
 
     /**
-     * @var App\Transformers\Transformer
+     * @var \App\Transformers\Transformer
      */
     protected $transformer;
 
@@ -47,7 +47,7 @@ abstract class APIController extends Controller
      *
      * @param  Request $request request object
      * @param  array   $rules   validation rules
-     * @throws  UpdateResourceFailedException on validation failure
+     * @throws UpdateResourceFailedException on validation failure
      * @return void
      */
     protected function apiValidate(Request $request, array $rules)

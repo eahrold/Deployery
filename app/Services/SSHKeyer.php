@@ -39,7 +39,7 @@ class SSHKeyer
         }
 
         if ($this->mkdir($path)) {
-            if ($force && file_exists("{$path}id_rsa") && !$this->destroy($path)) {
+            if ($force && file_exists("{$path}id_rsa") && $this->destroy($path) == false) {
                 return $this->success();
             }
             $this->create($path);
@@ -98,7 +98,7 @@ class SSHKeyer
         $command = new Command('rm');
         $command->addParam("{$path}id_rsa");
         $command->addParam("{$path}id_rsa.pub");
-        $this->run($command);
+        return $this->run($command);
     }
 
     /**

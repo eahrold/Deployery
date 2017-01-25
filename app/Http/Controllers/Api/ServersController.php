@@ -15,15 +15,10 @@ class ServersController extends APIController
 
     /**
      * Project
-     * @var App\Models\Project
+     * @var \App\Models\Project
      */
     private $projects;
 
-    /**
-     * New APIController object
-     *
-     * @param  ServerRequest $request Illuminate\Http\Request
-     */
     public function __construct(ServerRequest $request, Project $project, ServerTransformer $transformer)
     {
         $this->projects = $project;

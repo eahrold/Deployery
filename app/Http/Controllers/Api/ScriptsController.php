@@ -36,16 +36,6 @@ class ScriptsController extends APIController
 
         $this->transformer->makeVisible('server_ids');
         return $this->response->item($model, $this->transformer);
-
-        if($this->request->options) {
-            $servers = $this->projects->find($project_id)->servers->pluck('name', 'id');
-            $deployments = $model->deployment_opts;
-            $parsables = $model->parsable;
-
-            $response->addMeta('options', compact('servers','deployments','parsables'));
-        }
-
-        return $response;
     }
 
     /**
@@ -131,7 +121,7 @@ class ScriptsController extends APIController
         $deployments = $this->model->deployment_opts;
         $parsables = $this->model->parsable;
 
-        return $this->response
-            ->array(['options' => compact('servers','deployments','parsables')]);
+        return $this->response->array(
+            ['options' => compact('servers','deployments','parsables')]);
     }
 }

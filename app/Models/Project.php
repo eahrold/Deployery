@@ -130,7 +130,7 @@ final class Project extends Base
     /**
      * Getter for the repo_exists attribute
      * @param  string $value [description]
-     * @return [type]        [description]
+     * @return boolean        [description]
      */
     public function getRepoExistsAttribute($value = '')
     {

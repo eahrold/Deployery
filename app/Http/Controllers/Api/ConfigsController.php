@@ -10,7 +10,7 @@ class ConfigsController extends APIController
 {
     /**
      * Project
-     * @var App\Models\Project
+     * @var \App\Models\Project
      */
     private $project;
 

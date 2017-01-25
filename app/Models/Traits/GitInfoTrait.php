@@ -16,8 +16,7 @@ trait GitInfoTrait {
     /**
      * Getter for the GitInfo instance
      *
-     * @param  string $value [description]
-     * @return [type]        [description]
+     * @return \App\Services\Git\GitInfo
      */
     public function getGitInfoAttribute()
     {
@@ -30,8 +29,9 @@ trait GitInfoTrait {
     }
 
     /**
-     * Update the gitinfo repo instance;
-     * @return [type] [description]
+     * Update the gitinfo repo instance
+     *
+     * @return $this
      */
     public function updateGitInfo() {
         $this->git_info->update();

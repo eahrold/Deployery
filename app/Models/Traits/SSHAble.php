@@ -6,11 +6,11 @@ use App\Services\SSHConnection;
 
 trait SSHAble {
 
-    abstract function save();
+    abstract public function save(array $options = []);
 
     /**
      * Underlying Connection
-     * @var [type]
+     * @var SSHConnection
      */
     private $ssh_connection;
 

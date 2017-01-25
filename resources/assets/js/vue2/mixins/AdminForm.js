@@ -64,6 +64,9 @@ var form = {
 
                 return obj === v;
             });
+
+            console.log("ojbect diff", diff, this.model, this.pristine);
+
             return _.isEmpty(diff);
         },
 
@@ -109,6 +112,8 @@ var form = {
         },
 
         failure (response) {
+            console.log('success');
+
             this.finally(response);
             this.presentError();
         },
@@ -120,7 +125,6 @@ var form = {
         makePristine (data) {
             var model = this.model = data || {};
             this.pristine = JSON.parse(JSON.stringify(model));
-            // this.pristine = JSON.stringify(model);
             return model;
         },
 
@@ -151,7 +155,7 @@ var form = {
         save () {
             this.saving = true;
             if(this.model.id) {
-                this.isNew = false;
+                this.isNew = true;
                 this.$http.put(this.apiEndpoint, this.model).then(this.success, this.failure);
             } else {
                 this.isNew = true;

@@ -34,24 +34,10 @@ final class Project extends Base
         'guid'
     ];
 
-    /**
-     * Item to only be appended during the getUserModel() method.
-     *
-     * @var array
-     */
-    protected $signular_append = [
-        'repo_size',
-        'repo_exists'
-    ];
-
-    protected $appends = [
-    ];
-
     public function initializeProject($data)
     {
         $project = $this->newInstance($data);
         $project->save();
-
         return $project;
     }
 
@@ -111,26 +97,51 @@ final class Project extends Base
         return "project.{$this->id}";
     }
 
+    /**
+     * Get the repo path
+     * @return string repo path
+     */
     public function getRepoPathAttribute()
     {
         return $this->repoPath();
     }
 
+    /**
+     * Get the repo branch, fallback to master
+     *
+     * @param  mixed $value  current attribute
+     * @return string        branch or 'master'
+     */
     public function getBranchAttribute($value = null)
     {
         return $value ?: 'master';
     }
 
+    /**
+     * Get the name for the repo folder in Storage
+     * @param  string $value
+     * @return string        "repo"
+     */
     public function getLocalRepoNameAttribute($value = '')
     {
         return 'repo';
     }
 
+    /**
+     * Getter for the repo_exists attribute
+     * @param  string $value [description]
+     * @return [type]        [description]
+     */
     public function getRepoExistsAttribute($value = '')
     {
         return file_exists($this->repoPath());
     }
 
+    /**
+     * Getter for the  the repo_size attribute
+     * @param  boolean $value used when the full method is called to ignore cache
+     * @return string         repo size
+     */
     public function getRepoSizeAttribute($value = false)
     {
         $key = "project-{$this->uid}-repo-size";
@@ -139,7 +150,7 @@ final class Project extends Base
         }
         $size = (new GitInfo($this->repoPath(), $this->branch))->size();
 
-        \Cache::put($key, $size, 5);
+        \Cache::put($key, $size, 1);
 
         return $size;
     }
@@ -147,6 +158,7 @@ final class Project extends Base
     //----------------------------------------------------------
     // Relationships
     //-------------------------------------------------------
+
     public function user()
     {
         return $this->belongsTo('App\Models\User');
@@ -188,8 +200,9 @@ final class Project extends Base
     }
 
     //----------------------------------------------------------
-    // Deployment Status
+    // Cloning Status
     //-------------------------------------------------------
+
     public function cloningCacheKey()
     {
         return "cloning_{$this->id}";
@@ -285,13 +298,12 @@ final class Project extends Base
 
         static::updating(function ($model) {
             if( $model->repo_exists && $model->isDirty('repo')) {
-                // Run git updateRepoName //
+                // TODO: Run git updateRepoName //
             }
         });
 
         static::saved(function ($model) {
             if (!$model->repo_exists) {
-                \Log::debug("Saved, dispatching repo clone to {$model->repoPath()}");
                 dispatch((new RepositoryClone($model))->onQueue('clones'));
             }
         });

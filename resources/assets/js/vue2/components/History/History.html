@@ -9,7 +9,7 @@
                 <th>Date</th>
                 <th>From</th>
                 <th>To</th>
-                <th>By</th>
+                <th class="visible-md visible-lg">By</th>
             </thead>
             <tbody id='historyTable'>
                 <tr v-for='h in history' @click='getHistory(h)'
@@ -19,7 +19,7 @@
                     <td>{{ localTime(h.created_at) }}</td>
                     <td>{{ h.from_commit }}</td>
                     <td>{{ h.to_commit }}</td>
-                    <td>{{ h.user_name }}</td>
+                    <td class="visible-md visible-lg">{{ h.user_name }}</td>
                 </tr>
             </tbody>
         </table>

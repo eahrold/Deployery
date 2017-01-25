@@ -42,7 +42,7 @@ final class Script extends Base
         'available_to_all_servers' => 'bool',
     ];
 
-    private $_parsable = [
+    private $script_parsable = [
         '%deployment_path%' => "Server's Deployment Path",
         '%username%' => 'Username used to log into the server',
         '%password%' => 'Password used to log into the server',
@@ -52,13 +52,13 @@ final class Script extends Base
 
     public function getParsableAttribute()
     {
-        return $this->_parsable;
+        return $this->script_parsable;
     }
 
     public function parse(Server $server)
     {
         $script = $this->script;
-        foreach ($this->_parsable as $key => $message) {
+        foreach ($this->script_parsable as $key => $message) {
             $serverKey = str_replace('%', '', $key);
             if ($swap = $server->{$serverKey}) {
                 $script = str_replace($key, $swap, $script);

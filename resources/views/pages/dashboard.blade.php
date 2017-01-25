@@ -2,7 +2,6 @@
 
 @section('content')
 
-{{-- Projects Plural --}}
-<projects></projects>
+<router-view></router-view>
 
 @endsection

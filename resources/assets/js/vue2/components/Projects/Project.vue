@@ -1,5 +1,21 @@
 <template src="./Project.html"></template>
 
+<style>
+.btn.btn-loading {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    opacity: .5;
+    z-index: 1000;
+    line-height: 4em;
+    vertical-align:middle;
+    border: none;
+    background-color: #96a8ad;
+}
+</style>
+
 <script>
 
 import { EchoListener } from './mixins/EchoListener';
@@ -104,6 +120,16 @@ export default {
         }
     },
 
+    watch: {
+        $route (newRoute, oldRoute) {
+            this.removeEchoListener(oldRoute)
+                .addEchoListeners();
+            this.load();
+            bus.$emit('project-refresh-info');
+        }
+    },
+
+
     methods : {
         load () {
             this.loading = true;
@@ -180,7 +206,14 @@ export default {
          */
         appendProjectData(object, type){
             if(type && this.project[type]){
-                this.project[type].push(object);
+                var idx = _.findIndex(this.project[type], ['id', object.id]);
+                if (idx !== -1) {
+                    console.log('replacing object', type);
+                    this.$set(this.project[type], idx, object);
+                } else {
+                    console.log('adding object', type);
+                    this.project[type].push(object);
+                }
             }
         },
 

@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Auth;
 class ServersController extends APIController
 {
 
+    /**
+     * Project
+     * @var App\Models\Project
+     */
     private $projects;
 
     /**
@@ -136,10 +140,9 @@ class ServersController extends APIController
         if ($server->validateConnection()) {
             return $this->response->array([
                 'success'=> true,
-                'message'=> $server->connection_status_message
+                'message'=> $server->present()->connection_status_message
             ]);
         }
-
         abort(412, $server->present()->connection_status_message);
     }
 

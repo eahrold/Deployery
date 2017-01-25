@@ -9,11 +9,26 @@ use Illuminate\Support\Facades\Schema;
 abstract class Base extends Model
 {
 
+    /**
+     * An array of validaion rules
+     *
+     * @var array
+     */
     protected $validation_rules = [];
+
+    /**
+     * Unique Keys in the list of validation rules
+     *
+     * @var array
+     */
     protected $unique_validation_keys = [];
 
     /**
-     * @param integer $id
+     * Get the validation rules
+     *
+     * @param  int $id        id of model to check for unique against
+     * @param  array  $append any additional rule to appen
+     * @return array          validation rules
      */
     public function getValidationRules($id = null, $append=[])
     {
@@ -29,6 +44,11 @@ abstract class Base extends Model
         return array_merge($unique, $append);
     }
 
+    /**
+     * Order the models
+     * @param  Builder $query Query builder
+     * @return Builder        Query builder
+     */
     public function scopeOrder($query)
     {
         return $query->orderBy('created_at');

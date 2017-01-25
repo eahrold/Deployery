@@ -17,19 +17,7 @@ final class ProjectsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index() {
-        $projects = $this->model->findUserModels()->get();
-        return view('pages.dashboard', compact('projects'));
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function show($id){
-        $model = $this->model->getUserModel($id);
-        return view('pages.project', compact('model'));
+    public function view($id=null) {
+        return view('pages.dashboard');
     }
 }

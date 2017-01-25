@@ -9,7 +9,16 @@ use AdamBrett\ShellWrapper\Runners\Exec;
 
 class SSHKeyer
 {
+    /**
+     * Exit Code
+     * @var integer
+     */
     private $rc = 0;
+
+    /**
+     * Shell Exex
+     * @var \AdamBrett\ShellWrapper\Runners\Exec
+     */
     private $shell;
 
     public function __construct() {
@@ -38,11 +47,22 @@ class SSHKeyer
         return $this->success();
     }
 
+    /**
+     * Run a command
+     * @param  Command $command the command to run
+     * @return boolean   success/failure of the last command
+     */
     private function run(Command $command) {
         $this->shell->run($command);
         return $this->success();
     }
 
+    /**
+     * Make a directory
+     *
+     * @param  string $path
+     * @return boolean   success/failure of the last command
+     */
     private function mkdir($path) {
         $command = new Command('mkdir');
         $command->addFlag('p') // recursive create path
@@ -51,6 +71,12 @@ class SSHKeyer
         return $this->run($command);
     }
 
+    /**
+     * Create the SSH Key
+     *
+     * @param  string $path
+     * @return boolean   success/failure of the last command
+     */
     private function create($path) {
         // ssh-keygen -b 2048 -t rsa -N "" -f /path/to/keys/ -q
         $command = new Command('ssh-keygen');
@@ -62,6 +88,12 @@ class SSHKeyer
         return $this->run($command);
     }
 
+    /**
+     * Remove the SSH Key
+     *
+     * @param  string $path
+     * @return boolean   success/failure of the last command
+     */
     private function destroy($path) {
         $command = new Command('rm');
         $command->addParam("{$path}id_rsa");
@@ -69,14 +101,29 @@ class SSHKeyer
         $this->run($command);
     }
 
+    /**
+     * Get the exit status of the last command
+     *
+     * @return boolean   success/failure of the command
+     */
     private function success() {
         return $this->status() == 0;
     }
 
+    /**
+     * Get the exit code of the last command
+     *
+     * @return integer
+     */
     public function status() {
         return $this->shell->getReturnValue();
     }
 
+    /**
+     * String output of the last command
+     *
+     * @return string
+     */
     public function output() {
         return $this->shell->getOutput();
     }

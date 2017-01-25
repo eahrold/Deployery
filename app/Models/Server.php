@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\Traits\GitInfoTrait;
 use App\Models\Traits\PasswordEncrypter;
+use App\Models\Traits\SSHAble;
 use App\Models\Traits\Slackable;
 use App\Presenters\PresentableTrait;
-use App\Services\Git\GitInfo;
-use App\Services\SSHConnection as Connection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Input;
@@ -17,6 +17,8 @@ final class Server extends Base
     use PasswordEncrypter;
     use Slackable;
     use Notifiable;
+    use SSHAble;
+    use GitInfoTrait;
 
     protected $presenter = 'App\Presenters\Server';
 
@@ -56,20 +58,6 @@ final class Server extends Base
         'send_slack_messages',
     ];
 
-    public function getConfigAttribute()
-    {
-        return [
-            'host'      => $this->hostname,
-            'username'  => $this->username,
-            'password'  => $this->password,
-            'key'       => $this->project->keyPath('id_rsa'),
-            'keytext'   => '',
-            'keyphrase' => '',
-            'agent'     => '',
-            'timeout'   => 10,
-        ];
-    }
-
     protected $casts = [
         'use_ssh_key' => 'boolean',
         'autodeploy' => 'boolean',
@@ -77,23 +65,40 @@ final class Server extends Base
 
     protected $hidden = [
         'webhook',
-        'pubkey'
+        'pubkey',
+        'project'
     ];
 
     protected $appends = [
         'is_deploying',
     ];
 
+    /**
+     * Get the cache key used to check for deployment status
+     *
+     * @return string cache key
+     */
     private function deploymentCacheKey()
     {
         return "{$this->project->deploymentCacheKey()}.server.{$this->id}";
     }
 
+    /**
+     * Getter for the is_deploying attribute
+     *
+     * @param  boolean $value
+     * @return boolean        true if repo is deploying false otherwise
+     */
     public function getIsDeployingAttribute($value = false)
     {
         return Cache::has($this->deploymentCacheKey());
     }
 
+    /**
+     * Setter for the is_deploying attribute
+     *
+     * @param boolean $value
+     */
     public function setIsDeployingAttribute($value = false)
     {
         $this->project->is_deploying = (bool)$value;
@@ -104,6 +109,12 @@ final class Server extends Base
         }
     }
 
+    /**
+     * Getter for the webhook attribute
+     *
+     * @param  string $value webhook attribute or random string
+     * @return string        deployment webhook url
+     */
     public function getWebhookAttribute($value = '')
     {
         if (!$value) {
@@ -112,23 +123,33 @@ final class Server extends Base
         return $value;
     }
 
+    /**
+     * Getter for the protocol attribute
+     *
+     * @param  string $value
+     * @return string        protocol, defaults to ssh
+     */
     public function getProtocolAttribute($value = '')
     {
         return $value ?: 'ssh';
     }
 
+    /**
+     * Getter for the port attribute
+     *
+     * @param  string $value
+     * @return string        port, defaults to 22 (ssh)
+     */
     public function getPortAttribute($value = null)
     {
         return $value ?: 22;
     }
 
-    private function repoCacheKey()
-    {
-        return "{$this->project->id}_repo_commits";
-    }
-
-    /**
-     *  @property string $slug
+     /**
+     * Getter for the slug attribute
+     *
+     * @param  string $value
+     * @return string       slug string
      */
     public function getSlugAttribute($value)
     {
@@ -136,7 +157,10 @@ final class Server extends Base
     }
 
     /**
-     *  @property string $channel_id
+     * Getter for the channel_id attribute
+     *
+     * @param  string $value
+     * @return string        pass through to the project.channel_id
      */
     public function getChannelIdAttribute($value = '')
     {
@@ -144,55 +168,32 @@ final class Server extends Base
     }
 
     /**
-     *  @property string $connection_details
+     * Getter for the connection_details attribute
+     *
+     * @param  string $value
+     * @return string        connection details string
      */
     public function getConnectionDetailsAttribute($value = '')
     {
         return "{$this->username}@{$this->hostname}";
     }
 
+    /**
+     * Getter for the slack_webhook_url attribute
+     *
+     * @param  mixed $value
+     * @return string        the webhook url, or the projects webhook url
+     */
     public function getSlackWebhookUrlAttribute($value = null)
     {
         return $value ?: ($this->project ? $this->project->slack_webhook_url : $value);
     }
 
-    //----------------------------------------------------------
-    // GitInfo
-    //-------------------------------------------------------
-    private $gitInfoInstance;
-    public function getGitInfoAttribute($value = '')
-    {
-        if (!isset($this->gitInfoInstance)) {
-            if ($branch = $this->branch ?: Input::get('branch') ?: $this->project->branch) {
-                $this->gitInfoInstance = (new GitInfo($this->repo, $branch))->withPubKey($this->project->user->auth_key);
-            }
-        }
-        return $this->gitInfoInstance;
-    }
-
-    public function updateGitInfo() {
-        $this->git_info->update();
-        return $this;
-    }
-
-    //----------------------------------------------------------
-    // Commits
-    //-------------------------------------------------------
-    public function getCommitsAttribute($value = '')
-    {
-        return $this->git_info->commits(10);
-    }
-
-    public function getNewestCommitAttribute($value = '')
-    {
-        return $this->git_info->newest_commit;
-    }
-
-    public function getInitialCommitAttribute($value = '')
-    {
-        return $this->git_info->initial_commit;
-    }
-
+    /**
+     * Getter for the last_deployed_commit attribute
+     *
+     * @return associative array
+     */
     public function getLastDeployedCommitAttribute($value = '')
     {
         $history = $this->successful_deployments->first();
@@ -203,69 +204,9 @@ final class Server extends Base
     }
 
     //----------------------------------------------------------
-    // Connection
+    // Relations
     //-------------------------------------------------------
-    private function getConnectionAuth()
-    {
-        if ($this->use_ssh_key) {
-            return ['key' => $this->project->ssh_key,
-                    'keyphrase' => ''];
-        } else {
-            return [
-                'password' => $this->password ?: ""
-            ];
-        }
-    }
 
-    private $ssh_connection;
-    /**
-     * SSH Connection
-     *
-     * @property  connection
-     * @return \App\Services\SSHConnection
-     */
-    public function getConnectionAttribute()
-    {
-        if (!$this->ssh_connection) {
-            $this->ssh_connection = new Connection(
-                $this->slug,
-                $this->hostname,
-                $this->username,
-                $this->getConnectionAuth(),
-                null,
-                $timeout = 10
-            );
-        }
-        return $this->ssh_connection;
-    }
-
-    public function validateConnection()
-    {
-        try {
-            $status = $this->getConnectionAttribute()
-                           ->validate($this->deployment_path);
-        } catch (\Exception $e) {
-            $status = Connection::CONNECTION_STATUS_FAILURE;
-        }
-
-        $this->successfully_connected = $status;
-        $this->save();
-        return ($status === Connection::CONNECTION_STATUS_SUCCESS);
-    }
-
-    //----------------------------------------------------------
-    // Repo
-    //-------------------------------------------------------
-    public function getRepoAttribute($value = '')
-    {
-        if ($this->project) {
-            return $this->project->repo_path;
-        }
-    }
-
-    //----------------------------------------------------------
-    // Morph classes
-    //-------------------------------------------------------
     public function project()
     {
         return $this->belongsTo('App\Models\Project')->order();
@@ -289,6 +230,7 @@ final class Server extends Base
     //----------------------------------------------------------
     // Script extras
     //-------------------------------------------------------
+
     public function getPreInstallScriptsAttribute()
     {
         return $this->filteredInstallScripts($predeploy = true);
@@ -300,7 +242,10 @@ final class Server extends Base
     }
 
     /**
-     * @param boolean $predeploy
+     * filter scripts
+     *
+     * @param  boolean $predeploy
+     * @return Collection          conditional scripts
      */
     private function filteredInstallScripts($predeploy)
     {
@@ -343,20 +288,4 @@ final class Server extends Base
                     ->get();
     }
 
-    //----------------------------------------------------------
-    // Booting
-    //-------------------------------------------------------
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::updating(function($model) {
-            // A list of properties that if changed, require revalidating
-            // the server connection.
-            $check = ['hostname', 'username', 'password', 'port', 'deployment_path'];
-            if ($model->isDirty($check)) {
-                $model->successfully_connected = Connection::CONNECTION_STATUS_UNKNOWN;
-            }
-        });
-    }
 }

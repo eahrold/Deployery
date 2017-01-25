@@ -9,6 +9,10 @@ use App\Transformers\HistoryTransformer;
 class HistoryController extends APIController
 {
 
+    /**
+     * Project
+     * @var App\Models\Project
+     */
     private $project;
 
     public function __construct(BaseRequest $request, Project $project, HistoryTransformer $transformer)
@@ -18,9 +22,9 @@ class HistoryController extends APIController
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Dingo\Api\Http\Response
      */
     public function index($project_id)
     {
@@ -31,10 +35,11 @@ class HistoryController extends APIController
     }
 
     /**
-     * Update the specified resource in storage.
+     * Display the specified resource.
      *
+     * @param  int  $project_id
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Dingo\Api\Http\Response
      */
     public function show($project_id, $id)
     {

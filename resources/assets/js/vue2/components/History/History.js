@@ -19,6 +19,7 @@ export default {
 
     methods: {
         load () {
+            var ready = false;
             var endpoint = this.$parent.endpoint + '/history';
             // console.log("calling", endpoint);
              this.$http.get(endpoint).then((response)=>{
@@ -30,7 +31,10 @@ export default {
             });
         },
 
-        listen () {
+        listen (oldRoute) {
+            if (oldRoute) {
+                echo.leave('project.'+oldRoute.params.id);
+            }
             echo.private('project.'+ this.$route.params.id)
                 .listen('HistoryCreatedEvent', this.handleHistoryCreated);
         },
@@ -55,7 +59,14 @@ export default {
         closeModal () {
             this.aHistory = {};
         }
-    }
+    },
+
+    watch: {
+        $route (newRoute, oldRoute) {
+            this.listen(oldRoute);
+            this.load();
+        }
+    },
 }
 
 

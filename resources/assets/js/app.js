@@ -40,14 +40,14 @@ Vue.mixin(LocalTime);
  */
 const routes = [
     {
-        path: '/projects',
+        path: '/',
         name: 'projects.list',
-        component: require('/vue2/component/Projects/Projects.vue')
+        component: require('./vue2/components/Projects/Projects.vue'),
     },
 
     {
         path: '/projects/:id',
-        name: 'projects.edit'
+        name: 'projects.edit',
         component: require('./vue2/components/Projects/Project.vue'),
 
         children : [

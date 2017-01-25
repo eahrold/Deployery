@@ -9,6 +9,7 @@ use App\Transformers\ProjectTransformer;
 
 class ProjectsController extends APIController
 {
+
     public function __construct(BaseRequest $request, Project $project, ProjectTransformer $transformer)
     {
         parent::__construct($request, $project, $transformer);
@@ -17,7 +18,7 @@ class ProjectsController extends APIController
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Dingo\Api\Http\Response
      */
     public function index()
     {
@@ -36,7 +37,7 @@ class ProjectsController extends APIController
     /**
      * Store a newly created resource in storage.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Dingo\Api\Http\Response
      */
     public function store()
     {
@@ -51,7 +52,7 @@ class ProjectsController extends APIController
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Dingo\Api\Http\Response
      */
     public function show($id)
     {
@@ -87,7 +88,7 @@ class ProjectsController extends APIController
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Dingo\Api\Http\Response
      */
     public function destroy($id)
     {
@@ -101,6 +102,12 @@ class ProjectsController extends APIController
         ]);
     }
 
+    /**
+     * Get General info about the project
+     *
+     * @param  int $id
+     * @return \Dingo\Api\Http\Response
+     */
     public function info($id)
     {
         $model = $this->model->findOrFail($id);
@@ -133,6 +140,12 @@ class ProjectsController extends APIController
         ]);
     }
 
+    /**
+     * Get the Public Key for deployed to servers.
+     *
+     * @param  int $id
+     * @return \Dingo\Api\Http\Response
+     */
     public function pubkey($id)
     {
         $model = $this->model->findOrFail($id);
@@ -143,6 +156,12 @@ class ProjectsController extends APIController
         ]);
     }
 
+    /**
+     * Trigger a RepositoryClone event
+     *
+     * @param  int $id
+     * @return \Dingo\Api\Http\Response
+     */
     public function cloneRepo($id)
     {
         $model = $this->model->getUserModel($id);

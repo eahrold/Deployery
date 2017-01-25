@@ -57,9 +57,9 @@
                     </button>
 
                     <!-- Branding Image -->
-                    <a class="navbar-brand" href="{{ url('/') }}">
+                    <div class="navbar-brand">
                         Deployery
-                    </a>
+                    </div>
                 </div>
                 @include('partials.main_nav')
             </div>
@@ -81,7 +81,6 @@
     <script type="text/javascript" src="https://js.pusher.com/3.1/pusher.min.js"></script>
 
     <script src="{{ elixir('js/app.js') }}"></script>
-    <script src="{{ elixir('js/vue/vue-kit.js') }}"></script>
     <script src="{{ elixir('js/vendor.js') }}"></script>
 
     @yield('js')

@@ -25,16 +25,19 @@ body {
   font-family: 'Lato' , sans-serif;
 }
 
+a {
+    color: #78a0a0;
+    &:hover {
+        color: #425656;
+    };
+}
+
 .modal-footer {
     border-top: none;
 }
 
 .fa-btn {
     margin-right: 6px;
-}
-
-.panel {
-    min-width: 400px;
 }
 
 /**

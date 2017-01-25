@@ -20,33 +20,31 @@
 
         <div class='panel-body'>
             <div class='row'>
-                <div class="col-md-12">
-                    <div class='pull-left'>
-                        Repository
-                    </div>
-                    <div class='pull-right'><code>{{ project.repo }}</code></div>
+                <div class='col-sm-4'><b>Repository</b></div>
+                <div class='col-sm-8 text-right'>
+                    <i v-if='loading' class="fa fa-spinner fa-spin"></i>
+                    <code v-else>{{ project.repo }}</code>
                 </div>
             </div>
             <div class='row'>
-                <div class="col-md-12">
-                    <div class='pull-left'>Default Branch</div>
-                    <div class='pull-right'><code>{{ project.branch }}</code></div>
+                <div class='col-sm-4'><b>Default Branch</b></div>
+                <div class='col-sm-8 text-right'>
+                    <i v-if='loading' class="fa fa-spinner fa-spin"></i>
+                    <code v-else>{{ project.branch }}</code>
                 </div>
             </div>
             <div class='row'>
-                <div class="col-md-12">
-                    <div class='pull-left'>
-                        Repository Size
-                    </div>
-                    <div class='pull-right'><code>{{ repoSize }}</code></div>
+                <div class='col-sm-4'><b>Repository Size</b></div>
+                <div class='col-sm-8 text-right'>
+                    <i v-if='loading' class="fa fa-spinner fa-spin"></i>
+                    <code v-else>{{ repoSize }}</code>
                 </div>
             </div>
             <div class='row'>
-                <div class="col-md-12">
-                    <div class='pull-left'>
-                        Last Deployed
-                    </div>
-                    <div class='pull-right'><code>{{ lastDeployedString }}</code></div>
+                <div class='col-sm-4'><b>Last Deployed</b></div>
+                <div class='col-sm-8 text-right'>
+                    <i v-if='loading' class="fa fa-spinner fa-spin"></i>
+                    <code v-else>{{ lastDeployedString }}</code>
                 </div>
             </div>
         </div>
@@ -59,7 +57,8 @@
 export default {
     props : [
         'project',
-        'deployment'
+        'deployment',
+        'loading'
     ],
 
     data () {

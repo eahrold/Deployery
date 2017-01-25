@@ -6,7 +6,13 @@
             @include('partials.main_nav_projects')
             @include('partials.main_nav_teams')
             <li>
-                <a href="{{ url('/') }}">Dashbaord</a>
+                @if(request()->is('/') || request()->is('projects/*'))
+                <router-link :to="{ name: 'projects.list'}">
+                    Dashbaord
+                </router-link>
+                @else
+                <a href="/">Dashboard</a>
+                @endif
             </li>
         @endif
     </ul>

@@ -12,8 +12,19 @@ abstract class APIController extends Controller
 {
     use Helpers;
 
+    /**
+     * @var App\Http\Requests\BaseRequest
+     */
     protected $request;
+
+    /**
+     * @var App\Models\Base
+     */
     protected $model;
+
+    /**
+     * @var App\Transformers\Transformer
+     */
     protected $transformer;
 
     public function __construct(Request $request, Base $model, Transformer $transformer)
@@ -23,6 +34,7 @@ abstract class APIController extends Controller
         $this->transformer = $transformer;
     }
 
+
     public function options ($project_id=null)
     {
         return  $this->response->array([
@@ -30,6 +42,14 @@ abstract class APIController extends Controller
         ]);
     }
 
+    /**
+     * Validate request with api error response
+     *
+     * @param  Request $request request object
+     * @param  array   $rules   validation rules
+     * @throws  UpdateResourceFailedException on validation failure
+     * @return void
+     */
     protected function apiValidate(Request $request, array $rules)
     {
         $validator = \Validator::make($request->all(), $rules);

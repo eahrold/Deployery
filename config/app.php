@@ -225,7 +225,6 @@ return [
         /*
          * Vendor
          */
-        'SSH' => App\Services\SSHAccess::class,
         'BootForm' => AdamWathan\BootForms\Facades\BootForm::class,
         'JWTAuth' => \Tymon\JWTAuth\Facades\JWTAuth::class,
 

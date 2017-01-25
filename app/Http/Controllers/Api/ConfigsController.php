@@ -8,7 +8,10 @@ use App\Transformers\ConfigTransformer;
 
 class ConfigsController extends APIController
 {
-
+    /**
+     * Project
+     * @var App\Models\Project
+     */
     private $project;
 
     public function __construct(BaseRequest $request, Project $project, ConfigTransformer $transformer)
@@ -18,9 +21,11 @@ class ConfigsController extends APIController
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Get the resource
      *
-     * @return \Illuminate\Http\Response
+     * @param  int $project_id
+     * @param  int $id
+     * @return \Dingo\Api\Http\Response
      */
     public function show($project_id, $id)
     {
@@ -36,7 +41,7 @@ class ConfigsController extends APIController
     /**
      * Store a newly created resource in storage.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Dingo\Api\Http\Response
      */
     public function store($project_id)
     {
@@ -62,8 +67,9 @@ class ConfigsController extends APIController
     /**
      * Update the specified resource in storage.
      *
+     * @param  int  $project_id
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Dingo\Api\Http\Response
      */
     public function update($project_id, $id)
     {
@@ -85,8 +91,9 @@ class ConfigsController extends APIController
     /**
      * Remove the specified resource from storage.
      *
+     * @param  int  $project_id
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Dingo\Api\Http\Response
      */
     public function destroy($project_id, $id)
     {
@@ -102,6 +109,12 @@ class ConfigsController extends APIController
         ]);
     }
 
+    /**
+     * Get the relational options for the form
+     *
+     * @param  int|null $project_id
+     * @return \Dingo\Api\Http\Response
+     */
     public function options ($project_id=null)
     {
         $project = $this->project->findOrFail($project_id);

@@ -16,12 +16,20 @@
 }
 
 
+.bottomup-enter-active {
+    animation: bottomup-in .5s;
+}
+
+.bottomup-leave-active {
+  animation: bottomup-out .5s;
+}
+
 .fade-enter-active, .fade-leave-active {
-  transition: opacity 1s
+  transition: opacity 1s;
 }
 
 .fade-enter, .fade-leave-active {
-  opacity: 0
+  opacity: 0;
 }
 
 .slide-fade-enter-active {
@@ -43,6 +51,32 @@
 
 .slide-enter, .slide-leave-active {
   transform: translateX(20px);
+}
+
+
+.bounce-enter-active {
+  animation: bounce-in .5s;
+}
+.bounce-leave-active {
+  animation: bounce-out .5s;
+}
+
+@keyframes bottomup-in {
+  0% {
+    transform: scaleY(0);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes bottomup-out {
+  0% {
+    transform: scaleY(1);
+  }
+  100% {
+    transform: scaleY(0);
+  }
 }
 
 

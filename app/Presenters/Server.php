@@ -29,6 +29,7 @@ class Server extends Presenter
     public function connection_status_message()
     {
         $message = '';
+
         switch ($this->entity->successfully_connected) {
             case SSHConnection::CONNECTION_STATUS_SUCCESS:
                 $message = "Successfully connected to the server";

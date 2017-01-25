@@ -69,9 +69,9 @@ class RepositoryClone extends Job implements ShouldQueue
         $this->sendCompleteMessage($success, $cloner->getErrors());
     }
 
-    private function sendStartedMessage($message) {
+    private function sendStartedMessage($message)
+    {
         $this->project->is_cloning = true;
-
         event(new RepositoryCloneStarted([
             'message'=>$message,
             'channel_id'=>$this->channel(),

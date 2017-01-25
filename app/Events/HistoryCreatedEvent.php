@@ -29,7 +29,6 @@ final class HistoryCreatedEvent extends AbstractEchoEvent
     public function broadcastWith()
     {
         $this->history->load('server');
-        \Log::info('running history created');
         return [
             'history' => $this->history,
         ];

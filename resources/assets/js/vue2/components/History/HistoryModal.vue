@@ -49,15 +49,13 @@
                     </div>
                 </div>
 
-                <div class="col-md-12">
-                    <div v-for='(value, key) in details' class='col-md-6'>
-                        <div class="panel panel-default">
-                        <div class="panel-heading"><b>{{ key }}</b></div>
-                            <div class="panel-body history-file-panel">
-                                <ul class="list-unstyled">
-                                    <li v-for='file in value'>{{ file }}</li>
-                                </ul>
-                            </div>
+                <div v-for='(value, key) in details' class='col-md-6'>
+                    <div class="panel panel-default">
+                    <div class="panel-heading"><b>{{ key }}</b></div>
+                        <div class="panel-body history-file-panel">
+                            <ul class="list-unstyled">
+                                <li v-for='file in value'>{{ file }}</li>
+                            </ul>
                         </div>
                     </div>
                 </div>

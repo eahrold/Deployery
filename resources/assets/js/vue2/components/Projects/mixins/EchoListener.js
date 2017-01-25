@@ -25,6 +25,12 @@ var EchoListener = {
                     // console.log(JSON.stringify(viewers));
                     this.viewers = viewers;
             });
+            return this;
+        },
+
+        removeEchoListener(route) {
+            echo.leave('project.'+route.params.id);
+            return this;
         },
 
         /**

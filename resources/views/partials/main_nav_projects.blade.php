@@ -7,12 +7,18 @@
     </a>
     <ul class="dropdown-menu" role="menu">
         <?php $projects = Project::findUserModels()->get(); ?>
+        <?php $vueRoute = request()->is('/') || request()->is('projects/*'); ?>
+
         @if($projects->count())
             @foreach( $projects as $project)
             <li>
-                <a href="{{ route('projects.edit', $project->id) }}">
+                @if($vueRoute)
+                <router-link :to="{ name: 'projects.edit', params: { id: {{ $project->id }} }}">
                     {{ $project->name }}
-                </a>
+                </router-link>
+                @else
+                <a href="/projects/{{$project->id}}">{{ $project->name }}</a>
+                @endif
             </li>
             @endforeach
             <li role="separator" class="divider"></li>

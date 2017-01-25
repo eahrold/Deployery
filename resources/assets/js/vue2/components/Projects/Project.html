@@ -67,7 +67,7 @@
             <!-- Overview -->
             <div class='tab-pane active' id='overview'>
                 <div>
-                    <project-info :project='project' :deployment='deployment'></project-info>
+                    <project-info :project='project' :deployment='deployment' :loading='loading'></project-info>
                 </div>
             </div>
             <!-- End Overview -->
@@ -156,6 +156,11 @@
         </div>
         <!-- End Tabs content -->
 
+        <transition name='bottomup'>
+            <div v-if='loading' class="btn btn-info btn-loading">
+                Getting Project Data...
+            </div>
+        </transition>
 
         <!-- Cloning Status message -->
         <div class="container container-lg">

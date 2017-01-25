@@ -14,14 +14,8 @@
 $router = app("Illuminate\Routing\Router");
 
 $router->group(["middleware" => "auth"], function ($router) {
-    $router->get("/", "ProjectsController@index");
-
-    $router->group(["prefix"=>"projects/{project}"], function ($router) {
-        $router->get('', [
-            'uses' => 'ProjectsController@show',
-            'as' => 'projects.edit'
-        ]);
-    });
+    $router->get("/", "ProjectsController@view");
+    $router->get("/projects/{id?}", "ProjectsController@view");
 
     $router->group(["middleware" => "admin"], function ($router) {
         $router->resource("users", "UsersController", [ "except"=>[ "show" ]]);

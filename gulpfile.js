@@ -38,11 +38,6 @@ elixir(mix => {
       'vue/vue-globals.js',
     ], 'public/js/vue/vue-kit.js')
 
-    // Passing in
-    .scripts([
-       'alerter.js',
-    ], 'public/js/vendor.js')
-
     // Fonts
     .copy('node_modules/font-awesome/fonts', fontPath)
     .copy('node_modules/bootstrap-sass/assets/fonts/bootstrap', fontPath +'/bootstrap');

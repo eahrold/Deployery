@@ -1,4 +1,4 @@
-## Deployery (v0.1)
+## Deployery (v0.2)
 
 Deployery is a simple web app that allows you to auto-deploy your code from git repositories to web hosts.
 
@@ -77,7 +77,6 @@ This project takes advantage of numerous open source projects.
 - [Bootforms](https://github.com/adamwathan/bootforms)
 - [Teamwork](https://github.com/mpociot/teamwork)
 - [Vue.js](https://github.com/vuejs/vue)
-- [Vue Select](https://github.com/sagalbot/vue-select)
 
 And numerous other includes.
 
@@ -85,5 +84,5 @@ A special thanks to Samuel De Backer for [TypiCMS](http://typicms.org), an aweso
 
 ---
 
-__Big Club Digital__ is a St. Louis development house.  
+__Big Club Digital__ is a St. Louis development house.
 Check us out online [https://bigclubdigital.com](https://bigclubdigital.com)

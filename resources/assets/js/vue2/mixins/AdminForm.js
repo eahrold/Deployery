@@ -16,7 +16,7 @@ var modalForm = {
             });
 
             modal.on('hidden.bs.modal',(e)=>{
-                this.model = this.pristine = null;
+                this.model = this.pristine = this.schema();
             });
 
             modal.on('show.bs.modal',(e)=>{
@@ -47,6 +47,7 @@ var form = {
     },
 
     computed : {
+
         isDirty () {
             return (this.model && !this.model.id) || !this.isPristine;
         },
@@ -64,8 +65,6 @@ var form = {
 
                 return obj === v;
             });
-
-            console.log("ojbect diff", diff, this.model, this.pristine);
 
             return _.isEmpty(diff);
         },
@@ -112,18 +111,20 @@ var form = {
         },
 
         failure (response) {
-            console.log('success');
-
             this.finally(response);
             this.presentError();
         },
 
         presentError () {
-            Alerter.error(this.errorsHtml);
+            this.$alerter.error(this.errorsHtml);
+        },
+
+        schema () {
+            return {};
         },
 
         makePristine (data) {
-            var model = this.model = data || {};
+            var model = this.model = data || this.schema();
             this.pristine = JSON.parse(JSON.stringify(model));
             return model;
         },
@@ -148,7 +149,7 @@ var form = {
                 });
             } else {
                 this.loading = false;
-                this.makePristine({});
+                this.makePristine(this.schema());
             }
         },
 

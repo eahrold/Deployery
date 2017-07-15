@@ -1,3 +1,5 @@
+@import 'mixins';
+
 .deployments {
     .v-select {
         .selected-tag {
@@ -7,5 +9,33 @@
             text-overflow: ellipsis;
             width: 80%;
         }
+    }
+
+    .refresh-spinner {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+
+        em {
+            margin-right: 5px;
+            margin-left: 5px;
+        }
+    }
+
+    .btn-deploy {
+        .btn {
+            @include transition(all, .3s, ease);
+            width: 125px;
+        }
+        &.loading {
+            .btn {
+                width: 175px;
+            }
+        }
+    }
+
+    .message-container {
+        max-height: 200px;
+        overflow: scroll;
     }
 }

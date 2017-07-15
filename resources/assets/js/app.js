@@ -35,6 +35,10 @@ Vue.component('trash-button', require('./vue2/components/Partials/TrashButton.vu
 import { LocalTime } from './vue2/mixins/LocalTime.js';
 Vue.mixin(LocalTime);
 
+import { Alerter } from './alerter';
+Vue.prototype.$alerter = Alerter;
+
+
 /**
  * Setup the router
  */

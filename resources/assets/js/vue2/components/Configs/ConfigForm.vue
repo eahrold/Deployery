@@ -26,8 +26,6 @@
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -51,7 +49,16 @@
             }
         },
 
+        methods : {
+            schema () {
+                return {
+                    server_ids: []
+                }
+            },
+        },
+
         computed : {
+
             type () {
                 return 'configs';
             },

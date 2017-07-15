@@ -54,11 +54,15 @@ class ConfigsController extends APIController
         $this->authorize($project);
 
         $data = $this->request->all();
-
         $model = $this->model->newInstance($data);
-        $project->configs()->save($model);
 
-        $model->servers()->sync($this->request->get('server_ids') ?: []);
+        \DB::transaction(function() use ($project, $model) {
+            $project->configs()->save($model);
+            if($server_ids = $this->request->server_ids) {
+                $model->servers()->sync($server_ids);
+            }
+        });
+
         $this->transformer->makeVisible('server_ids');
 
         return $this->response->item($model, $this->transformer);
@@ -81,10 +85,14 @@ class ConfigsController extends APIController
         $model = $this->project->findConfig($project_id, $id);
         $this->authorize($model->project);
 
-        $model->update($this->request->all());
-        $model->servers()->sync($this->request->get('server_ids') ?: []);
-        $this->transformer->makeVisible('server_ids');
+        \DB::transaction(function() use ($model) {
+            $model->update($this->request->all());
+            if($server_ids = $this->request->server_ids) {
+                $model->servers()->sync($server_ids);
+            }
+        });
 
+        $this->transformer->makeVisible('server_ids');
         return $this->response->item($model, $this->transformer);
     }
 

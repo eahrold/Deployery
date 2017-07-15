@@ -3,14 +3,16 @@
     <div v-if='project.id' class="panel panel-default">
         <div class="pannel-nav navbar navbar-default navbar-static">
             <div class='nav navbar-nav navbar-left'>
-                {{ project.name }} Info
+                {{ project.name }} Info {{ deployment.deploying }}
             </div>
             <ul class='nav navbar-nav navbar-right' v-if='project.servers && project.servers.length'>
                 <li>
                     <i class="fa fa-spinner fa-spin fa-fw" v-if="deployment.deploying"></i></li>
                 <li>
-                <deployments :project-id='project.id'
+                <deployments :v-show='!loading'
+                             :project-id='project.id'
                              :servers='project.servers'
+                             :progress='deployment.progress'
                              :deploying='deployment.deploying'
                              :messages='deployment.messages'>
                 </deployments>

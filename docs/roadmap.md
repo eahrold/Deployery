@@ -4,7 +4,7 @@
 
 ### Backend
 - [x] User based SSH Key generation used in connecting to Git hosts
-- [ ] Slack / HipChat / Email notifications
+- [x] Slack
 - [ ] Configure site settings in backend
 - [x] Subclass \Remote class to support SFTP zero byte issue
 - [x] Validate the source of the webhook request
@@ -18,10 +18,10 @@
 - [ ] Add confirmation handling to related model delete requests (trash can)
 - [ ] Fix secondary nav bar hi-light height
 - [ ] Add global deploy button somewhere
-- [ ] Add more info to the dashborad
+- [x] Add more info to the dashborad
 - [ ] Change deployment panel, Make `to` and `from` disabled by default
 - [x] Update deployment panel to be filterable.
-- [ ] Change local of deploying message on main project page.
+- [x] Change local of deploying message on main project page.
 - [ ] Display Server IP address and message about whitelisting it on deployment targets
 - [x] Add display of SSH pubkey in server tab.
 
@@ -32,8 +32,8 @@
 - [ ] Add wider array of webhook sources (see config/webhook.php)
 - [ ] Auto spawn project specific queues
 - [ ] Support cloud file storage
-- [ ] Do a pre-run test on server to check writability of every directory
-- [ ] Improve error handling
+- [x] Do a pre-run test on server to check writability of every directory
+- [x] Improve error handling
 - [ ] Explore alternative handling of run scripts, currently they don't support shebang.
 - [ ] Support HTTP login for remote git repositories
 - [ ] localize strings

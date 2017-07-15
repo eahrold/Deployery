@@ -5,7 +5,7 @@ Vue.component('server-pubkey-modal', require('./ServerPubkeyModal.vue'));
 Vue.component('server-form', require('./ServerForm.vue'));
 
 export default {
-    props: ['servers', 'projectId', 'deploying', 'messages'],
+    props: ['servers', 'projectId', 'deploying', 'messages', 'progress'],
 
     data() {
         return {
@@ -62,7 +62,7 @@ export default {
                     console.error('error:', response);
                     s.toggleClass('fa-spin');
                     server.successfully_connected = -1;
-                    Alerter.error(response.data.message);
+                    this.$alerter.error(response.data.message);
                 }
             );
         },

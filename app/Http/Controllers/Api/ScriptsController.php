@@ -55,12 +55,16 @@ class ScriptsController extends APIController
         $this->authorize($project);
 
         $data = $this->request->all();
-
         $model = $this->model->newInstance($data);
-        $project->scripts()->save($model);
+
+        \DB::transaction(function() use ($project, $model) {
+            $project->scripts()->save($model);
+            if($server_ids = $this->request->server_ids) {
+                $model->servers()->sync($server_ids);
+            }
+        });
 
         $this->transformer->makeVisible('server_ids');
-        $model->servers()->sync($this->request->get('server_ids') ?: []);
         return $this->response->item($model, $this->transformer);
     }
 
@@ -80,11 +84,14 @@ class ScriptsController extends APIController
         $model = $this->projects->findScript($project_id, $id);
         $this->authorize($model->project);
 
-        $model->update($this->request->all());
+        \DB::transaction(function() use ($model) {
+            $model->update($this->request->all());
+            if($server_ids = $this->request->server_ids) {
+                $model->servers()->sync($server_ids);
+            }
+        });
 
         $this->transformer->makeVisible('server_ids');
-        $model->servers()->sync($this->request->get('server_ids') ?: []);
-
         return $this->response->item($model, $this->transformer);
     }
 

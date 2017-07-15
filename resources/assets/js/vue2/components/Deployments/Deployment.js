@@ -1,6 +1,6 @@
 
 export default {
-    props: [ 'projectId', 'server' , 'messages', 'deploying'],
+    props: [ 'projectId', 'server' , 'messages', 'deploying', 'progress'],
 
     data() {
         return {
@@ -10,8 +10,12 @@ export default {
             deployEntireRepo: false,
             avaliableFromCommits: [],
             avaliableCommits: [],
+            availableScripts: [],
+            scriptIds: [],
             loading: true,
-            disabled: false
+            loaded: false,
+            disabled: false,
+            error: false,
         }
     },
 
@@ -28,6 +32,29 @@ export default {
 
 
     computed: {
+        buttonClass() {
+            return [
+                this.error !== false ? 'btn-danger' :
+                    this.deploying ? 'btn-success' : 'btn-primary'
+            ];
+        },
+
+        buttonText() {
+            if(this.loading) {
+                return "Getting Commit Details";
+            }
+
+            if (this.error !== false) {
+                return "Try Again"
+            }
+
+            return this.deploying ? "Deploying..." : "Deploy Now"
+        },
+
+        progressStyle() {
+            return { width: this.progress + "%" }
+        },
+
         complete () {
             return !this.deploying;
         },
@@ -64,8 +91,17 @@ export default {
                         return obj.hash === response.data.last_deployed_commit;
                     }) || { hash: null,  'label': 'Never deployed' };
 
+                    this.availableScripts = response.data.avaliable_scripts;
+
                     this.toCommit = _.first(this.avaliableCommits);
-                    this.loading = false
+                    this.loading = false;
+                    this.error = false;
+                    this.loaded = true;
+                }, response => {
+                    var msg = "There was a problem getting the commit details. "+response.data.message
+                    this.$alerter.error(msg);
+                    this.loading = false;
+                    this.error = true;
                 });
         },
 
@@ -79,11 +115,16 @@ export default {
 
 
         deploy(){
+            if(this.error == true) {
+                return this.getCommitDetails();
+            }
+
             var endpoint = this.apiEndpoint+'/deploy';
             var data = {
                 'from': this.fromCommit.hash,
                 'to': this.toCommit.hash,
-                'deploy_entire_repo': this.deployEntireRepo
+                'deploy_entire_repo': this.deployEntireRepo,
+                'script_ids': this.scriptIds
             };
             this.disabled = true;
             this.$http.post(endpoint, data)
@@ -93,7 +134,7 @@ export default {
                 },
                 (response) => {
                     this.disabled = false;
-                    Alerter.error(response.data.message);
+                    this.$alerter.error(response.data.message);
             });
         },
     }

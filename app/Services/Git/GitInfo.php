@@ -113,6 +113,20 @@ class GitInfo
     }
 
     /**
+     * Get the first commit to the repo.
+     *
+     * @return array first commit to the repo.
+     */
+    public function getInitialCommitProperty()
+    {
+        $task = "rev-list --oneline --max-parents=0 HEAD";
+        $builder = $this->gitBuilder()->setTask($task);
+        $stdout = $this->run($builder);
+        list($hash, $message) = explode(' ', $stdout[0], 2);
+        return compact('hash', 'message');
+    }
+
+    /**
      * Get the most recent commit.
      *
      * @return array The newest commit
@@ -127,17 +141,20 @@ class GitInfo
     }
 
     /**
-     * Get the first commit to the repo.
+     * Get the most recent commit.
      *
-     * @return array first commit to the repo.
+     * @return array The newest commit
      */
-    public function getInitialCommitProperty()
+    public function findCommitProperty($commitHash)
     {
-        $task = "rev-list --oneline --max-parents=0 HEAD";
+        // Clean Hash //
+        $commitHash = substr(preg_replace("/[^A-Za-z0-9 ]/", '', $commitHash),0, 7);
+
+        $task = "log origin/{$this->branch} -1 {$commitHash} --oneline";
         $builder = $this->gitBuilder()->setTask($task);
         $stdout = $this->run($builder);
-        list($hash, $message) = explode(' ', $stdout[0], 2);
-        return compact('hash', 'message');
+        list($hash, $message) = explode(' ', end($stdout), 2);
+        return ['hash' => trim($hash), 'message' => trim($message)];
     }
 
     /**
@@ -217,6 +234,7 @@ class GitInfo
 
         return $this;
     }
+
     /**
      * Show Changes between two commits
      *

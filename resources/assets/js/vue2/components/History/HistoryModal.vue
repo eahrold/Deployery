@@ -53,9 +53,10 @@
                     <div class="panel panel-default">
                     <div class="panel-heading"><b>{{ key }}</b></div>
                         <div class="panel-body history-file-panel">
-                            <ul class="list-unstyled">
+                            <ul v-if='value.length' class="list-unstyled">
                                 <li v-for='file in value'>{{ file }}</li>
                             </ul>
+                            <h5 v-else>N/A</h5>
                         </div>
                     </div>
                 </div>

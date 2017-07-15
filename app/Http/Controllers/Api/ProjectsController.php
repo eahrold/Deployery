@@ -56,7 +56,17 @@ class ProjectsController extends APIController
      */
     public function show($id)
     {
-        $model = $this->model->with(['servers','configs','scripts'])->findOrFail($id);
+        $model = $this->model->with([
+            'servers',
+            'configs' => function($query){
+
+                $query->with(['servers' => function($query){
+                    $query->select(['id', 'name']);
+                }]);
+            },
+            'scripts'
+        ])->findOrFail($id);
+
         $this->authorize($model);
         return $this->response->item($model, $this->transformer);
     }

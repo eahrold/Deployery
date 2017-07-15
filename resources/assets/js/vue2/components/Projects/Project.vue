@@ -49,6 +49,7 @@ export default {
             deployment: {
                 deploying: false,
                 messages: [],
+                progress: 0,
                 errors: [],
                 server_name: null,
                 server_id: null,
@@ -139,6 +140,7 @@ export default {
                     this.loading = false;
                 },
                 (response)=>{
+                    this.$alerter.error(response.data.message)
                     console.error('Error getting project', response, this.endpoint);
                     this.loading = false;
             });
@@ -256,11 +258,11 @@ export default {
             this.status.cloning = true;
             this.$http.post(endpoint).then(
                 (response) => {
-                    Alerter.success(response.data.message)
+                    this.$alerter.success(response.data.message)
                 },
                 (response) => {
                     this.status.false = true;
-                    Alerter.error(response.data.message)
+                    this.$alerter.error(response.data.message)
             });
         },
     }

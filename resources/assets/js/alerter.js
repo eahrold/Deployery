@@ -86,3 +86,5 @@ var Alerter = {
         return this;
     },
 };
+
+export { Alerter }

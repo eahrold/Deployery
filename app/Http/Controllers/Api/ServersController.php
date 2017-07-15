@@ -49,9 +49,14 @@ class ServersController extends APIController
         $data["project_id"] = $project_id;
 
         $model = $this->model->newInstance($data);
-        $project->servers()->save($model);
 
-        $model->scripts()->sync($this->request->get('script_ids') ?: []);
+        \DB::transaction(function() use ($project, $model) {
+            $project->servers()->save($model);
+            if($script_ids = $this->request->script_ids) {
+                $model->scripts()->sync($script_ids);
+            }
+        });
+
         return $this->response->item($model, new $this->transformer);
     }
 
@@ -85,12 +90,14 @@ class ServersController extends APIController
         $rules = $model->getValidationRules($id);
         $this->apiValidate($this->request, $rules);
 
-        $model->scripts()->sync($this->request->get('script_ids') ?: []);
+        \DB::transaction(function() use ($model) {
+            $model->update($this->request->all());
+            if($script_ids = $this->request->script_ids) {
+                $model->scripts()->sync($script_ids);
+            }
+        });
 
-        if ($model->update($this->request->all()) || !$model->isDirty()) {
-            return $this->response->item($model, new $this->transformer);
-        }
-        abort(500, "There was a problem updating {$model->name}");
+        return $this->response->item($model, new $this->transformer);
     }
 
     /**
@@ -141,23 +148,6 @@ class ServersController extends APIController
         abort(412, $server->present()->connection_status_message);
     }
 
-    public function commit_details($project_id, $id)
-    {
-        $server = $this->projects->findServer($project_id, $id);
-        $this->authorize('deploy', $server->project);
-
-        $server->updateGitInfo();
-
-        $last_deployed_commit = $server->last_deployed_commit;
-        $avaliable_commits = $server->commits;
-
-        if ($server->validateConnection()) {
-            return $this->response->array(compact('last_deployed_commit', 'avaliable_commits'));
-        }
-
-        abort(412, $server->present()->connection_status_message);
-    }
-
     public function pubkey($id)
     {
         $project = $this->projects->findOrFail($id);
@@ -168,93 +158,5 @@ class ServersController extends APIController
         ]);
     }
 
-    //----------------------------------------------------------
-    // Deployment  Endpoints
-    //-------------------------------------------------------
 
-    /**
-     * Trigger Deployment from frontend
-     *
-     * @return JSON
-     */
-    public function deploy($project_id, $id)
-    {
-
-        $server = $this->projects->findServer($project_id, $id);
-        $this->authorize('deploy', $server->project);
-
-        if ($this->request->get('deploy_entire_repo')) {
-            $to = $server->newest_commit['hash'];
-            $from = null;
-        } else {
-            $to = $this->request->get('to') ?: $server->newest_commit['hash'];
-            $from = $this->request->get('from') ?: $server->last_deployed_commit;
-        }
-
-        return $this->response->array(
-            $this->queueDeployment($server, $to, $from)
-        );
-    }
-
-    /**
-     * Trigger Deployment from frontend
-     *
-     * @return JSON
-     */
-    public function webhook($webhook)
-    {
-        $server = $this->model
-                       ->where('webhook', $this->request->url())
-                       ->firstOrFail();
-
-        list($agent,/*version*/) = explode('/', $this->request->header('User-Agent'), 2);
-        $name = ucfirst($server->username);
-        $sender = "{$name} [ {$agent} ]";
-
-        if (!$server->autodeploy) {
-            return $this->response->error("Autodeploy is not enabled", 404);
-        }
-
-        $server->updateGitInfo();
-
-        $from = $server->last_deployed_commit;
-        $to = $server->newest_commit['hash'];
-
-        $response = $this->queueDeployment($server, $to, $from, $sender);
-
-        return $this->response->array($response);
-    }
-
-    //----------------------------------------------------------
-    // Private
-    //-------------------------------------------------------
-
-    /**
-     * Add the deployment to the quque
-     *
-     * @param  Server      $server    Server being deployed to
-     * @param  string|null $to        Commit getting deployed to
-     * @param  string|null $from      Commite getting deployed from
-     * @param  string|null $user_name User deploying
-     * @return array  Message
-     */
-    private function queueDeployment(Server $server, string $to = null, string $from = null, $user_name = null)
-    {
-        if ($user_name === '' || $user_name === null) {
-            if ($user = Auth::user()) {
-                $user_name = $user->username;
-            } else {
-                $user_name = $server->project->user->username;
-            }
-        }
-
-        $deployment = (new ServerDeploy($server, $user_name, $from, $to))->onQueue('deployments');
-
-        $this->dispatch($deployment);
-        return [
-            'message'=>'Queued deployment',
-            'from' => $from ?: "Beginning of time",
-            'to' => $to ?: "Autodetecting"
-        ];
-    }
 }

@@ -76,6 +76,11 @@ var EchoListener = {
          */
         handleDeployProgress(data){
             this.errors = data.errors;
+
+            if(data.progress) {
+                this.deployment.progress = data.progress;
+            }
+
             this.deployment.messages.unshift(data.message);
         },
 
@@ -86,6 +91,7 @@ var EchoListener = {
          */
         handleDeployStarted(data, locallyTriggered){
             this.deployment.messages = [ data.message ];
+            this.deployment.progress = 0;
             this.deployment.server_id = data.server.id;
             this.deployment.server_name = data.server.name;
             this.deployment.deploying = true;
@@ -109,6 +115,7 @@ var EchoListener = {
             this.deployment.server_id = null;
             this.deployment.server_name = null;
             this.deployment.deploying = false;
+            this.deployment.progress = 100;
         },
     }
 }

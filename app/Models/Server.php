@@ -80,7 +80,10 @@ final class Server extends Base
      */
     private function deploymentCacheKey()
     {
-        return "{$this->project->deploymentCacheKey()}.server.{$this->id}";
+        if($this->project) {
+            return "{$this->project->deploymentCacheKey()}.server.{$this->id}";
+        }
+        return false;
     }
 
     /**
@@ -91,7 +94,10 @@ final class Server extends Base
      */
     public function getIsDeployingAttribute($value = false)
     {
-        return Cache::has($this->deploymentCacheKey());
+        if($key = $this->deploymentCacheKey()) {
+            return Cache::has($key);
+        }
+        return false;
     }
 
     /**
@@ -220,6 +226,11 @@ final class Server extends Base
     public function scripts()
     {
         return $this->belongsToMany('App\Models\Script')->order();
+    }
+
+    public function oneOffScripts()
+    {
+        return $this->project->scripts()->where('available_for_one_off', true);
     }
 
     public function history()

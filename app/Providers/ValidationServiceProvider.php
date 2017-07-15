@@ -16,7 +16,6 @@ class ValidationServiceProvider extends ServiceProvider
         \Validator::resolver(function($translator, $data, $rules, $messages) {
             return new \App\Validators\GitValidator($translator, $data, $rules, $messages);
         });
-
     }
 
     /**

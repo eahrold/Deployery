@@ -112,25 +112,25 @@
 
         methods: {
             loadTinymce () {
-                var self = this;
                 var selector = "#"+this.element;
                 this.tinymce = tinymce.init({
                     selector: selector,
-                    height: self.height,
+                    height: this.height,
                     menubar: false,
-                    plugins: self.plugins,
-                    toolbar: self.toolbar,
-                    content_css: self.css,
+                    plugins: this.plugins,
+                    toolbar: this.toolbar,
+                    content_css: this.css,
                     file_browser_callback : elFinderBrowser,
                     image_caption: true,
 
                     setup: (editor) => {
                         // init tinymce
-                        editor.on('init', function() {
+                        editor.on('init', ()=>{
                             editor.setContent(self.value || "");
                         });
 
-                        editor.on('change', function() {
+                        editor.on('change', ()=>{
+                            editor.save();
                             self.$emit('input', editor.getContent());
                         });
                     }

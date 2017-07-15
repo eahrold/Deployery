@@ -68,9 +68,10 @@ class ServerDeploy extends Job implements ShouldQueue
     public function __construct(Server $server, $user_name, $from, $to, $options = [])
     {
         $this->server = $server;
+        $this->channel = $server->channel_id;
+
         $this->fromCommit = $from;
         $this->toCommit = $to;
-        $this->channel = $server->channel_id;
         $this->user_name = $user_name;
         $this->options = $options;
     }
@@ -91,12 +92,14 @@ class ServerDeploy extends Job implements ShouldQueue
         $this->server->updateGitInfo();
         $this->toCommit = $this->toCommit ?: $this->server->newest_commit['hash'];
 
-        $process = (new DeploymentProcess($this->server))->setCallback(function ($message) {
-            $this->sendMessage($message);
+        $process = (new DeploymentProcess($this->server))->setCallback(function ($message, $percent=0) {
+            $this->sendMessage($message, [], $percent);
             $this->server->is_deploying = true;
         });
 
-        $rc = $process->deploy($this->toCommit, $this->fromCommit);
+        $scripts = isset($this->options['script_ids']) ? $this->options['script_ids'] : [];
+        $rc = $process->deploy($this->toCommit, $this->fromCommit, $scripts);
+
         $changes = $process->getChanges();
         $errors = $process->getErrors();
 
@@ -159,17 +162,14 @@ class ServerDeploy extends Job implements ShouldQueue
      * @param  string $message message to send
      * @param  array  $errors  Array of errors
      */
-    private function sendMessage($message, $errors = [])
+    private function sendMessage($message, $errors = [], $progress=0)
     {
         // Don't send empty progress messages...
         if (empty($message)) {
             return;
         }
 
-        event(new DeploymentProgress($this->server, [
-            'message'=>$message,
-            'errors'=>$errors,
-        ]));
+        event(new DeploymentProgress($this->server, compact('message', 'errors', 'progress')));
     }
 
     /**

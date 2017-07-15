@@ -37,19 +37,19 @@ $api->version('v1', function ($api) {
         // Servers
         //-------------------------------------------------------
         $api->group(["prefix"=>"/servers/{server}"], function ($api) {
-            $api->post("/deploy", [
-                "as"=>"api.projects.servers.deploy",
-                "uses"=>"App\Http\Controllers\Api\ServersController@deploy"
-            ]);
-
             $api->post("/test", [
                 "as"=>"api.projects.servers.test",
                 "uses"=>"App\Http\Controllers\Api\ServersController@test"
             ]);
 
+            $api->post("/deploy", [
+                "as"=>"api.projects.servers.deploy",
+                "uses"=>"App\Http\Controllers\Api\DeploymentController@deploy"
+            ]);
+
             $api->get('/commit-details', [
                 "as"=>"api.projects.servers.commit-details",
-                "uses"=>"App\Http\Controllers\Api\ServersController@commit_details"
+                "uses"=>"App\Http\Controllers\Api\DeploymentController@commitDetails"
             ]);
         });
         $api->get('/servers/options', "App\Http\Controllers\Api\ServersController@options");
@@ -95,7 +95,7 @@ $api->version('v1', function ($api) {
     $api->group(["middleware" => "api.webhook"], function ($api) {
         $api->post("webhooks/{webhook}", [
             "as"=>"api.projects.servers.webhooks",
-            "uses"=>"App\Http\Controllers\Api\ServersController@webhook"
+            "uses"=>"App\Http\Controllers\Api\DeploymentController@webhook"
         ]);
     });
 });

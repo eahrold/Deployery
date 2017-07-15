@@ -39,13 +39,24 @@ trait GitInfoTrait {
     }
 
     /**
+     * Find a commit by it's hash
+     *
+     * @param  string $hash hash to find
+     * @return array        the hash and message
+     */
+    public function findCommit(string $hash)
+    {
+        return $this->git_info->findCommitProperty($hash);
+    }
+
+    /**
      * Getter for the git commits attribute
      *
      * @return array of git commits
      */
     public function getCommitsAttribute()
     {
-        return $this->git_info->commits(10);
+        return $this->git_info->commits(30);
     }
 
     /**

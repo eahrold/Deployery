@@ -21,6 +21,12 @@ final class DeploymentProgress extends AbstractEventMessage
     public $server_id;
 
     /**
+     * Progess
+     * @var int
+     */
+    public $progress;
+
+    /**
      * Event indicating deployment ended
      *
      * @param Server $server  Server being deployed
@@ -31,6 +37,7 @@ final class DeploymentProgress extends AbstractEventMessage
     {
         parent::__construct($data);
 
+        $this->progress = $data['progress'];
         $this->channel_id = $server->project->channel_id;
         $this->server_id = $server->id;
         $this->server_name = $server->name;

@@ -34,12 +34,16 @@ final class Script extends Base
 
         // Should the script be available to all servers?
         'available_to_all_servers',
+
+        // Can the script be selected for an individual deployment from the deploy pane.
+        'available_for_one_off'
     ];
 
     protected $casts = [
         'run_pre_deploy' => 'bool',
         'stop_on_failure' => 'bool',
         'available_to_all_servers' => 'bool',
+        'available_for_one_off' => 'bool'
     ];
 
     private $script_parsable = [

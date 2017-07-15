@@ -44,12 +44,20 @@
                             <div class="panel-heading">Servers</div>
                             <div class='panel-body'>
                                 <h4>Run on these servers</h4>
-                                <div v-for='(name, key) in servers'>
+                                <div v-for='(name, key) in servers' :key='key'>
                                     <input type="checkbox" :id="key" :value="key" v-model="model.server_ids">
                                     <label :for="key">{{ name }}</label>
                                 </div>
-                                <input type="checkbox" id="available_to_all_servers" v-model="model.available_to_all_servers">
-                                <label for="available_to_all_servers">Make available to all servers?</label>
+
+                                <div>
+                                    <input type="checkbox" id="available_to_all_servers" v-model="model.available_to_all_servers">
+                                    <label for="available_to_all_servers">Make available to all servers?</label>
+                                </div>
+
+                                <div>
+                                    <input type="checkbox" id="available_for_one_off" v-model="model.available_for_one_off">
+                                    <label for="available_for_one_off">Make available as one-off?</label>
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -73,6 +81,14 @@
                 type: String,
                 required: true
             }
+        },
+
+        methods : {
+            schema () {
+                return {
+                    server_ids: []
+                }
+            },
         },
 
         computed : {

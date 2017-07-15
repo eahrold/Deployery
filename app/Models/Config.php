@@ -22,6 +22,8 @@ final class Config extends Base
 
     public function servers()
     {
-        return $this->belongsToMany('App\Models\Server')->order();
+        return $this->belongsToMany('App\Models\Server');
     }
+
+
 }

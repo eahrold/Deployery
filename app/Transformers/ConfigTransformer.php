@@ -1,10 +1,12 @@
 <?php
 namespace App\Transformers;
 
+use League\Fractal\Resource\Collection;
+
 class ConfigTransformer extends Transformer
 {
 
-    protected $defaultIncludes = [];
+    protected $defaultIncludes = ['servers'];
     protected $mappedKeys = [];
     protected $guardedProperties = [];
 
@@ -16,10 +18,19 @@ class ConfigTransformer extends Transformer
      */
     protected function postProcess(array $data)
     {
-
         if (in_array('server_ids', $this->exposedProperties)) {
             $data['server_ids'] = $this->model->servers->pluck('id');
         }
         return $data;
+    }
+
+    protected function includeServers($config)
+    {
+        return new Collection($config->servers, function($item){
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+            ];
+        }, false);
     }
 }

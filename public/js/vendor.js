@@ -86,4 +86,7 @@ var Alerter = {
         return this;
     },
 };
+
+export { Alerter }
+
 //# sourceMappingURL=vendor.js.map

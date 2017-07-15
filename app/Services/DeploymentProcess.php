@@ -43,6 +43,11 @@ class DeploymentProcess
      */
     private $errors = [];
 
+    /**
+     * Progress
+     * @var integer
+     */
+    private $progress = 0;
 
     /**
      * Is the operation canceled
@@ -98,15 +103,15 @@ class DeploymentProcess
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
-    public function deploy($to, $from = null)
+    public function deploy($to, $from = null, $script_ids=[])
     {
-        $this->callback($from ? "Deploying from {$from} to {$to}.\n" : "Deploying entire repo...");
+        $this->sendMessage($from ? "Deploying from {$from} to {$to}.\n" : "Deploying entire repo...");
 
-        $this->callback("Preparing Repo for deploy.\n");
+        $this->sendMessage("Preparing Repo for deploy.\n");
 
         $this->prepareGitRepo($to);
 
-        $this->callback("Getting changed files.\n");
+        $this->sendMessage("Getting changed files.\n");
 
         // If "from" was not supplied, then grab
         // the repo from the beginning of time.
@@ -119,6 +124,7 @@ class DeploymentProcess
             $this->remove($changes['removed']),
             $this->uploadConfigFiles(),
             $this->runPostInstallScripts(),
+            $this->runOneOffScripts($script_ids),
             $this->updateServerLastCommit($to)
         ];
 
@@ -128,6 +134,10 @@ class DeploymentProcess
                 break;
             }
         }
+
+        $this->progress = 100;
+        $this->sendMessage("Deployment completed with status: {$status}.\n");
+
         return $status;
     }
 
@@ -176,7 +186,7 @@ class DeploymentProcess
     private function upload(array $files)
     {
         $file_count = count($files);
-        $this->callback("{$file_count} files need uploading".PHP_EOL);
+        $this->sendMessage("{$file_count} files need uploading".PHP_EOL);
 
         $previous_dir = "";
         foreach ($files as $idx => $file) {
@@ -203,8 +213,13 @@ class DeploymentProcess
             }
 
             $percent = (int)(($idx / $file_count) * 100);
-            $this->callback("[{$percent}%] Uploaded {$remote_file}".PHP_EOL);
+            $this->progress = max($percent, 60);
+
+            $this->sendMessage("[{$percent}%] Uploaded {$remote_file}".PHP_EOL);
         }
+
+        $this->progress = 60;
+
         return 0;
     }
 
@@ -218,7 +233,7 @@ class DeploymentProcess
     private function remove($files)
     {
         $file_count = count($files);
-        $this->callback("{$file_count} files need removed".PHP_EOL);
+        $this->sendMessage("{$file_count} files need removed".PHP_EOL);
 
         foreach ($files as $file) {
             $file_path = "{$this->server->deployment_path}/$file";
@@ -229,9 +244,12 @@ class DeploymentProcess
                     $this->errors[] = "Could not remove {$file}";
                     $this->removed['failed'][] = $file;
                 }
-                $this->callback("Removed {$file_path}".PHP_EOL);
+                $this->sendMessage("Removed {$file_path}".PHP_EOL);
             }
         }
+
+        $this->progress = 70;
+
         return 0;
     }
 
@@ -248,14 +266,40 @@ class DeploymentProcess
             $contents = $config->contents;
             $status = $this->server->connection->putString($path, $contents);
             if ($status) {
-                $this->callback("Successfully wrote config file to {$config->path}.");
+                $this->sendMessage("Successfully wrote config file to {$config->path}.");
             } else {
                 $msg = "There was a problem writing to {$path} {$status}.";
                 $this->errors[] = $msg;
                 $this->errorCallback($msg);
             }
         }
+
+        $this->progress = 80;
+
         return $status ? 0 : -1;
+    }
+
+    private function runOneOffScripts($script_ids=[])
+    {
+        logger("Running Scripts", $script_ids);
+
+        if (!empty($script_ids)) {
+            logger("Yep... Running Scripts", $script_ids);
+
+            $this->sendMessage("Starting One Off Scripts");
+
+            $pre = $this->server->pre_install_scripts->pluck('id');
+            $post = $this->server->post_install_scripts->pluck('id');
+            $unique = $pre->merge($post)->values()->all();
+
+            $scripts = $this->server->oneOffScripts()
+                            ->whereIn('id', $script_ids)
+                            ->whereIn('id', $unique , 'and', true)
+                            ->get();
+
+            return $this->runScripts($scripts);
+        }
+        return 0;
     }
 
     /**
@@ -265,7 +309,9 @@ class DeploymentProcess
      */
     private function runPreInstallScripts()
     {
-        $this->callback("Starting Preinstall Scripts");
+        $this->progress = 90;
+
+        $this->sendMessage("Starting Preinstall Scripts");
         $scripts = $this->server->pre_install_scripts;
         return $this->runScripts($scripts);
     }
@@ -277,7 +323,9 @@ class DeploymentProcess
      */
     private function runPostInstallScripts()
     {
-        $this->callback("Starting Postinstall Scripts");
+        $this->progress = 95;
+
+        $this->sendMessage("Starting Postinstall Scripts");
         $scripts = $this->server->post_install_scripts;
         return $this->runScripts($scripts);
     }
@@ -294,7 +342,7 @@ class DeploymentProcess
         $status = 0;
         $connection = $this->server->connection;
         foreach ($scripts as $script) {
-            $this->callback("Running {$script->description}");
+            $this->sendMessage("Running {$script->description}");
             $scriptContents = $script->parse($this->server);
 
             if (empty($scriptContents)) {
@@ -311,13 +359,15 @@ class DeploymentProcess
                 return !empty($i);
             });
 
-            $connection->run($commands, $this->callback);
+            $connection->run($commands, function($message){
+                $this->sendMessage($message);
+            });
 
             $status = $connection->status();
             if ($status !== 0) {
                 $msg = "Install Script '{$script->description}' failed. [code: {$status}]";
                 $this->errors[] = $msg;
-                $this->callback($msg);
+                $this->sendMessage($msg);
                 if ($script->stop_on_failure) {
                     return $status;
                 }
@@ -351,6 +401,10 @@ class DeploymentProcess
     //----------------------------------------------------------
     // Magic Methods
     //-------------------------------------------------------
+
+    private function sendMessage($message) {
+        $this->callback($message, $this->progress);
+    }
 
     /**
      * Determine if the method is a callable method

@@ -31,10 +31,16 @@ final class Project extends Base
     ];
 
     protected $hidden = [
-        'guid'
+        'guid',
+        'uid'
     ];
 
-    public function initializeProject($data)
+    /**
+     * Initialize the project
+     * @param  array  $data Project Data
+     * @return \App\Models\Project  An initialized project
+     */
+    public function initializeProject(array $data)
     {
         $project = $this->newInstance($data);
         $project->save();

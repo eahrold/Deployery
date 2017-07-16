@@ -17,12 +17,12 @@ final class Config extends Base
 
     public function project()
     {
-        return $this->belongsTo('App\Models\Project');
+        return $this->belongsTo(\App\Models\Project::class);
     }
 
     public function servers()
     {
-        return $this->belongsToMany('App\Models\Server');
+        return $this->belongsToMany(\App\Models\Server::class);
     }
 
 

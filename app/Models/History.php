@@ -30,19 +30,34 @@ final class History extends Base
         'details'
     ];
 
-    // We have both a project, and server relationship here
-    // in the case that a server is removed we still want to
-    // keep the history attached to something.
+    /**
+     * We have both a project, and server relationship here
+     * in the case that a server is removed we still want to
+     * keep the history attached to something.
+     *
+     * @return \App\Models\Project
+     */
     public function project()
     {
-        return $this->belongsTo('App\Models\Project');
+        return $this->belongsTo(\App\Models\Project::class);
     }
 
+    /**
+     * Server Relationship
+     *
+     * @return \App\Models\Server
+     */
     public function server()
     {
-        return $this->belongsTo('App\Models\Server');
+        return $this->belongsTo(\App\Models\Server::class);
     }
 
+    /**
+     * Order of the History
+     * @param  Mixed|Builder $query Query Builder
+     *
+     * @return Mixed|Builder $query Query Builder
+     */
     public function scopeOrder($query)
     {
         return $query->orderBy('created_at', 'desc');

@@ -281,12 +281,9 @@ class DeploymentProcess
 
     private function runOneOffScripts($script_ids=[])
     {
-        logger("Running Scripts", $script_ids);
-
         if (!empty($script_ids)) {
-            logger("Yep... Running Scripts", $script_ids);
 
-            $this->sendMessage("Starting One Off Scripts");
+            $this->sendMessage("Starting One-Off Scripts");
 
             $pre = $this->server->pre_install_scripts->pluck('id');
             $post = $this->server->post_install_scripts->pluck('id');

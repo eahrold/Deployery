@@ -19,14 +19,14 @@ class BroadcastServiceProvider extends ServiceProvider
         /*
          * Authenticate the user's personal channel...
          */
-        Broadcast::channel('App.User.*', function($user, $userId) {
+        Broadcast::channel('App.User.{userId}', function($user, $userId) {
             return (int)$user->id === (int)$userId;
         });
 
         /*
          * Authenticate the Project channel
          */
-        Broadcast::channel('project.*', function($user, $projectId) {
+        Broadcast::channel('project.{projectId}', function($user, $projectId) {
             if ($project = \Project::find($projectId)) {
                 return $user->isTeamMember($project->team);
             }
@@ -36,7 +36,7 @@ class BroadcastServiceProvider extends ServiceProvider
         /*
          * Authenticate to the presence channel;
          */
-        Broadcast::channel('project-viewers.*', function($user, $projectId) {
+        Broadcast::channel('project-viewers.{projectId}', function($user, $projectId) {
             return ['id'=>$user->id, 'email'=>$user->email, 'name' => $user->full_name];
         });
     }

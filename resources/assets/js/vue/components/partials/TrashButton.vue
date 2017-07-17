@@ -19,7 +19,7 @@
 
         methods: {
             trash: function(){
-                this.$dispatch('delete-item', this.object, this.type);
+                bus.$emit('delete-project-item', this.object, this.type);
             }
         }
     }

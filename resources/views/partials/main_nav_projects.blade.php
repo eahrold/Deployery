@@ -13,7 +13,7 @@
             @foreach( $projects as $project)
             <li>
                 @if($vueRoute)
-                <router-link :to="{ name: 'projects.edit', params: { id: {{ $project->id }} }}">
+                <router-link :to="{ name: 'projects.edit', params: { project_id: {{ $project->id }} }}">
                     {{ $project->name }}
                 </router-link>
                 @else

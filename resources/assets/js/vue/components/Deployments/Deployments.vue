@@ -24,6 +24,7 @@
                                 :project-id='projectId'
                                 :messages='messages'
                                 :deploying='deploying'
+                                :progress='progress'
                                 @close='closeModal'>
                     </deployment>
                 </div>
@@ -35,7 +36,7 @@
 <script>
 
 export default {
-    props: ['servers', 'projectId', 'messages', 'deploying'],
+    props: ['servers', 'projectId', 'messages', 'deploying', 'progress'],
 
     data () {
         return {
@@ -50,7 +51,7 @@ export default {
 
         closeModal() {
             this.server = null;
-        }
+        },
     }
 }
 </script>

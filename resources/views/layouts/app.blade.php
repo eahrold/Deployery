@@ -34,7 +34,7 @@
     <!-- Animate!! -->
     <link rel="stylesheet" type="text/css" href="/css/animate.css">
 
-    <link href="{{ elixir('css/app.css') }}" rel="stylesheet">
+    <link href="{{ mix('/css/app.css') }}" rel="stylesheet">
 
     @yield('styles')
 
@@ -80,7 +80,7 @@
 
     <script type="text/javascript" src="https://js.pusher.com/3.1/pusher.min.js"></script>
 
-    <script src="{{ elixir('js/app.js') }}"></script>
+    <script src="{{ mix('/js/app.js') }}"></script>
 
     @yield('js')
     @yield('vue-js')

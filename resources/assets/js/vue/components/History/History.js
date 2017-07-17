@@ -1,21 +1,51 @@
+var moment = require('moment');
 
 export default {
-    props: ['history', 'projectId'],
+    props: ['projectId'],
 
     data () {
         return {
+            history: [],
+            ready: false,
             aHistory: null,
             loading: true
         }
     },
 
-    ready() {
+    mounted () {
+        this.load();
+        this.listen();
     },
 
     methods: {
+        load () {
+            var ready = false;
+            var endpoint = this.$parent.endpoint + '/history';
+            // console.log("calling", endpoint);
+             this.$http.get(endpoint).then((response)=>{
+                this.history = response.data.data;
+                this.ready = true;
+            }, (response)=>{
+                this.ready = true;
+                console.error("error", response);
+            });
+        },
+
+        listen (oldRoute) {
+            if (oldRoute) {
+                echo.leave('project.'+oldRoute.params.project_id);
+            }
+            echo.private('project.'+ this.$route.params.project_id)
+                .listen('HistoryCreatedEvent', this.handleHistoryCreated);
+        },
+
+        handleHistoryCreated(data){
+            this.history.unshift(data.history);
+        },
+
         getHistory (history) {
             this.loading = true;
-            var endpoint = '/api/projects/'+this.projectId+'/history/'+history.id;
+            var endpoint = this.$parent.endpoint + '/history/'+ history.id;
 
             this.$http.get(endpoint).then((response)=>{
                 this.aHistory = response.data.data;
@@ -29,7 +59,14 @@ export default {
         closeModal () {
             this.aHistory = {};
         }
-    }
+    },
+
+    watch: {
+        $route (newRoute, oldRoute) {
+            this.listen(oldRoute);
+            this.load();
+        }
+    },
 }
 
 

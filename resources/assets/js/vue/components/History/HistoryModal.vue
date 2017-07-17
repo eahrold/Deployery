@@ -49,15 +49,14 @@
                     </div>
                 </div>
 
-                <div class="col-md-12">
-                    <div v-for='(key, value) in details' class='col-md-6'>
-                        <div class="panel panel-default">
-                        <div class="panel-heading"><b>{{ key }}</b></div>
-                            <div class="panel-body history-file-panel">
-                                <ul class="list-unstyled">
-                                    <li v-for='file in value'>{{ file }}</li>
-                                </ul>
-                            </div>
+                <div v-for='(value, key) in details' class='col-md-6'>
+                    <div class="panel panel-default">
+                    <div class="panel-heading"><b>{{ key }}</b></div>
+                        <div class="panel-body history-file-panel">
+                            <ul v-if='value.length' class="list-unstyled">
+                                <li v-for='file in value'>{{ file }}</li>
+                            </ul>
+                            <h5 v-else>N/A</h5>
                         </div>
                     </div>
                 </div>
@@ -80,7 +79,7 @@ export default {
         }
     },
 
-    ready () {
+    mounted () {
         var self = this;
         $('#history-modal').on('hidden.bs.modal', function () {
             self.$emit('close');
@@ -115,7 +114,6 @@ export default {
         },
 
         successfulUploads () {
-            console.log(_.get(this.history, 'details', 'No details'), this.history);
             return _.get(this.history, 'details.changes.uploaded.success',[]);
         },
 

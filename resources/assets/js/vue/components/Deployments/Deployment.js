@@ -1,8 +1,6 @@
-import vSelect from "vue-select"
 
 export default {
-    components: {vSelect},
-    props: [ 'projectId', 'server' , 'messages', 'deploying'],
+    props: [ 'projectId', 'server' , 'messages', 'deploying', 'progress'],
 
     data() {
         return {
@@ -12,59 +10,69 @@ export default {
             deployEntireRepo: false,
             avaliableFromCommits: [],
             avaliableCommits: [],
-            loading: true
+            availableScripts: [],
+            scriptIds: [],
+            loading: true,
+            loaded: false,
+            disabled: false,
+            error: false,
         }
     },
 
 
-    ready() {
-        console.log('deployment is ready');
+    mounted () {
         this.avaliableFromCommits.push({'hash': 0, 'message': 'Beginning of time'});
         this.getCommitDetails();
         var self = this;
         $('#deployment-modal').on('hidden.bs.modal', function () {
             self.$emit('close');
         });
-
         // this.toCommit = this.avaliableCommits[0].hash;
     },
 
 
     computed: {
-        complete(){
+        buttonClass() {
+            return [
+                this.error !== false ? 'btn-danger' :
+                    this.deploying ? 'btn-success' : 'btn-primary'
+            ];
+        },
+
+        buttonText() {
+            if(this.loading) {
+                return "Getting Commit Details";
+            }
+
+            if (this.error !== false) {
+                return "Try Again"
+            }
+
+            return this.deploying ? "Deploying..." : "Deploy Now"
+        },
+
+        progressStyle() {
+            return { width: this.progress + "%" }
+        },
+
+        complete () {
             return !this.deploying;
         },
 
-        hasErrors(){
+        hasErrors () {
             return this.errors.length;
         },
 
-        apiEndpoint(){
-            return '/api/projects/'+this.projectId+'/servers/'+this.server.id;
+        apiEndpoint () {
+            return '/api/projects/' + this.projectId + '/servers/'+this.server.id;
         },
 
         selectCommits(){
             return _.map(this.avaliableCommits, (obj)=>{
-                return {'label': obj.hash+": "+obj.message.substring(0, 60)+"...", value: obj.hash};
+                return {text: obj.label.substring(0, 60)+"...", value: obj};
             });
         }
     },
-
-
-    filters: {
-        hashMessage(hash){
-            console.log("hash", hash);
-            if(!hash || hash === "0")return "Deploy the entire repo";
-
-            for(var i = 0; i < this.avaliableCommits.length; i++){
-                if(this.avaliableCommits[i].hash == hash){
-                    return this.avaliableCommits[i].message;
-                }
-            }
-            return 'Unknown commit message';
-        }
-    },
-
 
     methods: {
 
@@ -83,8 +91,17 @@ export default {
                         return obj.hash === response.data.last_deployed_commit;
                     }) || { hash: null,  'label': 'Never deployed' };
 
+                    this.availableScripts = response.data.avaliable_scripts;
+
                     this.toCommit = _.first(this.avaliableCommits);
-                    this.loading = false
+                    this.loading = false;
+                    this.error = false;
+                    this.loaded = true;
+                }, response => {
+                    var msg = "There was a problem getting the commit details. "+response.data.message
+                    this.$alerter.error(msg);
+                    this.loading = false;
+                    this.error = true;
                 });
         },
 
@@ -93,25 +110,31 @@ export default {
          * Start Deployment
          */
         beginDeployment(){
-            console.log('Deployment began...');
-            this.$dispatch('deployment-began', this.server);
-            // Something here...
+            bus.$emit('deployment-began', this.server);
         },
 
 
         deploy(){
+            if(this.error == true) {
+                return this.getCommitDetails();
+            }
+
             var endpoint = this.apiEndpoint+'/deploy';
             var data = {
                 'from': this.fromCommit.hash,
                 'to': this.toCommit.hash,
-                'deploy_entire_repo': this.deployEntireRepo
+                'deploy_entire_repo': this.deployEntireRepo,
+                'script_ids': this.scriptIds
             };
+            this.disabled = true;
             this.$http.post(endpoint, data)
-                .then(response => {
+                .then((response) => {
                     this.beginDeployment();
+                    this.disabled = false;
                 },
-                response => {
-                    Alerter.error(response.data.message);
+                (response) => {
+                    this.disabled = false;
+                    this.$alerter.error(response.data.message);
             });
         },
     }

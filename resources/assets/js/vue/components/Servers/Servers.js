@@ -1,8 +1,11 @@
 /*
  * Component to display a list of servers per project.
  */
+Vue.component('server-pubkey-modal', require('./ServerPubkeyModal.vue'));
+Vue.component('server-form', require('./ServerForm.vue'));
+
 export default {
-    props: ['servers', 'projectId', 'deploying', 'messages'],
+    props: ['servers', 'projectId', 'deploying', 'messages', 'progress'],
 
     data() {
         return {
@@ -21,7 +24,7 @@ export default {
         },
 
         apiEndpoint(){
-            return '/api/projects/'+this.projectId+'/servers';
+            return '/api/projects/' + this.projectId +'/servers';
         }
     },
 
@@ -42,17 +45,6 @@ export default {
             return c;
         },
 
-        deploy(server){
-            var endpoint = this.apiEndpoint+'/'+server.id+'/deploy';
-            this.$http.post(endpoint)
-                .then(response => {
-                    this.beginDeployment(server);
-                },
-                response => {
-                    Alerter.error(response.data.message);
-            });
-        },
-
         test: function(server, idx){
             this.testing = true;
             server.successfully_connected = 0;
@@ -67,10 +59,10 @@ export default {
                     server.successfully_connected = 1;
                 },
                 (response) => {
-                    console.log('error:', response);
+                    console.error('error:', response);
                     s.toggleClass('fa-spin');
                     server.successfully_connected = -1;
-                    Alerter.error(response.data.message);
+                    this.$alerter.error(response.data.message);
                 }
             );
         },

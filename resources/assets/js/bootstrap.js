@@ -32,10 +32,10 @@ Vue.http.interceptors.push((request, next) => {
 
     request.headers.set('Accept', 'application/json');
     request.headers.set('Content-Type', 'application/json');
-    request.headers.set('X-CSRF-TOKEN', Laravel.csrfToken);
+    request.headers.set('X-CSRF-TOKEN', Deployery.csrfToken);
 
-    if (Laravel.apiToken) {
-        request.headers.set('Authorization', 'Bearer ' + Laravel.apiToken);
+    if (Deployery.apiToken) {
+        request.headers.set('Authorization', 'Bearer ' + Deployery.apiToken);
     }
 
     // continue to next interceptor
@@ -57,10 +57,10 @@ Vue.http.interceptors.push((request, next) => {
 
 import Echo from "laravel-echo"
 
-if (Laravel.pusherKey) {
+if (Deployery.pusherKey) {
     window.echo = new Echo({
         broadcaster: 'pusher',
-        key: Laravel.pusherKey
+        key: Deployery.pusherKey
     });
 }
 

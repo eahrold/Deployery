@@ -16,14 +16,16 @@
 
     <!-- Scripts -->
     <script>
-    window.Laravel = {!!
+    window.Deployery = {!!
         json_encode(['csrfToken' => csrf_token()])
     !!}
+
     @if(Auth::user() && $apiToken = Auth::user()->api_token)
-        window.Laravel.apiToken = "{{ $apiToken }}";
-        window.Laravel.userPubKey = "{!! Auth::user()->pubkey !!}";
-        window.Laravel.pusherKey = "{{ env('PUSHER_KEY') }}"
+        window.Deployery.apiToken = "{{ $apiToken }}";
+        window.Deployery.userPubKey = "{!! Auth::user()->pubkey !!}";
+        window.Deployery.pusherKey = "{{ env('PUSHER_KEY') }}"
     @endif
+
     </script>
 
 

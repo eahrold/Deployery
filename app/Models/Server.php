@@ -31,13 +31,19 @@ final class Server extends Base
         $name = "unique:servers";
         $name .= $id ? (",name,{$this->id},id,project_id,{$this->project_id}") : "";
 
-        return [
+        $rules = [
             'name' => $name,
-            'hostname' => 'required:active_url',
-            'username' => 'required:max:255',
-            'deployment_path' => 'required:max:255',
+            'hostname' => 'required|string',
+            'username' => 'required|max:255',
+            'deployment_path' => 'required|max:255',
             'slack_webhook_url' => 'active_url',
         ];
+
+        if($this->id) {
+            $rules['branch'] = "git_branch:{$this->project->repo_path}";
+        }
+
+        return $rules;
     }
 
     protected $fillable = [

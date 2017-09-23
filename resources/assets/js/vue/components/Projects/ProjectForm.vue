@@ -101,7 +101,7 @@
 
         computed : {
             userPubKey () {
-                return _.get(window.Laravel, 'userPubKey', '');
+                return _.get(window.Deployery, 'userPubKey', '');
             }
         }
     }

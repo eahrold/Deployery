@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Services\Git\Validation\GitBranchValidation;
 use Illuminate\Support\ServiceProvider;
+use Validator;
 
 class ValidationServiceProvider extends ServiceProvider
 {
@@ -13,9 +15,8 @@ class ValidationServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        \Validator::resolver(function($translator, $data, $rules, $messages) {
-            return new \App\Validators\GitValidator($translator, $data, $rules, $messages);
-        });
+        Validator::extend('git_branch', GitBranchValidation::class . '@validate');
+        Validator::replacer('git_branch', GitBranchValidation::class . '@replace');
     }
 
     /**

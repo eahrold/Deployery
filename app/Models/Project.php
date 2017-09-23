@@ -58,7 +58,7 @@ final class Project extends Base
 
     public function repoPath()
     {
-        return $this->fileStore("/{$this->local_repo_name}");
+        return $this->fileStore("/{$this->getLocalRepoNameAttribute()}");
     }
 
     public function backupDir($value = '')
@@ -183,6 +183,11 @@ final class Project extends Base
     public function configs()
     {
         return $this->hasMany('App\Models\Config')->order();
+    }
+
+    public function latest_history()
+    {
+        return $this->hasOne('App\Models\History')->latest();
     }
 
     public function history()

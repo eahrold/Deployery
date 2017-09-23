@@ -78,7 +78,7 @@ class SSHKeyer
      * @return boolean   success/failure of the last command
      */
     private function create($path) {
-        // ssh-keygen -b 2048 -t rsa -N "" -f /path/to/keys/ -q
+        // ssh-keygen -b 4096 -t rsa -N "" -f /path/to/keys/ -q
         $command = new Command('ssh-keygen');
         $command->addFlag('b', '4096')
                 ->addFlag('t', 'rsa')

@@ -1,5 +1,7 @@
 <template>
  <div class="container container-lg">
+    <router-view></router-view>
+
     <transition name='fade'>
         <div v-if='!loading && !projects.length' class="col-md-8 col-md-offset-2">
 
@@ -23,7 +25,7 @@
 
                     <div class="panel panel-default">
                         <div class="panel-body">
-                            <code id='pubkey'>{{ Laravel.userPubKey }}</code>
+                            <code id='pubkey'>{{ userPubKey }}</code>
                         </div>
                     </div>
                 </div>
@@ -54,9 +56,9 @@
                         <tbody>
                             <tr v-for='project in projects'>
                                 <td>
-                                    <a :href='"/projects/"+project.id' alt='edit'>
+                                    <router-link :to="{ name: 'projects.edit', params: { project_id: project.id }}">
                                         {{ project.name }}
-                                    </a>
+                                    </router-link>
                                 </td>
                                 <td>
                                     {{ lastDeployed(project) }}
@@ -104,13 +106,13 @@
             },
 
             history (project) {
-                return _.get(project, 'history', []);
+                return _.get(project, 'latest_history', []);
             },
 
             lastDeployed (project) {
-                var history =  _.first(this.history(project));
+                var history =  this.history(project);
                 if (history) {
-                    return _.get(history, 'server.name', "") + ": on " + history.created_at;
+                    return "To " + _.get(history, 'server.name', "Unknown") + " on " + history.created_at;
                 }
                 return "Never Deployed";
             }
@@ -119,6 +121,10 @@
         computed: {
             endpoint(){
                 return '/api/projects';
+            },
+
+            userPubKey () {
+                return _.get(window.Deployery, 'userPubKey', '');
             }
         }
     }

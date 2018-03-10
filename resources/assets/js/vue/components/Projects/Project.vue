@@ -29,6 +29,8 @@ export default {
     data () {
         return {
             project: {},
+            history: [],
+
             errors: [],
             formErrors: {},
             deployingServer: null,
@@ -38,6 +40,7 @@ export default {
             loading: true,
             saving: false,
             deleting: false,
+            info: null,
 
             status: {
                 cloning: false,
@@ -123,33 +126,52 @@ export default {
 
     watch: {
         $route (newRoute, oldRoute) {
-            this.removeEchoListener(oldRoute)
-                .addEchoListeners();
-            this.load();
-            bus.$emit('project-refresh-info');
+            if (newRoute.params.project_id !== oldRoute.params.project_id) {
+                this.removeEchoListener(oldRoute)
+                    .addEchoListeners();
+                this.load();
+                bus.$emit('project-refresh-info');
+            }
         }
     },
 
-
     methods : {
+        isActive(type) {
+            return this.$route.name === type;
+        },
+
         load () {
+            this.loadProject();
+            this.loadHistory();
+            this.loadInfo();
+        },
+
+        loadProject() {
             this.loading = true;
             this.$http.get(this.endpoint).then(
                 (response)=>{
-                    this.project = response.data.data;
                     this.loading = false;
+                    this.project = response.data.data;
                 },
                 (response)=>{
+                    this.loading = false;
                     this.$alerter.error(response.data.message)
                     console.error('Error getting project', response, this.endpoint);
-                    this.loading = false;
             });
         },
 
-        updateInfo (info) {
-            this.deployment.deploying = info.status.is_deploying;
-            this.status.cloning = info.status.is_cloning;
-            this.status.cloningError = info.status.clone_failed;
+        loadHistory() {
+            this.$http.get(this.endpoint + '/history').then((response)=>{
+                this.history = response.data.data;
+            }, (response)=>{
+                console.error("error", response);
+            });
+        },
+
+        loadInfo() {
+            this.$http.get(this.endpoint + '/info').then((response)=>{
+                this.info = response.data;
+            });
         },
 
         listen () {
@@ -158,6 +180,21 @@ export default {
 
             bus.$on('deployment-began', this.deploymentBegan);
             bus.$on('project-info', this.updateInfo);
+
+            echo.private('project.'+ this.$route.params.project_id)
+                .listen('HistoryCreatedEvent', this.handleHistoryCreated);
+        },
+
+        handleHistoryCreated(data){
+            this.history.unshift(data.history);
+        },
+
+        updateInfo (info) {
+            this.info = info;
+            console.log("updating info", info);
+            this.deployment.deploying = info.status.is_deploying;
+            this.status.cloning = info.status.is_cloning;
+            this.status.cloningError = info.status.clone_failed;
         },
 
         deploymentBegan (server) {
@@ -170,32 +207,6 @@ export default {
 
         hasProp (prop) {
             return Boolean(_.get(this.project, prop, []).length);
-        },
-
-        saveProject () {
-            this.saving = true;
-            this.$http.put(this.endpoint, this.project).then(
-                (response) => {
-                    this.saving = false;
-                    this.formErrors = response.data.errors || {};
-                    this.status.cloning = response.data.is_cloning;
-                },
-                (response) => {
-                    this.saving = false;
-                    this.formErrors = response.data.errors;
-                    console.error('Error saving project', response);
-            });
-        },
-
-        deleteProject () {
-            this.deleting = true;
-            this.$http.delete(this.endpoint).then(
-                (response) => {
-                    window.location = '/';
-                },
-                (response) => {
-                    console.error('Error Deleting Project', response);
-            });
         },
 
         /**

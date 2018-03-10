@@ -122,8 +122,10 @@ class GitInfo
         $task = "rev-list --oneline --max-parents=0 HEAD";
         $builder = $this->gitBuilder()->setTask($task);
         $stdout = $this->run($builder);
-        list($hash, $message) = explode(' ', $stdout[0], 2);
-        return compact('hash', 'message');
+        if(count($stdout)) {
+            list($hash, $message) = explode(' ', $stdout[0], 2);
+            return compact('hash', 'message');
+        }
     }
 
     /**

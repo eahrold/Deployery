@@ -35,7 +35,7 @@
                             <div class="panel-heading">Deployment Info</div>
                             <div class='panel-body'>
                                 <form-text v-model='model.deployment_path' :errors='errors' property="deployment_path"></form-text>
-                                <form-text v-model='model.branch' :errors='errors' property="branch"></form-text>
+                                <form-selectize v-model='model.branch' :errors='errors' :nullable='false' :search='false' property="branch" :options='branches'></form-selectize>
                                 <form-text v-model='model.environment' :errors='errors' property="environment"></form-text>
                                 <form-text v-model='model.sub_directory' :errors='errors' property="sub_directory"></form-text>
                             </div>
@@ -83,6 +83,13 @@
         computed: {
             port () {
                 return _.get(this.model, 'port', 22);
+            },
+
+
+            branches () {
+                return _.get(this.options, 'branches', []).map((branch)=>{
+                    return { value: branch, text: branch }
+                });
             },
 
             protocols () {

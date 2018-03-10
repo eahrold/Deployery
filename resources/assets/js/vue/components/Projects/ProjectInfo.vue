@@ -3,7 +3,7 @@
     <div v-if='project.id' class="panel panel-default">
         <div class="pannel-nav navbar navbar-default navbar-static">
             <div class='nav navbar-nav navbar-left'>
-                {{ project.name }} Info {{ deployment.deploying }}
+                {{ project.name }} Info
             </div>
             <ul class='nav navbar-nav navbar-right' v-if='project.servers && project.servers.length'>
                 <li>
@@ -28,6 +28,7 @@
                     <code v-else>{{ project.repo }}</code>
                 </div>
             </div>
+
             <div class='row'>
                 <div class='col-sm-4'><b>Default Branch</b></div>
                 <div class='col-sm-8 text-right'>
@@ -35,6 +36,7 @@
                     <code v-else>{{ project.branch }}</code>
                 </div>
             </div>
+
             <div class='row'>
                 <div class='col-sm-4'><b>Repository Size</b></div>
                 <div class='col-sm-8 text-right'>
@@ -42,6 +44,7 @@
                     <code v-else>{{ repoSize }}</code>
                 </div>
             </div>
+
             <div class='row'>
                 <div class='col-sm-4'><b>Last Deployed</b></div>
                 <div class='col-sm-8 text-right'>
@@ -63,44 +66,11 @@ export default {
         'loading'
     ],
 
-    data () {
-        return {
-            info : {
-                deployments: {
-                    last: {
-                        date: '',
-                        server: ''
-                    },
-                    count: 0
-                },
-                repo: {
-                    size: "",
-                    exists: false
-                },
-                status: {
-                    is_cloning: false,
-                    is_deploying: false,
-                    clone_failed: false
-                }
-            }
-        }
-    },
-
-    mounted () {
-        this.load();
-        bus.$on('project-refresh-info', this.load)
-    },
-
-    methods : {
-        load () {
-            this.$http.get(this.endpoint).then((response)=>{
-                var info = this.info = response.data;
-                bus.$emit('project-info', info);
-            });
-        }
-    },
-
     computed : {
+        info() {
+            return this.$parent.info;
+        },
+
         repoSize () {
             return _.get(this.info, 'repo.size', '0MB');
         },

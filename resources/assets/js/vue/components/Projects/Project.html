@@ -3,53 +3,49 @@
     <nav class="navbar navbar-default navbar-nocollapse" >
         <div class='navbar-center'>
             <ul class="nav navbar-nav">
-                <li class="active">
-                    <a data-toggle="tab" href="#overview">
+                <li :class="{active: isActive('info')}">
+                    <router-link :to='{name: "projects.info"}'>
                         <i class="fa fa-dashboard" aria-hidden="true"></i>
                         <span class='hidden-sm hidden-xs'>Overview</span>
-                    </a>
+                    </router-link>
                 </li>
 
-                <li :class="{disabled: status.cloning}">
-                    <a data-toggle="tab" href="#servers">
+                <li :class="{disabled: status.cloning, active: isActive('servers')}">
+                    <router-link :to='{name: "projects.servers"}'>
                         <i class="fa fa-server" aria-hidden="true"></i>
                         <span class='hidden-sm hidden-xs'>Servers</span>
-                    </a>
+                    </router-link>
                 </li>
 
                 <template v-if='hasServers'>
-                <li :class="{disabled: status.cloning}">
-                    <a data-toggle="tab" href="#history">
+                <li  :class="{disabled: status.cloning, active: isActive('history')}">
+                    <router-link :to='{name: "projects.history"}'>
                         <i class="fa fa-history" aria-hidden="true"></i>
                         <span class='hidden-sm hidden-xs'>History</span>
-                    </a>
+                    </router-link>
                 </li>
 
-                <li>
-                    <a data-toggle="tab" href="#config">
+                <li :class="{active: isActive('configs')}">
+                    <router-link :to='{name: "projects.configs"}'>
                         <i class="fa fa-cog" aria-hidden="true"></i>
                         <span class='hidden-sm hidden-xs'>Config</span>
-                    </a>
+                    </router-link>
                 </li>
-                <li>
-                    <a data-toggle="tab" href="#scripts">
+
+                <li :class="{active: isActive('scripts')}">
+                    <router-link :to='{name: "projects.scripts"}'>
                         <i class="fa fa-file-code-o" aria-hidden="true"></i>
                         <span class='hidden-sm hidden-xs'>Scripts</span>
-                    </a>
+                    </router-link>
                 </li>
+
                 </template>
 
-                <li>
-                    <a data-toggle="tab" href="#project">
-                        <i class="fa fa-rocket" aria-hidden="true"></i>
+                <li :class="{active: isActive('details')}">
+                    <router-link :to='{name: "projects.details"}'>
+                        <i class="fa fa-file-code-o" aria-hidden="true"></i>
                         <span class='hidden-sm hidden-xs'>Project Info</span>
-                    </a>
-                </li>
-                <li>
-                    <a data-toggle="tab" href="#delete">
-                        <i class="fa fa-trash" aria-hidden="true"></i>
-                        <span class='hidden-sm hidden-xs'>Danger Zone</span>
-                    </a>
+                    </router-link>
                 </li>
             </ul>
         </div>
@@ -59,101 +55,12 @@
     <div class="container container-lg">
         <!-- tabs content -->
         <div class="tab-content col-md-12">
+            <router-view :project='project' :deployment='deployment' :history='history' :loading='loading' />
 
             <!-- Cloning Status message -->
             <project-cloning :status='status' @reclone='cloneRepo'></project-cloning>
             <!-- Cloning Status message -->
 
-            <!-- Overview -->
-            <div class='tab-pane active' id='overview'>
-                <div>
-                    <project-info :project='project' :deployment='deployment' :loading='loading'></project-info>
-                </div>
-            </div>
-            <!-- End Overview -->
-
-            <!-- Servers -->
-            <div v-if='project.id' class="tab-pane" id="servers">
-                <servers :servers='project.servers'
-                         :project-id='project.id'
-                         :deploying='deployment.deploying'
-                         :progress='deployment.progress'
-                         :messages='deployment.messages'>
-                </servers>
-            </div>
-            <!-- End Servers -->
-
-            <!-- History -->
-            <div v-if='project.id' id='history' class="tab-pane fade">
-                <history :history='project.history'
-                         :project-id='project.id'>
-                </history>
-            </div>
-            <!-- End History -->
-
-            <!-- Configuration Files -->
-            <div v-if='project.id' id='config' class="tab-pane fade">
-                <configs :configs='project.configs'
-                         :project-id='project.id'>
-                </configs>
-            </div>
-            <!-- End Configuration Files -->
-
-            <!-- Install Scripts -->
-            <div v-if='project.id' id='scripts' class="tab-pane fade">
-                <scripts :scripts='project.scripts'
-                         :project-id='project.id'>
-                </scripts>
-            </div>
-            <!-- End Install Scripts -->
-
-            <!-- Project Form -->
-            <div v-if='project.id' id='project' class="tab-pane" :class="[ project.id ? 'fade': 'active']">
-                <div class='panel panel-default'>
-                    <div class="panel-body">
-                        <form-text v-model='project.name' property='name' :errors='formErrors'></form-text>
-                        <form-text v-model='project.repo' property='repo' :errors='formErrors'></form-text>
-                        <form-text v-model='project.branch' property='branch' :errors='formErrors'></form-text>
-
-                        <form-checkbox v-model='project.send_slack_messages' property='send_slack_messages' :errors='formErrors'></form-checkbox>
-
-                        <form-text v-model='project.slack_webhook_url' property='slack_webhook_url' :errors='formErrors'></form-text>
-
-                        <div class='pin-right projects'>
-                            <div class="btn-toolbar">
-                                <form-save-button :saving='saving' @save='saveProject'></form-save-button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- End Project Form -->
-
-            <!-- Delete Area -->
-            <div id="delete" class="tab-pane">
-                <div class="panel panel-default">
-                    <div class='panel-body'>
-                        <div class='row row-centered'>
-                            <div class='col-md-4 col-centered'>
-
-                                <div class="form-group">
-                                    <label class="control-label" for="name">Type the name of your project to delete</label>
-                                    <input  v-model='confirm' type="text" name="name" class="form-control">
-                                </div>
-
-                                <button type="submit"
-                                        @click='deleteProject()'
-                                        class="btn btn-default btn-danger btn-delete"
-                                        :disabled='deleting || (project.name !== confirm)'>
-                                        <i v-if='deleting' class="fa fa-spinner fa-spin"></i>Delete
-                                </button>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- End Delete Area -->
         </div>
         <!-- End Tabs content -->
 

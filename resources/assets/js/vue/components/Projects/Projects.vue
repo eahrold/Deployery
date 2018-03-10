@@ -56,7 +56,7 @@
                         <tbody>
                             <tr v-for='project in projects'>
                                 <td>
-                                    <router-link :to="{ name: 'projects.edit', params: { project_id: project.id }}">
+                                    <router-link :to="{ name: 'projects.info', params: { project_id: project.id }}">
                                         {{ project.name }}
                                     </router-link>
                                 </td>

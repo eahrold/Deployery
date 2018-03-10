@@ -71,6 +71,7 @@ class ServersController extends APIController
     {
         $model = $this->projects->findServer($project_id, $id);
         $this->authorize($model->project);
+        $model->updateGitInfo();
 
         return $this->response->item($model, new $this->transformer);
     }
@@ -129,8 +130,13 @@ class ServersController extends APIController
             [ 'text' => 'sftp', 'value' => 'sftp']
         ];
 
+        $branches = [];
+        if ($project = $this->projects->find($project_id)) {
+            $branches = $project->branches;
+        }
+
         return $this->response
-            ->array(['options' => compact('protocols')]);
+            ->array(['options' => compact('protocols', 'branches')]);
     }
 
 

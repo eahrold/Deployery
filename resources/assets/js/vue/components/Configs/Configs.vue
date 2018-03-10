@@ -41,16 +41,16 @@
 
 <script>
     Vue.component('config-form', require('./ConfigForm.vue'));
+    const _ = require('lodash')
 
     export default {
         props: [
-            'configs',
-            'projectId'
+            'project',
         ],
 
         methods: {
             serverList(config) {
-                if(!config || !config.servers)return;
+                if(!config || !config.servers) return;
                 return config.servers.map((i)=>{
                     return i.name;
                 }).join(', ');
@@ -58,6 +58,14 @@
         },
 
         computed: {
+            projectId() {
+                return _.get(this, 'project.id')
+            },
+
+            configs() {
+                return _.get(this, 'project.configs', [])
+            },
+
             apiEndpoint(){
                 return '/api/projects/' + this.projectId +'/configs';
             }

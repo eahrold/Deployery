@@ -3,7 +3,7 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    {{ heading }}
+                    <h4>Setup a new Project</h4>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
@@ -76,7 +76,6 @@
 
         mounted () {
             var clipboard = new Clipboard('.clipboard');
-
             clipboard.on('success', function(e) {
                 setTooltip(e.trigger, 'Copied!');
                 hideTooltip(e.trigger);
@@ -95,7 +94,7 @@
 
         methods : {
             success (response) {
-                window.location = '/projects/'+response.data.data.id;
+                window.location = '/projects/'+response.data.data.id + '/info';
             },
         },
 

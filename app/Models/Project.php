@@ -161,6 +161,14 @@ final class Project extends Base
         return $size;
     }
 
+    public function getBranchesAttribute($value = false)
+    {
+        $key = "project-{$this->id}->branches";
+        return \Cache::remember($key, 2, function() {
+            return (new GitInfo($this->repoPath(), $this->branch))->branches();
+        });
+    }
+
     //----------------------------------------------------------
     // Relationships
     //-------------------------------------------------------

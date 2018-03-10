@@ -35,11 +35,19 @@
 
 <script>
     Vue.component('script-form', require('./ScriptForm.vue'));
-
+    const _ = require('lodash')
     export default {
-        props: ['scripts', 'projectId'],
+        props: ['project'],
 
         computed: {
+            projectId() {
+                return _.get(this, 'project.id')
+            },
+
+            scripts() {
+                return _.get(this, 'project.scripts', [])
+            },
+
             apiEndpoint(){
                 return '/api/projects/' + this.projectId +'/scripts';
             }

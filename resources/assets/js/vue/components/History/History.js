@@ -1,7 +1,7 @@
 var moment = require('moment');
 
 export default {
-    props: ['projectId'],
+    props: ['project'],
 
     data () {
         return {

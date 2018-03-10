@@ -13,21 +13,10 @@ require('./bootstrap');
 
 require('./vue/Forms/FormComponentRegistry.js');
 
-Vue.component('projects', require('./vue/components/Projects/Projects.vue'));
-Vue.component('project', require('./vue/components/Projects/Project.vue'));
-
-Vue.component('servers', require('./vue/components/Servers/Servers.vue'));
-Vue.component('history', require('./vue/components/History/History.vue'));
-Vue.component('history-modal', require('./vue/components/History/HistoryModal.vue'));
-
-Vue.component('scripts', require('./vue/components/Scripts/Scripts.vue'));
-Vue.component('configs', require('./vue/components/Configs/Configs.vue'));
-
 Vue.component('deployment', require('./vue/components/Deployments/Deployment.vue'));
 Vue.component('deployments', require('./vue/components/Deployments/Deployments.vue'));
 
 Vue.component('trash-button', require('./vue/components/Partials/TrashButton.vue'));
-
 
 /**
  * Register Mixins
@@ -55,9 +44,12 @@ const routes = [
         component: require('./vue/components/Projects/Project.vue'),
 
         children : [
-            { path: 'servers/:server_id', component: require('./vue/components/Servers/Servers.vue')},
-            { path: 'configs/:server_id', component: require('./vue/components/Configs/Configs.vue')},
-            { path: 'scripts/:server_id', component: require('./vue/components/Scripts/Scripts.vue')},
+            { path: 'info', name: 'projects.info', component: require('./vue/components/Projects/ProjectInfo.vue')},
+            { path: 'servers', name: 'projects.servers', component: require('./vue/components/Servers/Servers.vue')},
+            { path: 'history', name: 'projects.history', component: require('./vue/components/History/History.vue')},
+            { path: 'configs', name: 'projects.configs', component: require('./vue/components/Configs/Configs.vue')},
+            { path: 'scripts', name: 'projects.scripts', component: require('./vue/components/Scripts/Scripts.vue')},
+            { path: 'details', name: 'projects.details', component: require('./vue/components/Projects/ProjectDetails.vue')},
         ]
     },
 ]
@@ -78,4 +70,5 @@ window.bus = new Vue({});
 const app = new Vue({
     router,
     el: '#app'
+
 });

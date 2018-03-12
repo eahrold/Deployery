@@ -59,16 +59,19 @@
 
 <script>
 
+import { mapGetters, mapState } from 'vuex';
+
 export default {
     name: 'project-info',
 
     props : [
         'project',
-        'deployment',
         'loading'
     ],
 
     computed : {
+        ...mapState(['deployment']),
+
         projectId() {
             return _.get(this.$route, 'params.project_id')
         },

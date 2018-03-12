@@ -226,7 +226,11 @@ export default {
          * Start Deployment
          */
         beginDeployment(){
-            bus.$emit('deployment-began', this.server);
+            const data = {
+                server: this.server,
+                message: `Deployment began on ${this.server.name}`
+            };
+            this.$store.dispatch(this.actionTypes.DEPLOYMENT_STARTED, {data})
         },
 
 

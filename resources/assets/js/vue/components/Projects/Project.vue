@@ -56,7 +56,7 @@
     <div class="container container-lg">
         <!-- tabs content -->
         <div class="tab-content col-md-12">
-            <router-view :project='project' :deployment='deployment' :history='history' :loading='loading' />
+            <router-view :project='project' :loading='loading' />
 
             <!-- Cloning Status message -->
             <project-cloning :status='status' @reclone='cloneRepo'></project-cloning>
@@ -79,6 +79,7 @@
 
 <script>
 
+import { mapGetters, mapState } from 'vuex';
 
 import { EchoListener } from './mixins/EchoListener';
 
@@ -98,7 +99,6 @@ export default {
     data () {
         return {
             project: {},
-            history: [],
 
             errors: [],
             formErrors: {},
@@ -120,14 +120,21 @@ export default {
     },
 
     mounted () {
-        this.load();
-        this.listen();
+        this.load()
+        this.listen()
+    },
+
+    beforeDestroy() {
+        this.stopListening()
+        this.resetProject();
     },
 
     computed : {
+        ...mapState(['actionTypes']),
 
         endpoint () {
-            return '/api/projects/'+ this.$route.params.project_id;
+            const { project_id } = this.$route.params
+            return '/api/projects/' + project_id
         },
 
         loaded () {
@@ -136,10 +143,6 @@ export default {
 
         hasServers () {
             return this.hasProp('servers');
-        },
-
-        hasHistory () {
-            return this.hasProp('history');
         },
 
         hasConfig () {
@@ -153,6 +156,7 @@ export default {
             if (newRoute.params.project_id !== oldRoute.params.project_id) {
                 this.removeEchoListener(oldRoute)
                     .addEchoListeners();
+
                 this.load();
                 bus.$emit('project-refresh-info');
             }
@@ -165,9 +169,14 @@ export default {
         },
 
         load () {
+            this.resetProject();
             this.loadProject();
             this.loadHistory();
             this.loadInfo();
+        },
+
+        resetProject() {
+            this.$store.dispatch(this.actionTypes.PROJECT_RESET)
         },
 
         loadProject() {
@@ -186,7 +195,8 @@ export default {
 
         loadHistory() {
             this.$http.get(this.endpoint + '/history').then((response)=>{
-                this.history = response.data.data;
+                const history = response.data.data
+                this.$store.dispatch(this.$store.state.actionTypes.HISTORY_SET, {history,})
             }, ({response})=>{
                 console.error("error", response);
             });
@@ -203,17 +213,15 @@ export default {
         listen () {
             bus.$on('delete-project-item', this.deleteDataFromProject);
             bus.$on('add-project-item', this.appendProjectData);
-
-            bus.$on('deployment-began', this.deploymentBegan);
             bus.$on('project-info', this.updateInfo);
-
-            echo.private('project.'+ this.$route.params.project_id)
-                .listen('HistoryCreatedEvent', this.handleHistoryCreated);
         },
 
-        handleHistoryCreated(data){
-            this.history.unshift(data.history);
+        stopListening() {
+            bus.$off('delete-project-item', this.deleteDataFromProject);
+            bus.$off('add-project-item', this.appendProjectData);
+            bus.$off('project-info', this.updateInfo);
         },
+
 
         updateInfo (info) {
             this.info = info;
@@ -221,13 +229,6 @@ export default {
             // this.deployment.deploying = info.status.is_deploying;
             this.status.cloning = info.status.is_cloning;
             this.status.cloningError = info.status.clone_failed;
-        },
-
-        deploymentBegan (server) {
-            this.handleDeployStarted({
-                server: server,
-                message: "Deployment began on " + server.name
-            }, true);
         },
 
         hasProp (prop) {

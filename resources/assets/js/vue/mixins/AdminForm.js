@@ -124,7 +124,10 @@ export const form = {
         },
 
         makePristine (data) {
-            var model = this.model = data || this.schema();
+            const oldVal = this.model || {}
+            const newVal = data || {}
+
+            var model = this.model = _.assign(this.schema(), oldVal, newVal)
             this.pristine = JSON.parse(JSON.stringify(model));
             return model;
         },

@@ -8,6 +8,8 @@ export default {
         user: {},
         project: {},
         deployment: {},
+        history: [],
+        viewers: [],
         actionTypes: types,
     },
 
@@ -23,6 +25,14 @@ export default {
         deployment (state, payload) {
             state.deployment = payload.deployment
         },
+
+        viewers (state, payload) {
+            state.viewers = payload.viewers
+        },
+
+        history (state, payload) {
+            state.history = payload.history
+        }
     },
 
     getters: {
@@ -84,6 +94,16 @@ export default {
     },
 
     actions: {
+        [types.HISTORY_SET]({commit, state}, { history }){
+            commit('history', { history })
+        },
+
+        [types.HISTORY_APPEND]({commit, state}, {entry}){
+            const { history } = state
+            history.unshift(entry)
+            commit('history', { history })
+        },
+
         /**
          * Handle the DeploymentStarted event message
          *
@@ -152,6 +172,9 @@ export default {
             commit('deployment', { deployment })
         },
 
+        [types.VIEWERS_SET]({commit, state}, { viewers }){
+            commit('viewers', { viewers })
+        },
 
         [types.USER_SET] ({commit}, { user }) {
             commit('user', { user })
@@ -161,14 +184,11 @@ export default {
             commit('project', { project })
         },
 
-        [types.MESSAGES_SET] ({commit, state, getters}, { messages }) {
-            commit('project', { messages })
+        [types.PROJECT_RESET] ({commit, state}) {
+            commit('project', { project: {} })
+            commit('history', { history: [] })
+            commit('deployment', { deployment: {} })
         },
 
-        [types.MESSAGES_APPEND] ({commit, state, getters}, { message }) {
-            const messages =  state.messages
-            messages.unshift(message);
-            commit('messages', { messages })
-        },
     }
 }

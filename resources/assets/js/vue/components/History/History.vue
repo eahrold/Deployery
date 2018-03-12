@@ -41,6 +41,9 @@
 
 <script>
 
+import { mapGetters, mapState } from 'vuex';
+
+
 export default {
 
     props: [ 'project' ],
@@ -53,9 +56,7 @@ export default {
     },
 
     computed: {
-        history() {
-            return this.$parent.history;
-        }
+        ...mapState(['history'])
     },
 
     methods: {

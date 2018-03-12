@@ -12,8 +12,9 @@ export const EchoListener = {
          * Subscribe to the echo events
          */
         addEchoListeners() {
+            const { project_id } = this.$route.params;
             // Setup echo listeners.
-            echo.private('project.'+this.$route.params.project_id)
+            echo.private('project.'+ project_id)
                 .listen('DeploymentProgress', this.handleDeployProgress)
                 .listen('DeploymentStarted', this.handleDeployStarted)
                 .listen('DeploymentEnded', this.handleDeployEnded)
@@ -22,17 +23,36 @@ export const EchoListener = {
                 .listen('RepositoryCloneStarted', this.handleCloneStarted)
                 .listen('RepositoryCloneEnded', this.handleCloneEnded)
 
-            echo.join('project-viewers.' + this.$route.params.project_id)
-                .here(viewers => {
-                    // console.log(JSON.stringify(viewers));
-                    this.viewers = viewers;
-            });
+                .listen('HistoryCreatedEvent', this.handleHistoryCreated)
+
+            echo.join('project-viewers.' + project_id)
+                .here(this.handleViewersUpdated);
+
             return this;
         },
 
+         /**
+         * Unsubscribe to the echo events
+         */
         removeEchoListener(route) {
-            echo.leave('project.'+route.params.id);
+            const { project_id } = route.params;
+            echo.leave('project.'+project_id);
+
             return this;
+        },
+
+        handleHistoryCreated(data){
+            const entry = data.history
+            this.$store.dispatch(types.HISTORY_APPEND, { entry })
+        },
+
+        /**
+         * Handle the Here event
+         *
+         * @param  object data event data
+         */
+        handleViewersUpdated(viewers) {
+            this.$store.dispatch(types.VIEWERS_SET, {viewers})
         },
 
         /**
@@ -78,14 +98,6 @@ export const EchoListener = {
          */
         handleDeployProgress(data){
             this.$store.dispatch(types.DEPLOYMENT_PROGRESS, {data})
-
-            this.errors = data.errors;
-
-            if(data.progress) {
-                this.deployment.progress = data.progress;
-            }
-
-            this.deployment.messages.unshift(data.message);
         },
 
         /**
@@ -95,16 +107,6 @@ export const EchoListener = {
          */
         handleDeployStarted(data, locallyTriggered){
             this.$store.dispatch(types.DEPLOYMENT_STARTED, {data})
-
-            this.deployment.messages = [ data.message ];
-            this.deployment.progress = 0;
-            this.deployment.server_id = data.server.id;
-            this.deployment.server_name = data.server.name;
-            this.deployment.deploying = true;
-
-            if(this.deployingServer){
-                this.deployingServer.is_deploying = true;
-            }
         },
 
         /**
@@ -114,16 +116,6 @@ export const EchoListener = {
          */
         handleDeployEnded(data){
             this.$store.dispatch(types.DEPLOYMENT_ENDED, {data})
-
-            if(this.deployingServer){
-                this.deployingServer.is_deploying = false;
-            }
-
-            this.deployment.messages.unshift(data.message);
-            this.deployment.server_id = null;
-            this.deployment.server_name = null;
-            this.deployment.deploying = false;
-            this.deployment.progress = 100;
         },
     }
 }

@@ -77,7 +77,7 @@ export default {
                     this.saving = false;
                     this.errors = response.data.errors;
                 },
-                (response) => {
+                ({response}) => {
                     this.saving = false;
                     this.errors = response.data.errors;
                     console.error('Error saving project', response);
@@ -90,7 +90,7 @@ export default {
                 (response) => {
                     window.location = '/';
                 },
-                (response) => {
+                ({response}) => {
                     this.$alerter.error('Error Deleting Project');
                     console.error('Error Deleting Project', response);
             });

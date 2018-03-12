@@ -7,51 +7,30 @@
 
         <ul class="dropdown-menu" aria-labelledby="deploy-dropdown">
             <li v-for='server in servers'>
-                <a @click='openModal(server)'
-                   data-toggle="modal"
-                   data-target="#deployment-modal">{{ server.name }}
-                </a>
+                <router-link :to='serverDeployTo(server)'>
+                    {{ server.name }}
+                </router-link>
             </li>
         </ul>
-
-        <div class="deployments">
-            <!-- Button HTML (to Trigger Modal) -->
-            <!-- Modal HTML -->
-            <div id="deployment-modal" class="modal fade">
-                <div class="modal-dialog modal-lg modal-xl">
-                    <deployment v-if='server'
-                                :server='server'
-                                :project-id='projectId'
-                                :messages='messages'
-                                :deploying='deploying'
-                                :progress='progress'
-                                @close='closeModal'>
-                    </deployment>
-                </div>
-            </div>
-        </div>
     </div>
 </template>
 
 <script>
 
-export default {
-    props: ['servers', 'projectId', 'messages', 'deploying', 'progress'],
+import { mapGetters, mapState } from 'vuex';
 
-    data () {
-        return {
-            server: null,
-        }
-    },
+
+export default {
+    props: ['servers'],
 
     methods: {
-        openModal(server) {
-            this.server = server;
-        },
-
-        closeModal() {
-            this.server = null;
-        },
+        serverDeployTo(server) {
+            return {
+                name: "projects.servers.deploy",
+                params:{ id: server.id },
+                query: { server_name: server.name }
+            }
+        }
     }
 }
 </script>

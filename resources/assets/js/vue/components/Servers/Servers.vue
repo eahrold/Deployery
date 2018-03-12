@@ -1,22 +1,19 @@
 <template>
 <div>
-    <server-form :endpoint='apiEndpoint'></server-form>
+    <router-view :endpoint='apiEndpoint'></router-view>
     <div class='col-md-12 text-center' v-if='!servers.length'>
-        <a data-toggle="modal"
-           data-target="#serverForm">
-            <i class="fa fa-plus-circle" aria-hidden="true"></i>
-            Add Your first server.
-        </a>
+        <router-link :to='{name: "projects.servers.form", params:{id: "create"}}'>
+            Add your first server
+        </router-link>
     </div>
 
     <div v-else class='panel panel-default panel-full'>
         <div class="pannel-nav navbar navbar-default navbar-static">
             <div class="nav navbar-nav navbar-left">Servers</div>
             <div class="nav navbar-nav navbar-right">
-                <a data-toggle="modal"
-                   data-target="#serverForm">
+                <router-link :to='{name: "projects.servers.form", params:{id: "create"}}'>
                     <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                </a>
+                </router-link>
             </div>
         </div>
 
@@ -35,11 +32,9 @@
                 <tbody>
                     <tr v-for='server in servers'>
                         <td >
-                            <a data-toggle="modal"
-                               :data-model-id="server.id"
-                               data-target="#serverForm">
+                            <router-link :to='{name: "projects.servers.form", params:{id: server.id}}'>
                                 {{ server.name }}
-                            </a>
+                            </router-link>
                         </td>
                         <td>{{ server.hostname }}</td>
                         <td class='visible-md visible-lg'>{{ server.branch }}</td>
@@ -58,21 +53,21 @@
                             <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
                         </td>
                         <td v-else class='crunch center'>
-                            <a @click='openModal(server)' data-toggle="modal" data-target="#server-deployment-modal">
+                            <router-link :to='{name: "projects.servers.deploy", params:{id: server.id}, query: {server_name: server.name}}'>
                                 <i class="fa fa-cloud-download" aria-hidden="true"></i>
-                            </a>
+                            </router-link>
                         </td>
 
                         <td class='crunch center'>
                             <div id='status-indicator'
-                                v-bind:class="[statusClass(server)]">
+                                :class="[statusClass(server)]">
                             </div>
                         </td>
                         <td class='crunch center'>
                             <i :id="'server_status_'+server.id"
                                class="fa fa-refresh"
                                aria-hidden="true"
-                               :class=''
+                               :class='{"fa-spin" : testing === server.id}'
                                @click="test(server)">
                             </i>
                         </td>
@@ -80,22 +75,6 @@
                 </tbody>
             </table>
 
-            <div class="deployments">
-                <!-- Button HTML (to Trigger Modal) -->
-                <!-- Modal HTML -->
-                <div id="server-deployment-modal" class="modal fade">
-                    <div class="modal-dialog modal-lg modal-xl">
-                        <deployment v-if='server'
-                                    :server='server'
-                                    :project-id='project.id'
-                                    :progress='progress'
-                                    :messages='messages'
-                                    :deploying='deploying'
-                                    @close='closeModal'>
-                        </deployment>
-                    </div>
-                </div>
-            </div>
             <server-pubkey-modal :endpoint='apiEndpoint'></server-pubkey-modal>
         </div>
     </div>
@@ -122,12 +101,13 @@ export default {
         return {
             status: {},
             testing: false,
-            testing_id: null,
-            server: null
         }
     },
 
     computed: {
+        projectId() {
+            return _.get(this.$route, 'params.project_id')
+        },
 
         servers() {
             return _.get(this, 'project.servers', []);
@@ -146,11 +126,11 @@ export default {
         },
 
         endpoint() {
-            return '/projects/'+this.project.id +'/servers'
+            return '/projects/'+this.projectId +'/servers'
         },
 
         apiEndpoint(){
-            return '/api/projects/' + this.project.id +'/servers';
+            return '/api/projects/' + this.projectId +'/servers';
         }
     },
 
@@ -172,37 +152,22 @@ export default {
         },
 
         test: function(server, idx){
-            this.testing = true;
+            const id = this.testing = server.id;
             server.successfully_connected = 0;
-            var id = server.id;
-            var s = $("#server_status_"+id);
-            s.toggleClass('fa-spin');
 
-            var endpoint = '/api'+this.endpoint+'/'+id+'/test';
+            var endpoint = `${this.apiEndpoint}/${id}/test`;
+
             this.$http.post(endpoint).then(
                 (response) => {
-                    s.toggleClass('fa-spin');
                     server.successfully_connected = 1;
                 },
-                (response) => {
+                ({response}) => {
                     console.error('error:', response);
-                    s.toggleClass('fa-spin');
                     server.successfully_connected = -1;
                     this.$alerter.error(response.data.message);
                 }
-            );
+            ).then(()=>{this.testing=false});
         },
-
-        /**
-         * Start Deployment
-         */
-        openModal(server){
-            this.server = server;
-        },
-
-        closeModal() {
-            this.server = null;
-        }
     }
 }
 </script>

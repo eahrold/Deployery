@@ -24,10 +24,9 @@
             <li role="separator" class="divider"></li>
         @endif
         <li>
-            <a data-toggle="modal"
-               data-target="#projectForm">
+            <router-link :to="{name: 'projects.create'}">
                 Create New Project
-            </a>
+            </router-link>
         </li>
     </ul>
 </li>

@@ -71,7 +71,7 @@
         @yield('content')
 
         <!-- Project Form -->
-        <project-form endpoint='/api/projects'></project-form>
+        <form-alert></form-alert>
 
         <footer class="footer">
           <div class="vertical-align">

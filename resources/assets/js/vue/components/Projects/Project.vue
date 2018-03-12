@@ -1,29 +1,98 @@
-<template src="./Project.html"></template>
+<template>
+<div>
+    <!-- Nav Bar  -->
+    <nav class="navbar navbar-default navbar-nocollapse" >
+        <div class='navbar-center'>
+            <ul class="nav navbar-nav">
+                <li :class="{active: isActive('info')}">
+                    <router-link :to='{name: "projects.info"}'>
+                        <i class="fa fa-dashboard" aria-hidden="true"></i>
+                        <span class='hidden-sm hidden-xs'>Overview</span>
+                    </router-link>
+                </li>
 
-<style>
-.btn.btn-loading {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    opacity: .5;
-    z-index: 1000;
-    line-height: 4em;
-    vertical-align:middle;
-    border: none;
-    background-color: #96a8ad;
-}
-</style>
+                <li :class="{disabled: status.cloning, active: isActive('servers')}">
+                    <router-link :to='{name: "projects.servers"}'>
+                        <i class="fa fa-server" aria-hidden="true"></i>
+                        <span class='hidden-sm hidden-xs'>Servers</span>
+                    </router-link>
+                </li>
+
+                <template v-if='hasServers'>
+                <li  :class="{disabled: status.cloning, active: isActive('history')}">
+                    <router-link :to='{name: "projects.history"}'>
+                        <i class="fa fa-history" aria-hidden="true"></i>
+                        <span class='hidden-sm hidden-xs'>History</span>
+                    </router-link>
+                </li>
+
+                <li :class="{active: isActive('configs')}">
+                    <router-link :to='{name: "projects.configs"}'>
+                        <i class="fa fa-cog" aria-hidden="true"></i>
+                        <span class='hidden-sm hidden-xs'>Config</span>
+                    </router-link>
+                </li>
+
+                <li :class="{active: isActive('scripts')}">
+                    <router-link :to='{name: "projects.scripts"}'>
+                        <i class="fa fa-file-code-o" aria-hidden="true"></i>
+                        <span class='hidden-sm hidden-xs'>Scripts</span>
+                    </router-link>
+                </li>
+
+                </template>
+
+                <li :class="{active: isActive('details')}">
+                    <router-link :to='{name: "projects.details"}'>
+                        <i class="fa fa-file-code-o" aria-hidden="true"></i>
+                        <span class='hidden-sm hidden-xs'>Project Info</span>
+                    </router-link>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Body -->
+    <div class="container container-lg">
+        <!-- tabs content -->
+        <div class="tab-content col-md-12">
+            <router-view :project='project' :deployment='deployment' :history='history' :loading='loading' />
+
+            <!-- Cloning Status message -->
+            <project-cloning :status='status' @reclone='cloneRepo'></project-cloning>
+            <!-- Cloning Status message -->
+
+        </div>
+        <!-- End Tabs content -->
+
+        <deployments-info-panel></deployments-info-panel>
+
+        <transition name='bottomup'>
+            <div v-if='loading' class="btn btn-info btn-loading">
+                Getting Project Data...
+            </div>
+        </transition>
+
+    </div>
+</div>
+</template>
 
 <script>
 
+
 import { EchoListener } from './mixins/EchoListener';
 
-Vue.component('project-info', require('./ProjectInfo.vue'));
-Vue.component('project-cloning', require('./ProjectCloning.vue'));
+import ProjectInfo from './ProjectInfo'
+import ProjectCloning from './ProjectCloning'
 
 export default {
+    name: 'project',
+
+    components: {
+        ProjectInfo,
+        ProjectCloning
+    },
+
     mixins: [ EchoListener ],
 
     data () {
@@ -33,7 +102,6 @@ export default {
 
             errors: [],
             formErrors: {},
-            deployingServer: null,
             confirm: null,
             viewers: [],
 
@@ -48,15 +116,6 @@ export default {
                 message: "",
                 errors: []
             },
-
-            deployment: {
-                deploying: false,
-                messages: [],
-                progress: 0,
-                errors: [],
-                server_name: null,
-                server_id: null,
-            }
         }
     },
 
@@ -87,41 +146,6 @@ export default {
             return this.hasProp('configs');
         },
 
-        /**
-         * Return the id of the server that is deploying
-         *
-         * @return number   id of the server
-         */
-        deployingServerId(){
-            return _.get(this.deployingServer, 'id');
-        },
-
-        /**
-         * Return the id of the server that is deploying
-         *
-         * @return string   name of the server
-         */
-        deployingServerName(){
-            return _.get(this.deployingServer, 'name');
-        },
-
-        /**
-         * General overview message about deployment status
-         *
-         * @return string  message about deployment status
-         */
-        deployingStatusMessage(){
-            return (this.deployingServerName || 'This Project') + ' is currently deploying.'
-        },
-
-        /*
-         * Last sent deployment message.
-         */
-        deployingCurrentMessage() {
-            if(this.deployment.deploying){
-                return _.first(this.deployment.messages);
-            }
-        }
     },
 
     watch: {
@@ -153,9 +177,9 @@ export default {
                     this.loading = false;
                     this.project = response.data.data;
                 },
-                (response)=>{
+                ({response})=>{
                     this.loading = false;
-                    this.$alerter.error(response.data.message)
+                    this.$vfalert.error(response.data.message)
                     console.error('Error getting project', response, this.endpoint);
             });
         },
@@ -163,7 +187,7 @@ export default {
         loadHistory() {
             this.$http.get(this.endpoint + '/history').then((response)=>{
                 this.history = response.data.data;
-            }, (response)=>{
+            }, ({response})=>{
                 console.error("error", response);
             });
         },
@@ -171,6 +195,8 @@ export default {
         loadInfo() {
             this.$http.get(this.endpoint + '/info').then((response)=>{
                 this.info = response.data;
+            },({response})=>{
+                console.error("error", response);
             });
         },
 
@@ -192,13 +218,12 @@ export default {
         updateInfo (info) {
             this.info = info;
             console.log("updating info", info);
-            this.deployment.deploying = info.status.is_deploying;
+            // this.deployment.deploying = info.status.is_deploying;
             this.status.cloning = info.status.is_cloning;
             this.status.cloningError = info.status.clone_failed;
         },
 
         deploymentBegan (server) {
-            this.deployingServer = server;
             this.handleDeployStarted({
                 server: server,
                 message: "Deployment began on " + server.name
@@ -257,7 +282,7 @@ export default {
                     (response) => {
                         this.removeProjectData(object, type);
                     },
-                    (response) => {
+                    ({response}) => {
                         console.error('[Error Deleting '+type+' ]', response);
                 });
             }
@@ -269,13 +294,29 @@ export default {
             this.status.cloning = true;
             this.$http.post(endpoint).then(
                 (response) => {
-                    this.$alerter.success(response.data.message)
+                    this.$vfalert.success(response.data.message)
                 },
-                (response) => {
+                ({response}) => {
                     this.status.false = true;
-                    this.$alerter.error(response.data.message)
+                    this.$vfalert.error(response.data.message)
             });
         },
     }
 }
 </script>
+
+<style>
+.btn.btn-loading {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    opacity: .5;
+    z-index: 1000;
+    line-height: 4em;
+    vertical-align:middle;
+    border: none;
+    background-color: #96a8ad;
+}
+</style>

@@ -10,13 +10,14 @@ require('./bootstrap');
 /**
  * Register components
  */
+import { VueForms } from 'vue-forms'
+Vue.use(VueForms);
 
-require('./vue/Forms/FormComponentRegistry.js');
+import ElementsPlugin from './vue/elements'
+Vue.use(ElementsPlugin)
 
-Vue.component('deployment', require('./vue/components/Deployments/Deployment.vue'));
-Vue.component('deployments', require('./vue/components/Deployments/Deployments.vue'));
-
-Vue.component('trash-button', require('./vue/components/Partials/TrashButton.vue'));
+import DeploymentPlugin from './vue/components/Deployments'
+Vue.use(DeploymentPlugin)
 
 /**
  * Register Mixins
@@ -27,6 +28,7 @@ Vue.mixin(LocalTime);
 import { Alerter } from './alerter';
 Vue.prototype.$alerter = Alerter;
 
+import { routes as ProjectRoutes, ProjectsOverview, ProjectForm } from './vue/components/Projects'
 
 /**
  * Setup the router
@@ -35,23 +37,16 @@ const routes = [
     {
         path: '/',
         name: 'projects.list',
-        component: require('./vue/components/Projects/Projects.vue'),
-    },
-
-    {
-        path: '/projects/:project_id',
-        name: 'projects.edit',
-        component: require('./vue/components/Projects/Project.vue'),
-
-        children : [
-            { path: 'info', name: 'projects.info', component: require('./vue/components/Projects/ProjectInfo.vue')},
-            { path: 'servers', name: 'projects.servers', component: require('./vue/components/Servers/Servers.vue')},
-            { path: 'history', name: 'projects.history', component: require('./vue/components/History/History.vue')},
-            { path: 'configs', name: 'projects.configs', component: require('./vue/components/Configs/Configs.vue')},
-            { path: 'scripts', name: 'projects.scripts', component: require('./vue/components/Scripts/Scripts.vue')},
-            { path: 'details', name: 'projects.details', component: require('./vue/components/Projects/ProjectDetails.vue')},
+        component: ProjectsOverview,
+        children: [
+            {
+                path: 'projects/create',
+                name: 'projects.create',
+                component: ProjectForm,
+            },
         ]
     },
+    ProjectRoutes
 ]
 
 import VueRouter from 'vue-router';
@@ -64,11 +59,19 @@ const router = new VueRouter({
 
 window.bus = new Vue({});
 
+
+import Vuex from 'vuex';
+Vue.use(Vuex)
+
+import { store as aStore } from './vue/store'
+const store = new Vuex.Store(aStore)
+
 /**
  * Setup the App
  */
 const app = new Vue({
     router,
+    store,
     el: '#app'
 
 });

@@ -1,6 +1,10 @@
 @import 'mixins';
 @import 'colors';
 
+.vf-modal-body > .loading {
+    opacity: 0.5;
+}
+
 .form-input {
     .auto-width {
         width: auto;

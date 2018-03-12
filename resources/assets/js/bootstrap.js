@@ -10,6 +10,36 @@ window._ = require('lodash');
 window.$ = window.jQuery = require('jquery');
 require('bootstrap-sass');
 
+let axios = window.axios = require('axios');
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+axios.defaults.headers.common['Accept'] = 'application/json'
+axios.defaults.headers.common['Content-Type'] = 'application/json'
+
+if (Deployery.apiToken) {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${Deployery.apiToken}`
+}
+
+let token = document.head.querySelector('meta[name="csrf-token"]');
+if (token) {
+    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
+} else {
+    console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
+}
+
+window.axios.interceptors.response.use(
+    (response)=>{
+        return response;
+  },(error)=>{
+        if(error.response.status === 401) {
+            alert('Looks like your session has expired. reloading the page');
+            window.location = window.location;
+            return;
+        }
+        // Do something with response error
+        return Promise.reject(error);
+  }
+);
+
 /**
  * Vue is a modern JavaScript library for building interactive web interfaces
  * using reactive data binding and reusable components. Vue's API is clean
@@ -17,37 +47,14 @@ require('bootstrap-sass');
  */
 
 window.Vue = require('vue');
-require('vue-resource');
+
+Object.defineProperty(Vue.prototype, '$http', {
+  get () {
+    return axios
+  }
+})
 
 window.noty = require('noty');
-
-
-/**
- * We'll register a HTTP interceptor to attach the "CSRF" header to each of
- * the outgoing requests issued by this application. The CSRF middleware
- * included with Laravel will automatically verify the header's value.
- */
-
-Vue.http.interceptors.push((request, next) => {
-
-    request.headers.set('Accept', 'application/json');
-    request.headers.set('Content-Type', 'application/json');
-    request.headers.set('X-CSRF-TOKEN', Deployery.csrfToken);
-
-    if (Deployery.apiToken) {
-        request.headers.set('Authorization', 'Bearer ' + Deployery.apiToken);
-    }
-
-    // continue to next interceptor
-    next((response) => {
-        if(!response.ok) {
-            if(response.status == 401) {
-                alert('Oops, looks like the your session has expired. reloading the page');
-                window.location = window.location;
-            }
-        }
-    });
-});
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

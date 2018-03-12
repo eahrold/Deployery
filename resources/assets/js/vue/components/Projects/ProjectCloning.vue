@@ -23,6 +23,8 @@
 
 <script>
     export default {
+        name: "project-cloning",
+
         props : {
             status : {
                 type: Object,

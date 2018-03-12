@@ -60,6 +60,8 @@
 <script>
 
 export default {
+    name: 'project-info',
+
     props : [
         'project',
         'deployment',
@@ -67,6 +69,10 @@ export default {
     ],
 
     computed : {
+        projectId() {
+            return _.get(this.$route, 'params.project_id')
+        },
+
         info() {
             return this.$parent.info;
         },
@@ -87,7 +93,7 @@ export default {
         },
 
         endpoint () {
-            return "/api/projects/" + this.$route.params.project_id + '/info';
+            return `/api/projects/${this.projectId}/info`
         }
     }
 }

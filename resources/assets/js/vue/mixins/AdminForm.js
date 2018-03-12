@@ -1,72 +1,60 @@
-var modalForm = {
+export const modalForm = {
     mounted () {
-        this.$nextTick(()=>{
-            this.prepareModal();
+        this.load(this.$route.params.id)
+    },
+}
+
+export const form = {
+    beforeRouteEnter (to, from, next) {
+        next(vm => {
+            vm.$_AdminForm__from_route = from;
         })
     },
 
-    methods : {
-        prepareModal() {
-            var modal = $(this.$el);
-            var self = this;
-            modal.on('hide.bs.modal',(e)=>{
-                if(!this.isPristine && !confirm("You have unsaved data, continue?")){
-                    e.preventDefault();
-                }
-            });
-
-            modal.on('hidden.bs.modal',(e)=>{
-                this.model = this.pristine = this.schema();
-            });
-
-            modal.on('show.bs.modal',(e)=>{
-                var id = $(e.relatedTarget).data('model-id');
-                return this.load(id);
-            });
-        },
-
-        closeModal() {
-            $(this.$el).modal('hide');
-        }
-    }
-}
-
-var form = {
-
     data () {
         return {
-            model: null,
+            model: this.schema(),
             errors: {},
             message: '',
             options: {},
             pristine: null,
             saving: false,
             isNew: false,
-            loading: false
+            loading: false,
+            $_AdminForm__from_route: null,
         }
     },
 
     computed : {
+        $_AdminForm__closeMessage() {
+            return "Unsaved changes to: " + this.$_AdminForm__dirtyProps.join(', ') + ". Do you still want to close?"
+        },
+
+        $_AdminForm__dirtyProps() {
+            const a = this.model;
+            const b = this.pristine;
+
+            return _.reduce(a, function(result, value, key) {
+                var bVal = b[key];
+                if(_.isObject(value)) {
+                    var bCmp = _.pickBy(bVal);
+                    var aCmp = _.pickBy(value);
+                    return _.isEqual(aCmp, bCmp) ? result : _.uniq(result.concat(key));
+                }
+                return _.isEqual(value, bVal) ? result : result.concat(key);
+            }, []);
+        },
 
         isDirty () {
             return (this.model && !this.model.id) || !this.isPristine;
         },
 
         isPristine () {
-            var diff = _.omitBy(this.model, (v, k) => {
-                var obj = this.pristine[k];
-                var val = v;
-
-                if(typeof obj === 'object')  {
-                    return _.isEmpty(_.omitBy(obj, (k, v) => {
-                        return val[v] === obj[v];
-                    }));
-                }
-
-                return obj === v;
-            });
-
-            return _.isEmpty(diff);
+            return _.isEmpty(
+                _.difference(this.$_AdminForm__dirtyProps,
+                    _.get(this, 'ignoreDirty', [])
+                )
+            );
         },
 
         heading () {
@@ -110,7 +98,19 @@ var form = {
             this.finally(response);
         },
 
-        failure (response) {
+        saved (response) {
+            const options = {
+                confirmText: "Close",
+                cancelText: "Keep Working"
+            }
+            this.$vfalert.confirm("Do you want to Keep working on this, or close", 'success', options)
+            .then(this.$_AdminForm_navigateBack)
+            .catch(()=>{
+                this.success(response)
+            })
+        },
+
+        failure ({response}) {
             this.finally(response);
             this.presentError();
         },
@@ -137,14 +137,14 @@ var form = {
                     this.options = _.get(response.data, 'options', {});
             });
 
-            if (id) {
+            if (id !== 'create' && id !== undefined) {
                 // Get the model
                 this.$http.get(this.endpoint+'/'+id).then(
                     (response)=>{
                         this.isNew = false;
                         this.success(response);
                     },
-                    (response)=>{
+                    ({response})=>{
                     // Handle Error getting model 401...
                 });
             } else {
@@ -157,20 +157,33 @@ var form = {
             this.saving = true;
             if(this.model.id) {
                 this.isNew = true;
-                this.$http.put(this.apiEndpoint, this.model).then(this.success, this.failure);
+                this.$http.put(this.apiEndpoint, this.model).then(this.saved, this.failure);
             } else {
                 this.isNew = true;
-                this.$http.post(this.apiEndpoint, this.model).then(this.success, this.failure);
+                this.$http.post(this.apiEndpoint, this.model).then(this.saved, this.failure);
             }
         },
 
         close () {
-            if(!this.isPristine && !confirm("You have unsaved data, continue?")){
+            if(this.isDirty && !confirm(this.$_AdminForm__closeMessage)){
+                return
+            }
+            this.$_AdminForm_navigateBack();
+        },
+
+        $_AdminForm_navigateBack() {
+            const canReturn = _.get(this.$_AdminForm__from_route, 'meta.canReturn');
+            if (!_.isEmpty(this.$_AdminForm__from_route.name) && canReturn !== false) {
+                this.$router.go(-1);
                 return;
             }
-            this.$emit('close', this.model);
-        }
+
+            const name = _.get(this.$route, 'meta.back');
+            if (name) {
+                this.$router.push({name: name});
+            } else {
+                this.$router.push(this.$route.path.split('/').slice(0, -1).join('/'));
+            }
+        },
     }
 }
-
-export { form, modalForm };

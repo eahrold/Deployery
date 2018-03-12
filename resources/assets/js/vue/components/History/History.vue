@@ -1,5 +1,6 @@
 <template>
 <div>
+    <router-view :endpoint="$parent.endpoint"></router-view>
     <div v-if='history.length' class="panel panel-default">
         <div class="panel-heading">
             History
@@ -14,7 +15,7 @@
                     <th class="visible-md visible-lg">By</th>
                 </thead>
                 <tbody id='historyTable'>
-                    <tr v-for='h in history' @click='getHistory(h)'
+                    <tr v-for='h in history' @click='open(h)'
                         data-toggle="modal"
                         data-target="#history-modal">
                         <td>{{ h.server.name }}</td>
@@ -29,12 +30,6 @@
             <div class="col-md-12 text-center">
                 <ul class="pagination pagination-lg pager" id="histroyPager"></ul>
             </div>
-
-            <div id="history-modal" class="modal fade">
-                <div class="modal-dialog modal-lg modal-xl">
-                    <history-modal :history='aHistory' :loading='loading' @close='closeModal'></history-modal>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -46,12 +41,7 @@
 
 <script>
 
-var moment = require('moment');
-
 export default {
-    components: {
-        'history-modal' : require('./HistoryModal')
-    },
 
     props: [ 'project' ],
 
@@ -69,23 +59,10 @@ export default {
     },
 
     methods: {
-
-        getHistory (history) {
-            this.loading = true;
-            var endpoint = this.$parent.endpoint + '/history/'+ history.id;
-
-            this.$http.get(endpoint).then((response)=>{
-                this.aHistory = response.data.data;
-                this.loading = false;
-            }, (response)=>{
-                this.loading = false;
-            });
-        },
-
-        closeModal () {
-            this.aHistory = {};
+        open(history) {
+            this.$router.push({name: 'projects.history.details', params: {id: history.id}})
         }
-    },
+    }
 }
 
 </script>

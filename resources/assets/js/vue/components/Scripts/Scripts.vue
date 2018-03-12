@@ -3,10 +3,9 @@
         <div class="pannel-nav navbar navbar-default navbar-static">
             <div class="nav navbar-nav navbar-left">Install Scripts</div>
             <div class="nav navbar-nav navbar-right">
-                <a data-toggle="modal"
-                    data-target="#scriptForm">
+                <router-link :to='{name: "projects.scripts.form", params: {id: "create"}}'>
                     <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                </a>
+                </router-link>
             </div>
         </div>
         <div class="panel-body">
@@ -14,11 +13,10 @@
                 <tbody>
                     <tr v-for='script in scripts'>
                         <td>
-                            <a data-toggle="modal"
-                               :data-model-id="script.id"
-                               data-target="#scriptForm">
+                            <router-link :to='{name: "projects.scripts.form", params: {id: script.id }}'>
                                 {{ script.description }}
-                            </a>
+                            </router-link>
+
                         </td>
                         <td class='center crunch'>
                             <trash-button type='scripts'
@@ -29,28 +27,29 @@
                 </tbody>
             </table>
         </div>
-        <script-form :endpoint='apiEndpoint'></script-form>
+        <router-view :endpoint='apiEndpoint'></router-view>
     </div>
 </template>
 
 <script>
-    Vue.component('script-form', require('./ScriptForm.vue'));
-    const _ = require('lodash')
-    export default {
-        props: ['project'],
+const _ = require('lodash')
+export default {
+    props: [
+        'project'
+    ],
 
-        computed: {
-            projectId() {
-                return _.get(this, 'project.id')
-            },
+    computed: {
+        projectId() {
+            return _.get(this.$route, 'params.project_id')
+        },
 
-            scripts() {
-                return _.get(this, 'project.scripts', [])
-            },
+        scripts() {
+            return _.get(this, 'project.scripts', [])
+        },
 
-            apiEndpoint(){
-                return '/api/projects/' + this.projectId +'/scripts';
-            }
+        apiEndpoint(){
+            return `/api/projects/${this.projectId}/scripts`
         }
     }
+}
 </script>

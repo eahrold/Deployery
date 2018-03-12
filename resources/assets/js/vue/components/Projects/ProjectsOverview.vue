@@ -7,10 +7,9 @@
 
             <div class='text-left panel panel-default'>
                 <div class="panel-heading">
-                    <a data-toggle="modal"
-                       data-target="#projectForm">
+                    <router-link :to="{name:'projects.create'}">
                         <h4>Add your first project <i class="fa fa-plus-circle" aria-hidden="true"></i></h4>
-                    </a>
+                    </router-link>
                 </div>
 
                 <div class='panel-body'>
@@ -39,10 +38,9 @@
                 <div class="panel-heading">
                     Projects
                     <span aria-hidden="true" class="pull-right">
-                        <a data-toggle="modal"
-                           data-target="#projectForm">
+                        <router-link :to="{name:'projects.create'}">
                             <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                        </a>
+                        </router-link>
                     </span>
                 </div>
 
@@ -75,57 +73,57 @@
 </template>
 
 <script>
-    Vue.component('project-form', require('./ProjectForm.vue'));
 
-    export default {
+export default {
+    name: 'project-overview',
 
-        mounted () {
-            this.load()
+    mounted () {
+        this.load()
+    },
+
+    data () {
+        return {
+            projects: [],
+            loading: true,
+        }
+    },
+
+    methods : {
+        load () {
+            this.loading = true;
+            this.$http.get(this.endpoint).then((response)=>{
+                this.loading = false;
+                this.projects = response.data.data;
+            }, ({response})=>{
+                this.loading = false;
+            });
         },
 
-        data () {
-            return {
-                projects: [],
-                loading: true,
-            }
+        servers (project) {
+            return _.get(project, 'servers', []);
         },
 
-        methods : {
-            load () {
-                this.loading = true;
-                this.$http.get(this.endpoint).then((response)=>{
-                    this.loading = false;
-                    this.projects = response.data.data;
-                }, (response)=>{
-                    this.loading = false;
-                });
-            },
-
-            servers (project) {
-                return _.get(project, 'servers', []);
-            },
-
-            history (project) {
-                return _.get(project, 'latest_history', []);
-            },
-
-            lastDeployed (project) {
-                var history =  this.history(project);
-                if (history) {
-                    return "To " + _.get(history, 'server.name', "Unknown") + " on " + history.created_at;
-                }
-                return "Never Deployed";
-            }
+        history (project) {
+            return _.get(project, 'latest_history', []);
         },
 
-        computed: {
-            endpoint(){
-                return '/api/projects';
-            },
-
-            userPubKey () {
-                return _.get(window.Deployery, 'userPubKey', '');
+        lastDeployed (project) {
+            var history =  this.history(project);
+            if (history) {
+                return "To " + _.get(history, 'server.name', "Unknown") + " on " + history.created_at;
             }
+            return "Never Deployed";
+        }
+    },
+
+    computed: {
+        endpoint(){
+            return '/api/projects';
+        },
+
+        userPubKey () {
+            return _.get(window.Deployery, 'userPubKey', '');
         }
     }
+}
 </script>

@@ -1,4 +1,7 @@
 // Bootstrap
+
+@import 'variables';
+
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 @import "node_modules/font-awesome/scss/font-awesome";
 
@@ -40,6 +43,10 @@ a {
     &:hover {
         color: #425656;
     };
+}
+
+.vf-alert {
+    z-index: 9999 !important;
 }
 
 .modal {

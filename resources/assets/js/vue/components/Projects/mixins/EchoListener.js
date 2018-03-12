@@ -1,4 +1,6 @@
-var EchoListener = {
+import { types } from '../../../store'
+
+export const EchoListener = {
 
     mounted () {
         this.addEchoListeners();
@@ -75,6 +77,8 @@ var EchoListener = {
          * @param  object data event data
          */
         handleDeployProgress(data){
+            this.$store.dispatch(types.DEPLOYMENT_PROGRESS, {data})
+
             this.errors = data.errors;
 
             if(data.progress) {
@@ -90,6 +94,8 @@ var EchoListener = {
          * @param  object data event data
          */
         handleDeployStarted(data, locallyTriggered){
+            this.$store.dispatch(types.DEPLOYMENT_STARTED, {data})
+
             this.deployment.messages = [ data.message ];
             this.deployment.progress = 0;
             this.deployment.server_id = data.server.id;
@@ -107,6 +113,8 @@ var EchoListener = {
          * @param  object data event data
          */
         handleDeployEnded(data){
+            this.$store.dispatch(types.DEPLOYMENT_ENDED, {data})
+
             if(this.deployingServer){
                 this.deployingServer.is_deploying = false;
             }
@@ -119,5 +127,3 @@ var EchoListener = {
         },
     }
 }
-
-export { EchoListener };

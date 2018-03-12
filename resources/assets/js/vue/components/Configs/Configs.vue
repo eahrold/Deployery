@@ -1,12 +1,13 @@
 <template>
     <div class='panel panel-default'>
+        <router-view :endpoint='apiEndpoint'></router-view>
+
         <div class="pannel-nav navbar navbar-default navbar-static">
             <div class="nav navbar-nav navbar-left">Configuration Files</div>
             <div class="nav navbar-nav navbar-right">
-                <a data-toggle="modal"
-                   data-target="#configForm">
+                <router-link :to='{name: "projects.configs.form", params: {id: "create"}}'>
                     <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                </a>
+                </router-link>
             </div>
         </div>
         <div class='panel-body'>
@@ -19,11 +20,9 @@
                 <tbody>
                     <tr v-for="config in configs">
                         <td class='col-sm-3'>
-                            <a data-toggle="modal"
-                               :data-model-id="config.id"
-                               data-target="#configForm">
+                            <router-link :to='{name: "projects.configs.form", params: {id: config.id}}'>
                                 {{ config.path }}
-                            </a>
+                            </router-link>
                         </td>
                         <td class='col-sm-6'>
                             {{ serverList(config) }}
@@ -35,40 +34,40 @@
                 </tbody>
             </table>
         </div>
-        <config-form :endpoint='apiEndpoint'></config-form>
     </div>
 </template>
 
 <script>
-    Vue.component('config-form', require('./ConfigForm.vue'));
-    const _ = require('lodash')
+const _ = require('lodash')
 
-    export default {
-        props: [
-            'project',
-        ],
+export default {
+    name: 'configs',
 
-        methods: {
-            serverList(config) {
-                if(!config || !config.servers) return;
-                return config.servers.map((i)=>{
-                    return i.name;
-                }).join(', ');
-            },
+    props: [
+        'project',
+    ],
+
+    methods: {
+        serverList(config) {
+            if(!config || !config.servers) return;
+            return config.servers.map((i)=>{
+                return i.name;
+            }).join(', ');
+        },
+    },
+
+    computed: {
+        projectId() {
+            return _.get(this.$route, 'params.project_id')
         },
 
-        computed: {
-            projectId() {
-                return _.get(this, 'project.id')
-            },
+        configs() {
+            return _.get(this, 'project.configs', [])
+        },
 
-            configs() {
-                return _.get(this, 'project.configs', [])
-            },
-
-            apiEndpoint(){
-                return '/api/projects/' + this.projectId +'/configs';
-            }
+        apiEndpoint(){
+            return '/api/projects/' + this.projectId +'/configs';
         }
     }
+}
 </script>

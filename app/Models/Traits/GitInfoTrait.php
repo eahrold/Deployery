@@ -5,6 +5,9 @@ namespace App\Models\Traits;
 use App\Services\Git\GitInfo;
 use App\Services\SSHConnection;
 
+/**
+ *  @property GitInfo $git_info
+ */
 trait GitInfoTrait {
 
     /**

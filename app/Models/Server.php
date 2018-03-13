@@ -2,15 +2,48 @@
 
 namespace App\Models;
 
+use App\Models\Config;
+use App\Models\History;
+use App\Models\Project;
+use App\Models\Script;
 use App\Models\Traits\GitInfoTrait;
 use App\Models\Traits\PasswordEncrypter;
 use App\Models\Traits\SSHAble;
 use App\Models\Traits\Slackable;
 use App\Presenters\PresentableTrait;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Input;
 
+/**
+* @property boolean    $autodeploy
+* @property Array      $available_branches
+* @property string     $branch
+* @property integer    $channel_id
+* @property Array      $connection_details,
+* @property string     $available_branches
+* @property string     $deployment_path
+* @property string     $environment
+* @property History    $failed_deployments
+* @property string     $hostname
+* @property boolean    $is_deploying
+* @property Collection $last_deployed_commit,
+* @property Collection $last_deployed_commit_details
+* @property string     $name
+* @property string     $password
+* @property Collection $post_install_scripts
+* @property Collection $pre_install_scripts
+* @property string     $protocol
+* @property string     $port
+* @property string     $username
+* @property boolean    $use_ssh_key
+* @property boolean    $send_slack_messages
+* @property string     $slack_webhook_url
+* @property string     $sub_directory
+* @property History    $successful_deployments
+* @property string     $webhook
+*/
 final class Server extends Base
 {
     use PresentableTrait;
@@ -82,7 +115,7 @@ final class Server extends Base
     /**
      * Get the cache key used to check for deployment status
      *
-     * @return string cache key
+     * @return string|boolean cache key
      */
     private function deploymentCacheKey()
     {
@@ -243,17 +276,17 @@ final class Server extends Base
 
     public function project()
     {
-        return $this->belongsTo('App\Models\Project')->order();
+        return $this->belongsTo(Project::class)->order();
     }
 
     public function configs()
     {
-        return $this->belongsToMany('App\Models\Config')->order();
+        return $this->belongsToMany(Config::class)->order();
     }
 
     public function scripts()
     {
-        return $this->belongsToMany('App\Models\Script')->order();
+        return $this->belongsToMany(Script::class)->order();
     }
 
     public function oneOffScripts()
@@ -263,7 +296,7 @@ final class Server extends Base
 
     public function history()
     {
-        return $this->hasMany('App\Models\History')->orderBy('created_at', 'DESC');
+        return $this->hasMany(History::class)->orderBy('created_at', 'DESC');
     }
 
     //----------------------------------------------------------

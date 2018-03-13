@@ -4,6 +4,9 @@ namespace App\Models\Traits;
 
 use App\Services\SSHConnection;
 
+/**
+* @property SSHConnection $connection
+*/
 trait SSHAble {
 
     abstract public function save(array $options = []);

@@ -1,3 +1,10 @@
+<style lang='css' scoped>
+.message-container {
+    max-height: 40vh;
+    overflow: scroll;
+}
+
+</style>
 <template>
 <form-modal @close='$router.go(-1)'>
     <template slot="header">
@@ -90,8 +97,8 @@
 
                 <div class='form-group message-container'>
                     <ul class='list-unstyled deploy-messages'>
-                        <li v-for='message in messages' track-by="$index">
-                            <h4>{{ message }}</h4>
+                        <li v-for='(message, idx) in messages' :key='idx'>
+                            <h4 v-html='message'></h4>
                         </li>
                     </ul>
                 </div>
@@ -104,6 +111,7 @@
 <script>
 
 import { mapGetters, mapState } from 'vuex';
+import moment from 'moment'
 
 export default {
 
@@ -113,21 +121,25 @@ export default {
             fromCommit: {hash: null, message: null},
             toCommit: {hash: null, message: null},
             deployEntireRepo: false,
-            avaliableFromCommits: [],
-            avaliableCommits: [],
+            lastDeployedCommit: null,
+            availableFromCommits: [],
+            availableCommits: [],
             availableScripts: [],
+
+            availableBranches: [],
+            currentBranch: null,
+            useBranchForFutureDeployments: false,
             scriptIds: [],
             loading: true,
             loaded: false,
             disabled: false,
             error: false,
-            server: {},
         }
     },
 
 
     mounted () {
-        this.avaliableFromCommits.push({'hash': 0, 'message': 'Beginning of time'});
+        this.availableFromCommits.push({'hash': 0, 'message': 'Beginning of time'});
         this.getCommitDetails();
         if ( ! this.deploying ) {
             this.$store.dispatch(this.actionTypes.DEPLOYMENT_RESET)
@@ -138,16 +150,23 @@ export default {
         ...mapState(['actionTypes']),
         ...mapGetters(['deploying', 'progress', 'messages']),
 
+        server() {
+            return {
+                id: this.serverId,
+                name: this.serverName
+            }
+        },
+
+        serverId() {
+            return this.$route.params.id
+        },
+
         serverName() {
             return _.get(this.$route, 'query.server_name', "")
         },
 
         projectId() {
             return this.$route.params.project_id
-        },
-
-        serverId() {
-            return this.$route.params.id
         },
 
         buttonClass() {
@@ -186,8 +205,12 @@ export default {
         },
 
         selectCommits(){
-            return _.map(this.avaliableCommits, (obj)=>{
-                return {text: obj.label.substring(0, 60)+"...", value: obj};
+            return _.map(this.availableCommits, (commit)=>{
+                const label = `${commit.hash} : ${commit.message} (${moment(commit.date).format("ll h:mm a")})`
+                return {
+                    text: label.substring(0, 80) + (label.length > 80 ? '...' : ""),
+                    value: commit
+                };
             });
         }
     },
@@ -199,24 +222,38 @@ export default {
 
             this.$http.get(this.apiEndpoint+'/commit-details')
                 .then(response => {
-                    this.avaliableCommits = _.map(response.data.avaliable_commits, (obj)=>{
-                        return { hash: obj.hash, 'label': obj.hash+": "+obj.message };
-                    });
+                    const {
+                        current_branch,
+                        available_branches,
+                        available_scripts,
+                        available_commits,
+                        last_deployed_commit_details,
+                    } = response.data;
 
-                    this.deployEntireRepo = (response.data.last_deployed_commit == null);
+                    this.availableScripts = available_scripts
 
-                    this.fromCommit = _.find(this.avaliableCommits,(obj)=>{
-                        return obj.hash === response.data.last_deployed_commit;
-                    }) || { hash: null,  'label': 'Never deployed' };
+                    this.availableBranches = available_branches
+                    this.currentBranch = current_branch
 
-                    this.availableScripts = response.data.avaliable_scripts;
+                    // Append the last commit to the list of available commits
+                    // in case the previous commit was from a different branch
+                    const lastHash = _.get(last_deployed_commit_details, 'hash')
+                    if ( !! lastHash) {
+                        available_commits.unshift(last_deployed_commit_details)
+                    }
 
-                    this.toCommit = _.first(this.avaliableCommits);
+                    this.deployEntireRepo = !lastHash
+                    this.lastDeployedCommit = last_deployed_commit_details;
+                    this.availableCommits = _(available_commits).uniqBy('hash').orderBy(['date'],['desc']).value()
+
+                    this.toCommit = _.first(this.availableCommits);
+                    this.fromCommit = last_deployed_commit_details || { hash: null,  'label': 'Never deployed', date: null, user: null};
+
                     this.error = false;
                     this.loaded = true;
                 }, ({response}) => {
-                    var msg = "There was a problem getting the commit details. "+response.data.message
-                    this.$vfalert.error(msg);
+                    var message = "There was a problem getting the commit details. "+response.data.message
+                    this.$vfalert.error(message);
                     this.error = true;
                 }).then(()=>{this.loading=false});
         },
@@ -244,7 +281,10 @@ export default {
                 'from': this.fromCommit.hash,
                 'to': this.toCommit.hash,
                 'deploy_entire_repo': this.deployEntireRepo,
-                'script_ids': this.scriptIds
+                'script_ids': this.scriptIds,
+
+                'branch': this.currentBranch,
+                'use_branch_in_future': this.useBranchForFutureDeployments,
             };
             this.disabled = true;
             this.$http.post(endpoint, data)
@@ -257,5 +297,4 @@ export default {
         },
     }
 }
-
 </script>

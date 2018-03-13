@@ -68,21 +68,39 @@ class DeploymentController extends Controller
      */
     public function commitDetails($project_id, $id)
     {
-        $server = Project::findServer($project_id, $id);
-        $this->authorize('deploy', $server->project);
+        $cacheKey = "commit-details-{$project_id}-{$id}";
+        return \Cache::remember($cacheKey, 1, function() use ($project_id, $id) {
+            $server = Project::findServer($project_id, $id);
+            $this->authorize('deploy', $server->project);
 
-        $server->updateGitInfo();
+            $server->updateGitInfo();
 
-        $last_deployed_commit = $server->last_deployed_commit;
-        $avaliable_commits = $server->commits;
-        $avaliable_scripts = $server->oneOffScripts->map(function($script){
-            return ['id' => $script->id, 'description' => $script->description];
-        })->values();
+            $available_branches = $server->available_branches;
+            $current_branch = $server->branch;
 
-        if ($server->validateConnection()) {
-            return $this->response->array(compact('last_deployed_commit', 'avaliable_commits', 'avaliable_scripts'));
-        }
-        abort(412, $server->present()->connection_status_message);
+            $last_deployed_commit_details = $server->last_deployed_commit_details;
+            $available_commits = $server->commits;
+
+            $available_scripts = $server->oneOffScripts->map(function($script){
+                return [
+                    'id' => $script->id,
+                    'description' => $script->description
+                ];
+            })->values();
+
+            if ($server->validateConnection()) {
+                return $this->response->array(
+                    compact(
+                        'last_deployed_commit_details',
+                        'available_commits',
+                        'available_scripts',
+                        'available_branches',
+                        'current_branch'
+                    )
+                );
+            }
+            abort(412, $server->present()->connection_status_message);
+        });
     }
 
     /**

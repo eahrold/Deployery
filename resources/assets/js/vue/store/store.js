@@ -2,12 +2,23 @@ import _ from 'lodash'
 
 import types from './types'
 
+const DeploymentSchema=()=>{
+    return {
+        messages: [],
+        progress: 0,
+        server_id: null,
+        server_name: null,
+        deploying: false,
+        errors: [],
+    }
+}
+
 export default {
 
     state: {
         user: {},
         project: {},
-        deployment: {},
+        deployment: DeploymentSchema(),
         history: [],
         viewers: [],
         actionTypes: types,
@@ -143,12 +154,15 @@ export default {
          * @param  object data event data
          */
         [types.DEPLOYMENT_PROGRESS]({commit, state}, {data}){
-            const { errors, progress, message } = data
+            console.log(data)
+            const { errors, progress, message, server_id, server_name } = data
             const { deployment } = state
 
-            if (errors) deployment.errors = errors
+            if (server_id) deployment.server_id = server_id
+            if (server_name) deployment.server_name = server_name
             if (progress) deployment.progress = progress
             if (message) deployment.messages.unshift(message)
+            if (!_.isEmpty(errors)) deployment.errors = _.merge(deployment.errors, errors)
 
             commit('deployment', { deployment })
         },
@@ -187,7 +201,7 @@ export default {
         [types.PROJECT_RESET] ({commit, state}) {
             commit('project', { project: {} })
             commit('history', { history: [] })
-            commit('deployment', { deployment: {} })
+            commit('deployment', { deployment: DeploymentSchema() })
         },
 
     }

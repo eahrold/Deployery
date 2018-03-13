@@ -215,6 +215,28 @@ final class Server extends Base
         $this->initial_commit;
     }
 
+    /**
+     * Getter for the last_deployed_commit attribute
+     *
+     * @return associative array
+     */
+    public function getLastDeployedCommitDetailsAttribute($value = '')
+    {
+        if($hash = $this->last_deployed_commit) {
+            return $this->findCommit($hash);
+        }
+    }
+
+    /**
+     * Proxy for project->branches
+     *
+     * @return associative array
+     */
+    public function getAvailableBranchesAttribute($value = '')
+    {
+        return $this->project->branches;
+    }
+
     //----------------------------------------------------------
     // Relations
     //-------------------------------------------------------

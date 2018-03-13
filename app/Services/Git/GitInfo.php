@@ -20,6 +20,8 @@ class GitInfo
 {
     use GitAuthenticatable;
 
+    const PRETTY_FORMAT_DELIM = '|-*-*-|';
+
     /**
      * Path to the repo
      *
@@ -88,6 +90,22 @@ class GitInfo
         return $this;
     }
 
+    private function formatCommitLine($line)
+    {
+        list($hash, $user, $date, $message) = explode(static::PRETTY_FORMAT_DELIM, $line);
+        return [
+            'hash' => trim($hash),
+            'user' => trim($user),
+            'date' => trim($date),
+            'message' => trim($message)
+        ];
+    }
+
+    private function gitLogFormat()
+    {
+        return "--pretty=format:%h".static::PRETTY_FORMAT_DELIM."%an".static::PRETTY_FORMAT_DELIM."%aI".static::PRETTY_FORMAT_DELIM."%s";
+    }
+
     /**
      * Get a list of commits for a given branhc
      *
@@ -96,21 +114,18 @@ class GitInfo
      */
     public function commits($take = 10)
     {
-        $task = "log origin/{$this->branch} --oneline --no-merges -n{$take}";
+        $task = "log origin/master --no-merges -n{$take} {$this->gitLogFormat()}";
         $builder = $this->gitBuilder()->setTask($task);
 
         $stdout = $this->run($builder);
 
         $commits = [];
         foreach ($stdout as $line) {
-            list($hash, $message) = explode(' ', $line, 2);
-            $commits[] = [
-                'hash' => trim($hash),
-                'message' => trim($message)
-            ];
+            $commits[] = $this->formatCommitLine($line);
         }
         return $commits;
     }
+
 
     /**
      * Get the first commit to the repo.
@@ -119,12 +134,11 @@ class GitInfo
      */
     public function getInitialCommitProperty()
     {
-        $task = "rev-list --oneline --max-parents=0 HEAD";
+        $task = "rev-list {$this->gitLogFormat()} --max-parents=0 HEAD";
         $builder = $this->gitBuilder()->setTask($task);
         $stdout = $this->run($builder);
         if(count($stdout)) {
-            list($hash, $message) = explode(' ', $stdout[0], 2);
-            return compact('hash', 'message');
+            return $this->formatCommitLine(end($stdout));
         }
     }
 
@@ -135,11 +149,11 @@ class GitInfo
      */
     public function getNewestCommitProperty()
     {
-        $task = "log origin/{$this->branch} -1 --oneline";
+        $task = "log origin/{$this->branch} -1 {$this->gitLogFormat()}";
         $builder = $this->gitBuilder()->setTask($task);
         $stdout = $this->run($builder);
-        list($hash, $message) = explode(' ', end($stdout), 2);
-        return ['hash' => trim($hash), 'message' => trim($message)];
+
+        return $this->formatCommitLine(end($stdout));
     }
 
     /**
@@ -152,11 +166,11 @@ class GitInfo
         // Clean Hash //
         $commitHash = substr(preg_replace("/[^A-Za-z0-9 ]/", '', $commitHash),0, 7);
 
-        $task = "log origin/{$this->branch} -1 {$commitHash} --oneline";
+        $task = "log origin/{$this->branch} -1 {$commitHash} {$this->gitLogFormat()}";
         $builder = $this->gitBuilder()->setTask($task);
         $stdout = $this->run($builder);
-        list($hash, $message) = explode(' ', end($stdout), 2);
-        return ['hash' => trim($hash), 'message' => trim($message)];
+
+        return $this->formatCommitLine(end($stdout));
     }
 
     /**

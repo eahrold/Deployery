@@ -17,7 +17,7 @@
     </transition>
 
     <transition name='fade'>
-        <form-card class='mt-4' v-if='!loading && projects.length'>
+        <form-section class='mt-4' v-if='!loading && projects.length'>
             <div slot="header">
                 Projects
                 <span aria-hidden="true" class="pull-right">
@@ -27,27 +27,12 @@
                 </span>
             </div>
 
-            <table class='table table-hover'>
-                <thead>
-                    <th>Name</th>
-                    <th>Last Deployed</th>
-                    <th>Servers</th>
-                </thead>
-                <tbody>
-                    <tr v-for='project in projects'>
-                        <td>
-                            <router-link :to="{ name: 'projects.info', params: { project_id: project.id }}">
-                                {{ project.name }}
-                            </router-link>
-                        </td>
-                        <td>
-                            {{ lastDeployed(project) }}
-                        </td>
-                        <td>{{ servers(project).length }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </form-card>
+            <list-group :items='projects'>
+                  <template slot-scope="context">
+                    <projects-overview-list-item :project='context.item'></projects-overview-list-item>
+                  </template>
+            </list-group>
+        </form-section>
     </transition>
 </div>
 </template>
@@ -55,10 +40,12 @@
 <script>
 
 import ProjectPubKey from './ProjectPubKey'
+import ProjectsOverviewListItem from './ProjectsOverviewListItem'
 
 export default {
     name: 'project-overview',
     components: {
+        ProjectsOverviewListItem,
         ProjectPubKey
     },
 

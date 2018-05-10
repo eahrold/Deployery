@@ -92,7 +92,6 @@ export const form = {
         success (response) {
             var data = this.makePristine(response.data.data);
             if(this.isNew) {
-                bus.$emit('add-project-item', data, this.type);
                 this.isNew = false;
             }
             this.finally(response);
@@ -103,6 +102,9 @@ export const form = {
                 confirmText: "Close",
                 cancelText: "Keep Working"
             }
+
+            bus.$emit('add-project-item', response.data.data, this.type);
+
             this.$vfalert.confirm("Do you want to Keep working on this, or close", 'success', options)
             .then(this.$_AdminForm_navigateBack)
             .catch(()=>{

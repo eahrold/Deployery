@@ -1,36 +1,22 @@
 <template>
 <div>
     <router-view :endpoint="$parent.endpoint"></router-view>
-    <form-card v-if='history.length'>
-        <div slot="heading">
+    <form-section v-if='history.length'>
+        <div slot="header">
             History
         </div>
 
-        <table class='table table-hover table-responsive-md'>
-            <thead>
-                <th>Server</th>
-                <th>Date</th>
-                <th>From</th>
-                <th>To</th>
-                <th class="visible-md visible-lg">By</th>
-            </thead>
-            <tbody id='historyTable'>
-                <tr v-for='h in history' @click='open(h)'
-                    data-toggle="modal"
-                    data-target="#history-modal">
-                    <td>{{ h.server.name }}</td>
-                    <td>{{ localTime(h.created_at) }}</td>
-                    <td>{{ h.from_commit }}</td>
-                    <td>{{ h.to_commit }}</td>
-                    <td class="visible-md visible-lg">{{ h.user_name }}</td>
-                </tr>
-            </tbody>
-        </table>
+        <list-group :items='history'>
+            <history-list-item class='font-weight-bold' slot='header' :history='false'></history-list-item>
+            <template slot-scope="context">
+                <history-list-item :history='context.item'></history-list-item>
+            </template>
+        </list-group>
 
         <div class="col-md-12 text-center">
             <ul class="pagination pagination-lg pager" id="histroyPager"></ul>
         </div>
-    </form-card>
+    </form-section>
 
     <div v-else class="col justify-content-center align-items-center">
         <h4>Never been deployed</h4>
@@ -40,10 +26,14 @@
 
 <script>
 
-import { mapGetters, mapState } from 'vuex';
+import { mapGetters, mapState } from 'vuex'
 
+import HistoryListItem from './HistoryListItem'
 
 export default {
+    components: {
+        HistoryListItem,
+    },
 
     props: [ 'project' ],
 

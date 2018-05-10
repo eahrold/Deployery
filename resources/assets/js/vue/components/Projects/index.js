@@ -10,7 +10,6 @@ import { routes as HistoryRoutes } from '../History'
 import { routes as ConfigsRoutes } from '../Configs'
 import { routes as ScriptsRoutes } from '../Scripts'
 
-
 export const routes =  {
     path: '/projects/:project_id',
     name: 'projects.edit',
@@ -34,4 +33,5 @@ export {
     ProjectInfo,
     ProjectDetails,
     ProjectForm,
+    ProjectChildMixin,
 }

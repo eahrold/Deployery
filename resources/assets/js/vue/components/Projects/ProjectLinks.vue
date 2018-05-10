@@ -56,7 +56,7 @@ export default {
                 { to: 'projects.history', text: 'History', icon: 'fa-history', disabled: notReady,},
                 { to: 'projects.configs', text: 'Configs', icon: 'fa-cogs', disabled: notReady, },
                 { to: 'projects.scripts', text: 'Scripts', icon: 'fa-file-code-o', disabled: notReady, },
-                { to: 'projects.details', text: 'Project Info', icon: 'fa-rocket', disabled: false },
+                { to: 'projects.details', text: 'Settings', icon: 'fa-rocket', disabled: false },
             ]
         }
     },

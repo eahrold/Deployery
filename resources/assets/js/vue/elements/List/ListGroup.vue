@@ -1,10 +1,8 @@
 <template>
 <ul class="list-group">
+    <li class="list-group-item" v-if='$slots["header"]'><slot name='header'></slot></li>
     <li v-if='items' v-for='(item, idx) in items' :key='idx' class="list-group-item">
-        <slot v-bind:item="item">
-            <!-- Fallback content -->
-            {{ todo.text }}
-        </slot>
+        <slot v-bind:item="item"></slot>
     </li>
 </ul>
 </template>
@@ -12,6 +10,8 @@
 <script type="text/javascript">
 
 export default {
+    name: 'list-group',
+
     //----------------------------------------------------------
     // Template Dependencies
     //-------------------------------------------------------

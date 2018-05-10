@@ -49,6 +49,10 @@ a {
     z-index: 9999 !important;
 }
 
+.clickable {
+    cursor: pointer;
+}
+
 .modal {
     div {
         position: relative;

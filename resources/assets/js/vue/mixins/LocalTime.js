@@ -8,6 +8,10 @@ const LocalTime = {
                 return time.format('LLL');
             }
             return '';
+        },
+
+        timeFromNow(time) {
+            return moment(time).fromNow();
         }
     }
 }

@@ -1,21 +1,23 @@
 <template>
 <div>
     <!-- Project Form -->
-    <form-card>
-        <form-text v-model='project.name' property='name' :errors='errors' :required='true'></form-text>
-        <form-text v-model='project.repo' property='repo' :errors='errors' :required='true'></form-text>
-        <form-text v-model='project.branch' property='branch' :errors='errors' :required='true'></form-text>
+    <form-section header='Project Settings'>
+        <form-card>
+            <form-text v-model='project.name' property='name' :errors='errors' :required='true'></form-text>
+            <form-text v-model='project.repo' property='repo' :errors='errors' :required='true'></form-text>
+            <form-text v-model='project.branch' property='branch' :errors='errors' :required='true'></form-text>
 
-        <form-checkbox v-model='project.send_slack_messages' property='send_slack_messages' :errors='errors'></form-checkbox>
+            <form-checkbox v-model='project.send_slack_messages' property='send_slack_messages' :errors='errors'></form-checkbox>
 
-        <form-text v-model='project.slack_webhook_url' property='slack_webhook_url' :rules='$validation.rules.url' :errors='errors'></form-text>
+            <form-text v-model='project.slack_webhook_url' property='slack_webhook_url' :rules='$validation.rules.url' :errors='errors'></form-text>
 
-        <hr class="my-4"/>
+            <hr class="my-4"/>
 
-        <project-pub-key></project-pub-key>
+            <project-pub-key></project-pub-key>
 
-        <form-save-button class='mt-4' :disabled='$validation.fails' :saving='saving' @save='save'></form-save-button>
-    </form-card>
+            <form-save-button class='mt-4' :disabled='$validation.fails' :saving='saving' @save='save'></form-save-button>
+        </form-card>
+    </form-section>
     <!-- End Project Form -->
 
     <!-- Delete Area -->

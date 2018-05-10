@@ -6,7 +6,9 @@
 
 <script type="text/javascript">
 
-export default {}
+export default {
+    name: 'list-group-item',
+}
 </script>
 
 <style scoped lang="scss"></style>

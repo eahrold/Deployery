@@ -69,7 +69,7 @@ final class Server extends Base
             'hostname' => 'required|string',
             'username' => 'required|max:255',
             'deployment_path' => 'required|max:255',
-            'slack_webhook_url' => 'active_url',
+            'slack_webhook_url' => 'sometimes|url|nullable',
         ];
 
         if($this->id) {

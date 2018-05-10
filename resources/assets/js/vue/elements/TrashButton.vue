@@ -1,5 +1,5 @@
 <template>
-    <button class="clear-form delete icon" @click='trash()'>
+    <button class="close" @click='trash()'>
         <i class="fa fa-trash-o" aria-hidden="true"></i>
     </button>
 </template>

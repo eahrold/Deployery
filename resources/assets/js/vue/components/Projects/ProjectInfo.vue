@@ -1,8 +1,8 @@
 <template>
 <div class="col-md-12">
-    <form-card v-if='project.id'>
+    <form-section v-if='project.id'>
         <div slot='header'>
-            {{ project.name }} Info
+            {{ project.name }} Overview
             <ul class='nav pull-right' v-if='project.servers && project.servers.length'>
                 <li class="nav-item"><i class="fa fa-spinner fa-spin fa-fw" v-if="deployment.deploying"></i></li>
                 <li class="nav-item">
@@ -17,7 +17,9 @@
             </ul>
         </div>
 
-        <div>
+
+        <form-card>
+            <div slot='header'>Project Info</div>
             <div class='row'>
                 <div class='col-sm-4'><b>Repository</b></div>
                 <div class='col-sm-8 text-right'>
@@ -49,8 +51,8 @@
                     <code v-else>{{ lastDeployedString }}</code>
                 </div>
             </div>
-        </div>
-    </form-card>
+        </form-card>
+    </form-section>
 </div>
 </template>
 

@@ -1,6 +1,5 @@
 <template>
-    <form-card>
-        <router-view :endpoint='apiEndpoint'></router-view>
+    <form-section>
         <div slot='header'>
             <span>Install Scripts</span>
             <div class="pull-right">
@@ -9,38 +8,31 @@
                 </router-link>
             </div>
         </div>
-        <table class='table table-hover table-responsive-md'>
-                <tbody>
-                    <tr v-for='script in scripts'>
-                        <td>
-                            <router-link :to='{name: "projects.scripts.form", params: {id: script.id }}'>
-                                {{ script.description }}
-                            </router-link>
 
-                        </td>
-                        <td class='center crunch'>
-                            <trash-button type='scripts'
-                                       :object='script'>
-                            </trash-button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-    </form-card>
+        <router-view :endpoint='apiEndpoint'></router-view>
+        <list-group :items='scripts'>
+            <template slot-scope="context">
+                <scripts-list-item :script='context.item'></scripts-list-item>
+            </template>
+        </list-group>
+    </form-section>
 </template>
 
 <script>
-const _ = require('lodash')
+import  _ from 'lodash'
+import ScriptsListItem from './ScriptsListItem'
+import ProjectChildMixin from '../Projects/mixins/ProjectChildMixin'
+
 export default {
-    props: [
-        'project'
-    ],
+    components: {
+        ScriptsListItem,
+    },
+
+    mixins: [ ProjectChildMixin ],
+
+    props: {},
 
     computed: {
-        projectId() {
-            return _.get(this.$route, 'params.project_id')
-        },
-
         scripts() {
             return _.get(this, 'project.scripts', [])
         },

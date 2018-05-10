@@ -1,40 +1,39 @@
 <template>
-    <div class='panel panel-default'>
-        <router-view :endpoint='apiEndpoint'></router-view>
+<form-card>
+    <router-view :endpoint='apiEndpoint'></router-view>
 
-        <div class="pannel-nav navbar navbar-default navbar-static">
-            <div class="nav navbar-nav navbar-left">Configuration Files</div>
-            <div class="nav navbar-nav navbar-right">
-                <router-link :to='{name: "projects.configs.form", params: {id: "create"}}'>
-                    <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                </router-link>
-            </div>
-        </div>
-        <div class='panel-body'>
-            <table class='table'>
-                <thead>
-                    <th class='col-sm-3'>Path</th>
-                    <th class='col-sm-6'>Servers</th>
-                    <th class='col-sm-1 text-center'></th>
-                </thead>
-                <tbody>
-                    <tr v-for="config in configs">
-                        <td class='col-sm-3'>
-                            <router-link :to='{name: "projects.configs.form", params: {id: config.id}}'>
-                                {{ config.path }}
-                            </router-link>
-                        </td>
-                        <td class='col-sm-6'>
-                            {{ serverList(config) }}
-                        </td>
-                        <td class='col-sm-1 text-center'>
-                            <trash-button type='configs' :object='config'></trash-button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <div slot='header'>
+        <span>Configuration Files</span>
+        <div class="pull-right">
+            <router-link :to='{name: "projects.configs.form", params: {id: "create"}}'>
+                <i class="fa fa-plus-circle" aria-hidden="true"></i>
+            </router-link>
         </div>
     </div>
+
+    <table class='table table-hover table-responsive-md'>
+        <thead>
+            <th scope='col'>Path</th>
+            <th scope='col'>Servers</th>
+            <th scope='col' class='text-right'></th>
+        </thead>
+        <tbody>
+            <tr v-for="config in configs">
+                <td scope='row'>
+                    <router-link :to='{name: "projects.configs.form", params: {id: config.id}}'>
+                        {{ config.path }}
+                    </router-link>
+                </td>
+                <td>
+                    {{ serverList(config) }}
+                </td>
+                <td class='text-right'>
+                    <trash-button type='configs' :object='config'></trash-button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form-card>
 </template>
 
 <script>

@@ -167,9 +167,9 @@ return [
         /*
          * Vendor
          */
-        AdamWathan\BootForms\BootFormsServiceProvider::class,
         Collective\Remote\RemoteServiceProvider::class,
         Mpociot\Teamwork\TeamworkServiceProvider::class,
+        AdamWathan\BootForms\BootFormsServiceProvider::class,
 
         /**
          * Main Deployery Service Provider..
@@ -225,15 +225,14 @@ return [
         /*
          * Vendor
          */
-        'BootForm' => AdamWathan\BootForms\Facades\BootForm::class,
         'JWTAuth' => \Tymon\JWTAuth\Facades\JWTAuth::class,
-
         /**
          *  Deployery
          */
         'Project' => App\Models\Project::class,
         'User' => App\Models\User::class,
         'Team' => App\Models\Team::class,
+        'BootForm' => AdamWathan\BootForms\Facades\BootForm::class,
 
     ],
 

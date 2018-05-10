@@ -1,62 +1,48 @@
 <template>
 <form-modal @close='close'>
     <template slot="header">
-        {{ heading }}
+        <b>{{ heading }}</b>
     </template>
     <div slot="body" :class="{loading: loading}">
         <div class='form-group' v-if='model'>
-            <div class='panel panel-default'>
-                <div class="panel-heading">Host Settings</div>
-                <div class='panel-body'>
-                    <form-text v-model='model.name' :errors='errors' property="name"></form-text>
+            <form-section heading='Host Settings'>
+                <form-text v-model='model.name' :errors='errors' property="name" :required='true'></form-text>
 
-                    <form-text v-model='model.hostname' :errors='errors' property="hostname"></form-text>
+                <form-text v-model='model.hostname' :errors='errors' property="hostname" :required='true'></form-text>
 
-                    <form-selectize v-model='model.protocol' :errors='errors' :nullable='false' :search='false' property="protocol" :options='protocols'></form-selectize>
+                <form-select v-model='model.protocol' :errors='errors' :nullable='false' :search='false' property="protocol" :options='protocols'></form-select>
 
-                    <form-number v-model='model.port' :placeholder='port' :errors='errors' property="port"></form-number>
-                </div>
-            </div>
+                <form-number v-model='model.port' :placeholder='port' :errors='errors' property="port"></form-number>
+            </form-section>
 
-            <div class='panel panel-default'>
-                <div class="panel-heading">Credentials</div>
-                <div class='panel-body'>
-                    <form-text v-model='model.username' :errors='errors' property="username"></form-text>
-                    <form-password v-model='model.password' :errors='errors' property="password"></form-password>
-                    <form-checkbox v-model='model.use_ssh_key' :errors='errors' label='Use SSH Key' property="use_ssh_key"></form-checkbox>
-                </div>
-            </div>
+            <form-section heading='Credentials'>
+                <form-text v-model='model.username' :errors='errors' property="username" :required='true'></form-text>
+                <form-password v-model='model.password' :errors='errors' property="password"></form-password>
+                <form-checkbox v-model='model.use_ssh_key' :errors='errors' label='Use SSH Key' property="use_ssh_key"></form-checkbox>
+            </form-section>
 
-            <div class='panel panel-default'>
-                <div class="panel-heading">Deployment Info</div>
-                <div class='panel-body'>
+            <form-section heading='Deployment Info'>
                     <form-text v-model='model.deployment_path' :errors='errors' property="deployment_path"></form-text>
                     <form-select v-model='model.branch' :errors='errors' :nullable='false' :search='false' property="branch" :options='branches'></form-select>
                     <form-text v-model='model.environment' :errors='errors' property="environment"></form-text>
                     <form-text v-model='model.sub_directory' :errors='errors' property="sub_directory"></form-text>
-                </div>
-            </div>
+            </form-section>
 
-            <div class='panel panel-default'>
-                <div class="panel-heading">Web Hooks</div>
-                <div class='panel-body'>
-                    <form-checkbox v-model='model.autodeploy' :errors='errors' property="autodeploy"></form-checkbox>
-                </div>
-            </div>
+            <form-section heading='Web Hooks'>
+                <form-checkbox v-model='model.autodeploy' :errors='errors' property="autodeploy"></form-checkbox>
+                {{ model.webhook }}
+            </form-section>
 
 
-            <div class='panel panel-default'>
-                <div class="panel-heading">Notifications</div>
-                <div class='panel-body'>
-                    <form-checkbox v-model='model.send_slack_messages' :errors='errors' property="send_slack_messages"></form-checkbox>
-                    <form-text v-model='model.slack_webhook_url' :errors='errors' property="slack_webhook_url"></form-text>
-                </div>
-            </div>
+            <form-section heading='Notifications'>
+                <form-checkbox v-model='model.send_slack_messages' :errors='errors' property="send_slack_messages"></form-checkbox>
+                <form-text v-model='model.slack_webhook_url' :rules='$validation.rules.url' :errors='errors' property="slack_webhook_url"></form-text>
+            </form-section>
         </div>
     </div>
 
     <template slot="footer">
-        <form-save-button :saving='saving' :is-dirty='isDirty' @save='save'></form-save-button>
+        <form-save-button :disabled='$validation.fails' :saving='saving' :is-dirty='isDirty' @save='save'></form-save-button>
     </template>
 </form-modal>
 </template>

@@ -1,15 +1,15 @@
 <template>
-    <div class="panel panel-default">
-        <div class="pannel-nav navbar navbar-default navbar-static">
-            <div class="nav navbar-nav navbar-left">Install Scripts</div>
-            <div class="nav navbar-nav navbar-right">
+    <form-card>
+        <router-view :endpoint='apiEndpoint'></router-view>
+        <div slot='header'>
+            <span>Install Scripts</span>
+            <div class="pull-right">
                 <router-link :to='{name: "projects.scripts.form", params: {id: "create"}}'>
                     <i class="fa fa-plus-circle" aria-hidden="true"></i>
                 </router-link>
             </div>
         </div>
-        <div class="panel-body">
-            <table class='table'>
+        <table class='table table-hover table-responsive-md'>
                 <tbody>
                     <tr v-for='script in scripts'>
                         <td>
@@ -26,9 +26,7 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
-        <router-view :endpoint='apiEndpoint'></router-view>
-    </div>
+    </form-card>
 </template>
 
 <script>

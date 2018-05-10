@@ -6,7 +6,7 @@
 
 </style>
 <template>
-<form-modal @close='$router.go(-1)'>
+<form-modal @close='close'>
     <template slot="header">
         <h4 v-if='loading' class="modal-title">
             <div class="pull-left sk-wave sk-anywhere sk-sm">
@@ -47,7 +47,7 @@
 
                         <form-checkbox v-model='deployEntireRepo' property='deploy_entire_repo'></form-checkbox>
 
-                        <hr/>
+                        <hr />
                         <form-checkbox-group
                             v-if='availableScripts.length'
                             label='Run these scripts this time'
@@ -61,8 +61,6 @@
                 </div>
             </div>
         </div>
-
-        <div class='row'></div>
 
         <div class='row'>
             <div class="col-md-12">
@@ -134,15 +132,8 @@ export default {
             loaded: false,
             disabled: false,
             error: false,
-        }
-    },
 
-
-    mounted () {
-        this.availableFromCommits.push({'hash': 0, 'message': 'Beginning of time'});
-        this.getCommitDetails();
-        if ( ! this.deploying ) {
-            this.$store.dispatch(this.actionTypes.DEPLOYMENT_RESET)
+            $_AdminForm__from_route: null,
         }
     },
 
@@ -214,6 +205,21 @@ export default {
             });
         }
     },
+
+    beforeRouteEnter (to, from, next) {
+        next(vm => {
+            vm.$_AdminForm__from_route = from;
+        })
+    },
+
+    mounted () {
+        this.availableFromCommits.push({'hash': 0, 'message': 'Beginning of time'});
+        this.getCommitDetails();
+        if ( ! this.deploying ) {
+            this.$store.dispatch(this.actionTypes.DEPLOYMENT_RESET)
+        }
+    },
+
 
     methods: {
 
@@ -295,6 +301,15 @@ export default {
                     this.$vfalert.error(response.data.message);
             }).then(()=>{this.disabled=false});
         },
+
+        close() {
+            if (!_.isEmpty(this.$_AdminForm__from_route)) {
+                this.$router.go(-1);
+                return;
+            }
+            const { project_id } = this.$route.params
+            this.$router.push({name: 'projects.servers', params: {project_id, }});
+        }
     }
 }
 </script>

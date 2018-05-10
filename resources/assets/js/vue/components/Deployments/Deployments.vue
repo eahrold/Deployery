@@ -1,12 +1,17 @@
 <template>
     <div class="dropdown">
-        <button class='icon' id="deploy-dropdown" type="button"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button
+            class='icon'
+            id="deploy-dropdown"
+            type="button"
+            data-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false">
             <i class="fa fa-cloud-upload" aria-hidden="true"></i>
         </button>
 
-        <ul class="dropdown-menu" aria-labelledby="deploy-dropdown">
-            <li v-for='server in servers'>
+        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="deploy-dropdown">
+            <li class='dropdown-item' v-for='server in servers'>
                 <router-link :to='serverDeployTo(server)'>
                     {{ server.name }}
                 </router-link>

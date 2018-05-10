@@ -45,9 +45,15 @@ class UserPolicy extends BasePolicy
         return $user->is_admin && !$this->isSelf($user, $model);
     }
 
+    public function manage(User $user, User $model) {
+        return $this->modifyAdminAttributes($user, $model);
+    }
+
     //----------------------------------------------------------
     // Private Helpers
     //-------------------------------------------------------
+
+
     private function isSelf(User $user, User $model)
     {
         return ($user->id === $model->id);

@@ -1,26 +1,23 @@
 <template>
 <div class="col-md-12">
-    <div v-if='project.id' class="panel panel-default">
-        <div class="pannel-nav navbar navbar-default navbar-static">
-            <div class='nav navbar-nav navbar-left'>
-                {{ project.name }} Info
-            </div>
-            <ul class='nav navbar-nav navbar-right' v-if='project.servers && project.servers.length'>
-                <li>
-                    <i class="fa fa-spinner fa-spin fa-fw" v-if="deployment.deploying"></i></li>
-                <li>
-                <deployments :v-show='!loading'
-                             :project-id='project.id'
-                             :servers='project.servers'
-                             :progress='deployment.progress'
-                             :deploying='deployment.deploying'
-                             :messages='deployment.messages'>
-                </deployments>
+    <form-card v-if='project.id'>
+        <div slot='header'>
+            {{ project.name }} Info
+            <ul class='nav pull-right' v-if='project.servers && project.servers.length'>
+                <li class="nav-item"><i class="fa fa-spinner fa-spin fa-fw" v-if="deployment.deploying"></i></li>
+                <li class="nav-item">
+                    <deployments :v-show='!loading'
+                                 :project-id='project.id'
+                                 :servers='project.servers'
+                                 :progress='deployment.progress'
+                                 :deploying='deployment.deploying'
+                                 :messages='deployment.messages'>
+                    </deployments>
                 </li>
             </ul>
         </div>
 
-        <div class='panel-body'>
+        <div>
             <div class='row'>
                 <div class='col-sm-4'><b>Repository</b></div>
                 <div class='col-sm-8 text-right'>
@@ -53,7 +50,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </form-card>
 </div>
 </template>
 

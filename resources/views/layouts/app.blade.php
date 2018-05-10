@@ -43,28 +43,21 @@
 </head>
 <body id="app-layout">
     <div id='app'>
-        <nav class="navbar navbar-default navbar-static-top">
-            <div class="container">
-                <div class="navbar-header">
-
-                    <!-- Collapsed Hamburger -->
-                    <button type="button"
-                            class="navbar-toggle collapsed"
-                            data-toggle="collapse"
-                            data-target="#app-navbar-collapse">
-                        <span class="sr-only">Toggle Navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-
-                    <!-- Branding Image -->
-                    <div class="navbar-brand">
-                        Deployery
-                    </div>
-                </div>
-                @include('partials.main_nav')
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="navbar-brand">
+                Deployery
             </div>
+                <button class="navbar-toggler"
+                        type="button"
+                        data-toggle="collapse"
+                        data-target="#app-navbar-collapse"
+                        aria-controls="pp-navbar-collapse"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                @include('partials.main_nav')
         </nav>
 
         @include('includes.errors_flash')

@@ -8,7 +8,7 @@ window._ = require('lodash');
  */
 
 window.$ = window.jQuery = require('jquery');
-require('bootstrap-sass');
+require('bootstrap');
 
 let axios = window.axios = require('axios');
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'

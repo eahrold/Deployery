@@ -1,16 +1,16 @@
 <template>
     <div class="modal fade" id="serverPubKey" role="dialog">
-      <div class="modal-dialog modal-md">
+      <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            Add this to <span id='sshkey-modal-username'>{{ user }}'s </span> <code>~/.ssh/authorized_keys</code> file
-            <span id='sshkey-modal-hostname'>on {{ host }}</span>
+            <span>Add this to <span id='sshkey-modal-username'>{{ user }}'s </span><code> ~/.ssh/authorized_keys </code> file
+            <span id='sshkey-modal-hostname'>on {{ host }}</span></span>
           </div>
           <div class="modal-body">
             <textarea rows='12' readonly>{{ pubkey }}</textarea>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           </div>
         </div>
       </div>

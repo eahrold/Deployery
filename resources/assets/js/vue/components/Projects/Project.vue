@@ -1,61 +1,11 @@
 <template>
 <div>
-    <!-- Nav Bar  -->
-    <nav class="navbar navbar-default navbar-nocollapse" >
-        <div class='navbar-center'>
-            <ul class="nav navbar-nav">
-                <li :class="{active: isActive('info')}">
-                    <router-link :to='{name: "projects.info"}'>
-                        <i class="fa fa-dashboard" aria-hidden="true"></i>
-                        <span class='hidden-sm hidden-xs'>Overview</span>
-                    </router-link>
-                </li>
-
-                <li :class="{disabled: status.cloning, active: isActive('servers')}">
-                    <router-link :to='{name: "projects.servers"}'>
-                        <i class="fa fa-server" aria-hidden="true"></i>
-                        <span class='hidden-sm hidden-xs'>Servers</span>
-                    </router-link>
-                </li>
-
-                <template v-if='hasServers'>
-                <li  :class="{disabled: status.cloning, active: isActive('history')}">
-                    <router-link :to='{name: "projects.history"}'>
-                        <i class="fa fa-history" aria-hidden="true"></i>
-                        <span class='hidden-sm hidden-xs'>History</span>
-                    </router-link>
-                </li>
-
-                <li :class="{active: isActive('configs')}">
-                    <router-link :to='{name: "projects.configs"}'>
-                        <i class="fa fa-cog" aria-hidden="true"></i>
-                        <span class='hidden-sm hidden-xs'>Config</span>
-                    </router-link>
-                </li>
-
-                <li :class="{active: isActive('scripts')}">
-                    <router-link :to='{name: "projects.scripts"}'>
-                        <i class="fa fa-file-code-o" aria-hidden="true"></i>
-                        <span class='hidden-sm hidden-xs'>Scripts</span>
-                    </router-link>
-                </li>
-
-                </template>
-
-                <li :class="{active: isActive('details')}">
-                    <router-link :to='{name: "projects.details"}'>
-                        <i class="fa fa-file-code-o" aria-hidden="true"></i>
-                        <span class='hidden-sm hidden-xs'>Project Info</span>
-                    </router-link>
-                </li>
-            </ul>
-        </div>
-    </nav>
+    <project-links v-bind="{status, hasServers}"></project-links>
 
     <!-- Main Body -->
-    <div class="container container-lg">
+    <div class="col-md-12 mt-4">
         <!-- tabs content -->
-        <div class="tab-content col-md-12">
+        <div class="col-md-12">
             <router-view :project='project' :loading='loading' />
 
             <!-- Cloning Status message -->
@@ -85,13 +35,15 @@ import { EchoListener } from './mixins/EchoListener';
 
 import ProjectInfo from './ProjectInfo'
 import ProjectCloning from './ProjectCloning'
+import ProjectLinks from './ProjectLinks'
 
 export default {
     name: 'project',
 
     components: {
         ProjectInfo,
-        ProjectCloning
+        ProjectCloning,
+        ProjectLinks
     },
 
     mixins: [ EchoListener ],
@@ -109,6 +61,12 @@ export default {
             saving: false,
             deleting: false,
             info: null,
+
+            info: {
+                deployments: {},
+                repo: {},
+                status: {},
+            },
 
             status: {
                 cloning: false,
@@ -160,7 +118,7 @@ export default {
                 this.load();
                 bus.$emit('project-refresh-info');
             }
-        }
+        },
     },
 
     methods : {
@@ -204,7 +162,7 @@ export default {
 
         loadInfo() {
             this.$http.get(this.endpoint + '/info').then((response)=>{
-                this.info = response.data;
+                this.info = this.updateInfo(response.data);
             },({response})=>{
                 console.error("error", response);
             });
@@ -225,10 +183,10 @@ export default {
 
         updateInfo (info) {
             this.info = info;
-            console.log("updating info", info);
-            // this.deployment.deploying = info.status.is_deploying;
+            console.log("updating info", {info, });
             this.status.cloning = info.status.is_cloning;
             this.status.cloningError = info.status.clone_failed;
+            return info;
         },
 
         hasProp (prop) {

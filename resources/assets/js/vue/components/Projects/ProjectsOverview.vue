@@ -1,81 +1,66 @@
 <template>
- <div class="container container-lg">
+<div class="col">
     <router-view></router-view>
 
     <transition name='fade'>
-        <div v-if='!loading && !projects.length' class="col-md-8 col-md-offset-2">
+        <div v-if='!loading && !projects.length' class="col-md-8 offset-2 my-4">
 
-            <div class='text-left panel panel-default'>
-                <div class="panel-heading">
-                    <router-link :to="{name:'projects.create'}">
-                        <h4>Add your first project <i class="fa fa-plus-circle" aria-hidden="true"></i></h4>
-                    </router-link>
-                </div>
+            <form-card>
+                <router-link class='text-center' :to="{name:'projects.create'}">
+                    <h5><i class="fa fa-plus-circle" aria-hidden="true"></i> Add your first Project</h5>
+                </router-link>
 
-                <div class='panel-body'>
-                    <p class="text-center">
-                        <i class="fa fa-clipboard clipboard"
-                            aria-hidden="true"
-                            data-clipboard-action="copy"
-                            data-clipboard-target='#pubkey'>
-                            If you plan on deploying the project from a private repo, add this ssh key to the repo host.
-                        </i>
-                    </p>
+                <project-pub-key></project-pub-key>
 
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <code id='pubkey'>{{ userPubKey }}</code>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </form-card>
         </div>
     </transition>
 
     <transition name='fade'>
-        <div class="col-md-12" v-if='!loading'>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    Projects
-                    <span aria-hidden="true" class="pull-right">
-                        <router-link :to="{name:'projects.create'}">
-                            <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                        </router-link>
-                    </span>
-                </div>
-
-                <div class="panel-body">
-                    <table class='table'>
-                        <thead>
-                            <th>Name</th>
-                            <th>Last Deployed</th>
-                            <th class='center crunch'>Servers</th>
-                        </thead>
-                        <tbody>
-                            <tr v-for='project in projects'>
-                                <td>
-                                    <router-link :to="{ name: 'projects.info', params: { project_id: project.id }}">
-                                        {{ project.name }}
-                                    </router-link>
-                                </td>
-                                <td>
-                                    {{ lastDeployed(project) }}
-                                </td>
-                                <td class='center crunch'>{{ servers(project).length }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+        <form-card class='mt-4' v-if='!loading && projects.length'>
+            <div slot="header">
+                Projects
+                <span aria-hidden="true" class="pull-right">
+                    <router-link :to="{name:'projects.create'}">
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                    </router-link>
+                </span>
             </div>
-        </div>
+
+            <table class='table table-hover'>
+                <thead>
+                    <th>Name</th>
+                    <th>Last Deployed</th>
+                    <th>Servers</th>
+                </thead>
+                <tbody>
+                    <tr v-for='project in projects'>
+                        <td>
+                            <router-link :to="{ name: 'projects.info', params: { project_id: project.id }}">
+                                {{ project.name }}
+                            </router-link>
+                        </td>
+                        <td>
+                            {{ lastDeployed(project) }}
+                        </td>
+                        <td>{{ servers(project).length }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </form-card>
     </transition>
 </div>
 </template>
 
 <script>
 
+import ProjectPubKey from './ProjectPubKey'
+
 export default {
     name: 'project-overview',
+    components: {
+        ProjectPubKey
+    },
 
     mounted () {
         this.load()

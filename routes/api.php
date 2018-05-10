@@ -13,6 +13,7 @@
 
 $api = app('Dingo\Api\Routing\Router');
 $api->version('v1', function ($api) {
+
     $api->group(["prefix" => "projects/{project}", "middleware" => "api.auth"], function ($api) {
 
         //----------------------------------------------------------
@@ -86,7 +87,12 @@ $api->version('v1', function ($api) {
     //-------------------------------------------------------
     $api->group(["middleware" => "api.auth"], function ($api) {
         $api->get('/projects/options', "App\Http\Controllers\Api\ProjectsController@options");
+
         $api->resource("projects", "App\Http\Controllers\Api\ProjectsController");
+
+        $api->get('my-account', "App\Http\Controllers\Api\MyAccountController@show");
+        $api->put('my-account', "App\Http\Controllers\Api\MyAccountController@update");
+        $api->delete('my-account', "App\Http\Controllers\Api\MyAccountController@destroy");
     });
 
     //----------------------------------------------------------

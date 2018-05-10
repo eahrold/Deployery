@@ -1,34 +1,34 @@
  <div class="collapse navbar-collapse" id="app-navbar-collapse">
     <!-- Left Side Of Navbar -->
 
-    <ul class="nav navbar-nav">
+    <ul class="navbar-nav">
         @if (!Auth::guest())
             @include('partials.main_nav_projects')
             @include('partials.main_nav_teams')
-            <li>
+            <li class="nav-item">
                 @if(request()->is('/') || request()->is('projects/*'))
-                <router-link :to="{ name: 'projects.list'}">Dashbaord</router-link>
+                <router-link class='nav-link' :to="{ name: 'projects.list'}">Dashbaord</router-link>
                 @else
-                <a href="/">Dashboard</a>
+                <a class='nav-link' href="/">Dashboard</a>
                 @endif
             </li>
         @endif
-    </ul>
 
-    <!-- Right Side Of Navbar -->
-    <ul class="nav navbar-nav navbar-right">
-        <!-- Authentication Links -->
         @if (Auth::guest())
-            <li><a href="{{ url('/login') }}">Login</a></li>
-            <li><a href="{{ url('/register') }}">Register</a></li>
+            <li class="nav-item">
+                <a class='nav-link' href="{{ url('/login') }}">Login</a>
+            </li>
+            <li class="nav-item">
+                <a class='nav-link' href="{{ url('/register') }}">Register</a>
+            </li>
         @else
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                    {{ Auth::user()->username }} <span class="caret"></span>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ Auth::user()->email }}
                 </a>
 
                 <ul class="dropdown-menu" role="menu">
-                    <li>
+                    <li class="dropdown-item nav-item">
                         <a href="{{ url('/logout') }}"
                             onclick="event.preventDefault();
                                      document.getElementById('logout-form').submit();">
@@ -39,15 +39,13 @@
                             {{ csrf_field() }}
                         </form>
                     </li>
-                    <li>
-                        <a href="{{ route('users.edit',[ Auth::user()->id ]) }}">
-                            <i class="fa fa-paw" aria-hidden="true"></i>My Account
-                        </a>
+                    <li class="dropdown-item nav-item">
+                        <router-link :to="{ name: 'my.account'}">My Account</router-link>
                     </li>
                     @can('Manage', Auth::user())
-                    <li>
+                    <li class="dropdown-item nav-item">
                         <a href="{{ route('users.index') }}">
-                            <i class="fa fa-btn fa-sign-out"></i>
+                            <i class="fa fa-btn fa-users"></i>
                             Manage Users
                         </a>
                     </li>

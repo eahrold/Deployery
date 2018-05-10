@@ -18,7 +18,7 @@ final class Project extends Base
     protected $validation_rules = [
         'name' => 'required|string',
         'repo' => 'required|string',
-        'slack_webhook_url' => 'url',
+        'slack_webhook_url' => 'url|nullable',
     ];
 
     protected $fillable = [
@@ -269,7 +269,7 @@ final class Project extends Base
     public function scopeFindUserModels($query)
     {
         $user = Auth::user();
-        $tid = $user ?  $user->current_team_id : -1;
+        $tid = ($user && $user instanceof User) ?  $user->current_team_id : -1;
 
         return $query->where('team_id', $tid);
     }
@@ -278,7 +278,7 @@ final class Project extends Base
     {
         $user = Auth::user();
         $uid = $user ? $user->id : -1;
-        $tid = $user ? $user->current_team_id : -1;
+        $tid = ($user && $user instanceof User) ? $user->current_team_id : -1;
 
         return $query->where(function($query) use ($uid ,$tid){
                     $query->where('user_id', $uid)
@@ -333,9 +333,11 @@ final class Project extends Base
 
         // Register for events
         static::creating(function ($model) {
+            $user = Auth::user();
+
             $model->uid = uniqid();
-            $model->user_id = Auth::user()->id;
-            $model->team_id = Auth::user()->current_team_id;
+            $model->user_id = $user->id;
+            $model->team_id = ($user && $user instanceof User) ? $user->current_team_id : -1;
         });
 
         static::created(function ($model) {

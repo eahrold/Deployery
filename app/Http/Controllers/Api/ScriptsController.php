@@ -59,7 +59,7 @@ class ScriptsController extends APIController
 
         \DB::transaction(function() use ($project, $model) {
             $project->scripts()->save($model);
-            if($server_ids = $this->request->server_ids) {
+            if(($server_ids = $this->request->server_ids)) {
                 $model->servers()->sync($server_ids);
             }
         });
@@ -86,7 +86,7 @@ class ScriptsController extends APIController
 
         \DB::transaction(function() use ($model) {
             $model->update($this->request->all());
-            if($server_ids = $this->request->server_ids) {
+            if(($server_ids = $this->request->server_ids)) {
                 $model->servers()->sync($server_ids);
             }
         });

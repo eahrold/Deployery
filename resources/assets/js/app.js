@@ -29,6 +29,7 @@ import { Alerter } from './alerter';
 Vue.prototype.$alerter = Alerter;
 
 import { routes as ProjectRoutes, ProjectsOverview, ProjectForm } from './vue/components/Projects'
+import { MyAccount } from './vue/components/Users'
 
 /**
  * Setup the router
@@ -45,6 +46,11 @@ const routes = [
                 component: ProjectForm,
             },
         ]
+    },
+    {
+        path: '/my-account',
+        name: 'my.account',
+        component: MyAccount,
     },
     ProjectRoutes
 ]

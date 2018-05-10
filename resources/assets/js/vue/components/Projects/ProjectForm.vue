@@ -8,30 +8,18 @@
     <div slot="body" :class="{loading: loading}">
         <div class='form-group' v-if='model'>
 
-            <form-panel heading='Config'>
+            <form-section heading='Config'>
                 <form-text v-model='model.name' :errors='errors' property="name"></form-text>
                 <form-text v-model='model.repo' :errors='errors' property="repo"></form-text>
                 <form-text v-model='model.branch' :errors='errors' property="branch"></form-text>
-            </form-panel>
+            </form-section>
 
-            <form-panel heading='Notifications'>
+            <form-section heading='Notifications'>
                 <form-checkbox v-model='model.send_slack_messages' :errors='errors' property="send_slack_messages"></form-checkbox>
                 <form-text v-model='model.slack_webhook_url' :errors='errors' property="slack_webhook_url"></form-text>
-            </form-panel>
+            </form-section>
 
-            <div class='panel panel-default pubkey-wrapper'>
-                <div class="panel-heading">
-                    <i class="fa fa-clipboard clipboard"
-                        aria-hidden="true"
-                        data-clipboard-action="copy"
-                        data-clipboard-target='#pubkey'>
-                    </i>
-                    <span>Add this key to your repo host</span>
-                </div>
-                <div class='panel-body'>
-                    <code id='pubkey' class='pubkey'>{{ userPubKey }}</code>
-                </div>
-            </div>
+            <project-pub-key></project-pub-key>
 
         </div>
     </div>
@@ -44,44 +32,21 @@
 </template>
 
 <script>
-var Clipboard = require('clipboard');
 
 import { form, modalForm } from "../../mixins/AdminForm.js";
+import ProjectPubKey from './ProjectPubKey'
 
 export default {
     name: 'project-form',
+    components: {
+        ProjectPubKey,
+    },
 
     mixins: [ form, modalForm ],
 
-    mounted () {
-        var clipboard = new Clipboard('.clipboard');
-        clipboard.on('success', (e)=>{
-            this.setTooltip(e.trigger, 'Copied!');
-            this.hideTooltip(e.trigger);
-        }).on('error', (e)=>{
-            this.setTooltip(e.trigger, 'Press Ctrl-C to copy');
-            this.hideTooltip(e.trigger);
-        })
-
-        $('.clipboard').tooltip({
-            trigger: 'click',
-            placement: 'bottom'
-        });
-    },
+    mounted () {},
 
     methods : {
-
-        setTooltip(btn, message){
-          $(btn).attr('data-original-title', message)
-                .tooltip('show');
-        },
-
-        hideTooltip(btn){
-          setTimeout(function() {
-            $(btn).tooltip('hide');
-          }, 3000);
-        },
-
         success (response) {
             window.location = '/projects/'+response.data.data.id + '/info';
         },
@@ -91,10 +56,6 @@ export default {
         endpoint() {
             return '/api/projects'
         },
-
-        userPubKey () {
-            return _.get(window.Deployery, 'userPubKey', '');
-        }
     }
 }
 </script>
@@ -102,12 +63,5 @@ export default {
 <style scoped>
 .vf-modal-container {
     max-width: 80vw;
-}
-
-.pubkey-wrapper {
-    max-width: 80vw;
-}
-.pubkey {
-    word-wrap: break-word;
 }
 </style>

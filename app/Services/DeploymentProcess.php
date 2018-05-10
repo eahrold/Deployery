@@ -338,6 +338,7 @@ class DeploymentProcess
     {
         $status = 0;
         $connection = $this->server->connection;
+
         foreach ($scripts as $script) {
             $this->sendMessage("Running {$script->description}");
             $scriptContents = $script->parse($this->server);

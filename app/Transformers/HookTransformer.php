@@ -1,7 +1,7 @@
 <?php
 namespace App\Transformers;
 
-class ScriptTransformer extends Transformer
+class HookTransformer extends Transformer
 {
 
     protected $defaultIncludes = [];

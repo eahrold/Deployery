@@ -7,18 +7,18 @@
         </router-link>
     </div>
 
-    <div v-else class='panel panel-default panel-full'>
-        <div class="pannel-nav navbar navbar-default navbar-static">
-            <div class="nav navbar-nav navbar-left">Servers</div>
-            <div class="nav navbar-nav navbar-right">
+    <form-card>
+        <div slot='header'>
+            <span>Servers</span>
+            <div class="pull-right">
                 <router-link :to='{name: "projects.servers.form", params:{id: "create"}}'>
                     <i class="fa fa-plus-circle" aria-hidden="true"></i>
                 </router-link>
             </div>
         </div>
 
-        <div class='panel-body'>
-            <table class='table table-hover table-responsive'>
+        <div>
+            <table class='table table-hover table-responsive-md'>
                 <thead>
                     <th>Name</th>
                     <th>Hostname</th>
@@ -77,7 +77,7 @@
 
             <server-pubkey-modal :endpoint='apiEndpoint'></server-pubkey-modal>
         </div>
-    </div>
+    </form-card>
 </div>
 </template>
 

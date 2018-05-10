@@ -18,6 +18,8 @@ $router->group(["middleware" => "auth"], function ($router) {
     $router->get("/project/create", "ProjectsController@view");
     $router->get("/projects/{id?}/{relation?}/{relation_id?}/{action?}", "ProjectsController@view");
 
+    $router->get("/my-account", "ProjectsController@view");
+
     $router->group(["middleware" => "admin"], function ($router) {
         $router->resource("users", "UsersController", [ "except"=>[ "show" ]]);
     });

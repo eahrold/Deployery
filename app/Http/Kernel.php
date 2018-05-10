@@ -15,6 +15,11 @@ class Kernel extends HttpKernel
      */
     protected $middleware = [
         \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
+        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        \App\Http\Middleware\TrimStrings::class,
+        \App\Http\Middleware\ConvertNullStringsToNull::class,
+        \App\Http\Middleware\ConvertBooleanStrings::class,
     ];
 
     /**
@@ -45,18 +50,6 @@ class Kernel extends HttpKernel
             'throttle:60,1',
             'bindings',
         ],
-
-        'api.internal' => [
-            \App\Http\Middleware\ApiAuthenticate::class,
-        ],
-
-        'api.external' => [
-            \App\Http\Middleware\ApiAuthenticate::class,
-        ],
-
-        'api.webhook' => [
-            \App\Http\Middleware\ValidateWebhookSource::class,
-        ],
     ];
 
     /**
@@ -74,5 +67,7 @@ class Kernel extends HttpKernel
         'can' => \Illuminate\Foundation\Http\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'api.webhook' =>  \App\Http\Middleware\ValidateWebhookSource::class,
+
     ];
 }

@@ -13,42 +13,45 @@
 
     <template slot="body">
         <loading-indicator v-if='loading'></loading-indicator>
-        <div v-else>
-            <div class="col-md-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading"><b>Info</b></div>
-                    <div class="panel-body history-file-panel">
-                        <ul class="list-unstyled">
-                            <li><b>{{ statusMessage }}</b></li>
-                            <li>Deployed by: <b>{{ history.user_name }}</b></li>
-                            <li>Deployed on: <b>{{ history.created_at }}</b></li>
-                        </ul>
-                    </div>
+        <div class='row' v-else>
+            <div class="col-12 w-100 my-2">
+                <form-card>
+                <div slot="header"><b>Info</b></div>
+                <div class="history-file-panel">
+                    <ul class="list-unstyled">
+                        <li><b>{{ statusMessage }}</b></li>
+                        <li>Deployed by: <b>{{ history.user_name }}</b></li>
+                        <li>Deployed on: <b>{{ history.created_at }}</b></li>
+                    </ul>
                 </div>
+                </form-card>
             </div>
 
-            <div v-if='errors.length' class="col-md-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading"><b>Errors</b></div>
-                    <div class="panel-body history-file-panel">
-                        <ul class="list-unstyled">
-                            <li v-for='error in errors'>{{ error }}</li>
-                        </ul>
-                    </div>
+            <div v-if='errors.length' class="col-12 my-2">
+                <form-card>
+                <div slot="header"><b>Errors</b></div>
+                <div class="history-file-panel">
+                    <ul class="list-unstyled">
+                        <li v-for='error in errors'>{{ error }}</li>
+                    </ul>
                 </div>
+                </form-card>
             </div>
 
-            <div v-for='(value, key) in details' class='col-md-6'>
-                <div class="panel panel-default">
-                <div class="panel-heading"><b>{{ key }}</b></div>
-                    <div class="panel-body history-file-panel">
+            <template v-for='(value, key, idx) in details'>
+                <div class="col-6 col-sm-12 col-md-6 my-2">
+                    <form-card>
+                    <div slot="header"><b>{{ key }}</b></div>
+                    <div class="history-file-panel">
                         <ul v-if='value.length' class="list-unstyled">
                             <li v-for='file in value'>{{ file }}</li>
                         </ul>
                         <h5 v-else>N/A</h5>
                     </div>
+                    </form-card>
                 </div>
-            </div>
+                <div v-if='idx % 2' class="w-100"></div>
+            </template>
         </div>
     </template>
 </form-modal>

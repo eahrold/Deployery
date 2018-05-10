@@ -1,30 +1,23 @@
 <template>
 <form-modal @close='close'>
     <template slot="header">
-        {{ heading }}
+        <b>{{ heading }}</b>
     </template>
 
     <div slot="body" :class="{loading: loading}">
-        <div class='form-group' v-if='model'>
-
-            <div class='panel panel-default'>
-                <div class="panel-heading">Config</div>
-                <div class='panel-body'>
+        <template v-if='model'>
+            <form-section heading='Config'>
                     <form-text v-model='model.path' :errors='errors' property="path"></form-text>
                     <form-textarea v-model='model.contents' :rows='10' :errors='errors' property="contents"></form-textarea>
-                </div>
-            </div>
+            </form-section>
 
-            <div class='panel panel-default'>
-                <div class="panel-heading">Servers</div>
-                <div class='panel-body'>
-                    <div v-for='(name, key) in servers'>
-                        <input type="checkbox" :id="key" :value="key" v-model="model.server_ids">
-                        <label :for="key">{{ name }}</label>
-                    </div>
+            <form-section heading='Servers'>
+                <div v-for='(name, key) in servers'>
+                    <input type="checkbox" :id="key" :value="key" v-model="model.server_ids">
+                    <label :for="key">{{ name }}</label>
                 </div>
-            </div>
-        </div>
+            </form-section>
+        </template>
     </div>
 
     <template slot="footer">

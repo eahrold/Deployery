@@ -1,53 +1,50 @@
 <template>
 <div>
     <!-- Project Form -->
-    <div class='panel panel-default'>
-        <div class="panel-body">
-            <form-text v-model='project.name' property='name' :errors='errors'></form-text>
-            <form-text v-model='project.repo' property='repo' :errors='errors'></form-text>
-            <form-text v-model='project.branch' property='branch' :errors='errors'></form-text>
+    <form-card>
+        <form-text v-model='project.name' property='name' :errors='errors' :required='true'></form-text>
+        <form-text v-model='project.repo' property='repo' :errors='errors' :required='true'></form-text>
+        <form-text v-model='project.branch' property='branch' :errors='errors' :required='true'></form-text>
 
-            <form-checkbox v-model='project.send_slack_messages' property='send_slack_messages' :errors='errors'></form-checkbox>
+        <form-checkbox v-model='project.send_slack_messages' property='send_slack_messages' :errors='errors'></form-checkbox>
 
-            <form-text v-model='project.slack_webhook_url' property='slack_webhook_url' :errors='errors'></form-text>
+        <form-text v-model='project.slack_webhook_url' property='slack_webhook_url' :rules='$validation.rules.url' :errors='errors'></form-text>
 
-            <div class='pin-right projects'>
-                <div class="btn-toolbar">
-                    <form-save-button :saving='saving' @save='save'></form-save-button>
-                </div>
-            </div>
-        </div>
-    </div>
+        <hr class="my-4"/>
+
+        <project-pub-key></project-pub-key>
+
+        <form-save-button class='mt-4' :disabled='$validation.fails' :saving='saving' @save='save'></form-save-button>
+    </form-card>
     <!-- End Project Form -->
 
     <!-- Delete Area -->
-    <div class="panel panel-default">
-        <div class='panel-body'>
-            <div class='row row-centered'>
-                <div class='col-md-4 col-centered'>
+    <form-card class='mt-4'>
 
-                    <div class="form-group">
-                        <label class="control-label" for="name">Type the name of your project to delete</label>
-                        <input  v-model='confirm' type="text" name="name" class="form-control">
-                    </div>
-
-                    <button type="submit"
-                            @click='remove'
-                            class="btn btn-default btn-danger btn-delete"
-                            :disabled='deleting || (project.name !== confirm)'>
-                            <i v-if='deleting' class="fa fa-spinner fa-spin"></i>Delete
-                    </button>
-
-                </div>
-            </div>
+        <div class="form-group">
+            <label class="control-label" for="name">Type the name of your project to delete</label>
+            <input  v-model='confirm' type="text" name="name" class="form-control">
         </div>
-    </div>
+
+        <button type="submit"
+                @click='remove'
+                class="btn btn-default btn-danger btn-block"
+                :disabled='deleting || (project.name !== confirm)'>
+                <i v-if='deleting' class="fa fa-spinner fa-spin"></i>Delete
+        </button>
+    </form-card>
     <!-- End Delete Area -->
 </div>
 </template>
 
 <script type="text/javascript">
+import ProjectPubKey from './ProjectPubKey'
+
 export default {
+    components: {
+        ProjectPubKey,
+    },
+
     props: {
         project: {
             type: Object

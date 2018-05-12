@@ -3,15 +3,15 @@
 @section('content')
     <div class="container">
         <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-                <div class="panel panel-default">
-                    <div class="panel-heading clearfix">
+            <div class="col-12">
+                <div class="card card-default my-4">
+                    <div class="card-header clearfix">
                         Members of team "{{$team->name}}"
                         <a href="{{route('teams.index')}}" class="pull-right">
                             <i class="fa fa-arrow-left"></i>
                         </a>
                     </div>
-                    <div class="panel-body">
+                    <div class="card-body">
                         <table class="table table-striped">
                             <thead>
                             <tr>
@@ -40,9 +40,9 @@
                 </div>
 
                 @if($team->invites->count())
-                <div class="panel panel-default">
-                    <div class="panel-heading clearfix">Pending invitations</div>
-                    <div class="panel-body">
+                <div class="card card-default mb-4">
+                    <div class="card-header clearfix">Pending invitations</div>
+                    <div class="card-body">
                         <table class="table table-striped">
                             <thead>
                             <tr>
@@ -70,16 +70,16 @@
                 @endif
 
                 @can('invite', $team)
-                <div class="panel panel-default">
-                    <div class="panel-heading clearfix">Invite to team "{{$team->name}}"</div>
-                    <div class="panel-body">
-                        <form class="form-horizontal" method="post" action="{{route('teams.members.invite', $team)}}">
+                <div class="card card-default mb-4">
+                    <div class="card-header clearfix">Invite to team "{{$team->name}}"</div>
+                    <div class="card-body">
+                        <form class="form-inline" method="post" action="{{route('teams.members.invite', $team)}}">
                             {!! csrf_field() !!}
-                            <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
-                                <label class="col-md-2 control-label">E-Mail Address</label>
+                            <div class="w-100 form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                                <label class="col-2 control-label">E-Mail Address</label>
 
-                                <div class="col-md-7">
-                                    <input type="email" class="form-control" name="email" value="{{ old('email') }}">
+                                <div class="col-8">
+                                    <input type="email" class="form-control w-100" name="email" value="{{ old('email') }}">
 
                                     @if ($errors->has('email'))
                                         <span class="help-block">

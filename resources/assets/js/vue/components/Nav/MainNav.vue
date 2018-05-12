@@ -57,7 +57,9 @@
                     </form>
                 </li>
                 <li class="dropdown-item nav-item">
-                    <router-link :to="{ name: 'my.account'}">My Account</router-link>
+                    <router-link :to="{ name: 'my.account'}">
+                        <i class="fa fa-btn fa-user"></i>My Account
+                    </router-link>
                 </li>
 
                 <slot name='users'></slot>

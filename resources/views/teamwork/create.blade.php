@@ -3,10 +3,10 @@
 @section('content')
     <div class="container">
         <div class="row">
-            <div class="col-md-8 col-md-offset-2">
-                <div class="panel panel-default">
-                    <div class="panel-heading">Create a new team</div>
-                    <div class="panel-body">
+            <div class="col-12">
+                <div class="card card-default">
+                    <div class="card-header">Create a new team</div>
+                    <div class="card-body">
                         <form class="form-horizontal" method="post" action="{{route('teams.store')}}">
                             {!! csrf_field() !!}
 

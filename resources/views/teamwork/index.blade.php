@@ -2,9 +2,9 @@
 @section('content')
     <div class="container">
         <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-                <div class="panel panel-default">
-                    <div class="panel-heading clearfix">
+            <div class="col-12 my-4">
+                <div class="card card-default">
+                    <div class="card-header clearfix">
                         Teams
                         @can('manageTeams', Auth::user())
                         <a class="pull-right" href="{{route('teams.create')}}">
@@ -12,7 +12,7 @@
                         </a>
                         @endcan
                     </div>
-                    <div class="panel-body">
+                    <div class="card-body">
                         @if(!$teams->count())
                             <div>You don't have any teams, yet.</div>
                         @else

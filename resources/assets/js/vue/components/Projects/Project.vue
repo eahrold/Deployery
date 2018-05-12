@@ -3,17 +3,9 @@
     <project-links v-bind="{status, hasServers}"></project-links>
 
     <!-- Main Body -->
-    <div class="col-md-12 mt-4">
-        <!-- tabs content -->
-        <div class="col-md-12">
-            <router-view :project='project' :loading='loading' />
-
-            <!-- Cloning Status message -->
-            <project-cloning :status='status' @reclone='cloneRepo'></project-cloning>
-            <!-- Cloning Status message -->
-
-        </div>
-        <!-- End Tabs content -->
+    <div class="col mt-4">
+        <router-view v-bind='{project, loading, info}' />
+        <project-cloning-card class='col my-3' :status='status' @reclone='cloneRepo'></project-cloning-card>
 
         <deployments-info-panel></deployments-info-panel>
 
@@ -33,16 +25,14 @@ import { mapGetters, mapState } from 'vuex';
 
 import { EchoListener } from './mixins/EchoListener';
 
-import ProjectInfo from './ProjectInfo'
-import ProjectCloning from './ProjectCloning'
+import ProjectCloningCard from './ProjectCloningCard'
 import ProjectLinks from './ProjectLinks'
 
 export default {
     name: 'project',
 
     components: {
-        ProjectInfo,
-        ProjectCloning,
+        ProjectCloningCard,
         ProjectLinks
     },
 

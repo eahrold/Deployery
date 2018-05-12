@@ -18,6 +18,7 @@ export default {
     state: {
         user: {},
         project: {},
+        projects: [],
         deployment: DeploymentSchema(),
         history: [],
         viewers: [],
@@ -31,6 +32,10 @@ export default {
 
         project (state, payload) {
             state.project = payload.project
+        },
+
+       projects (state, payload) {
+            state.projects = payload.projects
         },
 
         deployment (state, payload) {

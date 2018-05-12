@@ -4,7 +4,7 @@
     <form-section header='Project Settings'>
         <form-card>
             <form-text v-model='project.name' property='name' :errors='errors' :required='true'></form-text>
-            <form-text v-model='project.repo' property='repo' :errors='errors' :required='true'></form-text>
+            <form-text v-model='project.repo' property='repo' :errors='errors' :rules='repoUrl' :required='true'></form-text>
             <form-text v-model='project.branch' property='branch' :errors='errors' :required='true'></form-text>
 
             <form-checkbox v-model='project.send_slack_messages' property='send_slack_messages' :errors='errors'></form-checkbox>
@@ -17,25 +17,27 @@
 
             <form-save-button class='mt-4' :disabled='$validation.fails' :saving='saving' @save='save'></form-save-button>
         </form-card>
+
+
+        <!-- Delete Area -->
+        <form-card class='my-4'>
+
+            <div class="form-group">
+                <label class="control-label" for="name">Type the name of your project to delete</label>
+                <input  v-model='confirm' type="text" name="name" class="form-control">
+            </div>
+
+            <button type="submit"
+                    @click='remove'
+                    class="btn btn-default btn-danger btn-block"
+                    :disabled='deleting || (project.name !== confirm)'>
+                    <i v-if='deleting' class="fa fa-spinner fa-spin"></i>Delete
+            </button>
+        </form-card>
+        <!-- End Delete Area -->
+
     </form-section>
     <!-- End Project Form -->
-
-    <!-- Delete Area -->
-    <form-card class='mt-4'>
-
-        <div class="form-group">
-            <label class="control-label" for="name">Type the name of your project to delete</label>
-            <input  v-model='confirm' type="text" name="name" class="form-control">
-        </div>
-
-        <button type="submit"
-                @click='remove'
-                class="btn btn-default btn-danger btn-block"
-                :disabled='deleting || (project.name !== confirm)'>
-                <i v-if='deleting' class="fa fa-spinner fa-spin"></i>Delete
-        </button>
-    </form-card>
-    <!-- End Delete Area -->
 </div>
 </template>
 
@@ -69,6 +71,11 @@ export default {
     },
 
     methods: {
+        repoUrl(value) {
+            var regex = /^(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/;
+            return regex.test(value) || "The Format is invalid";
+        },
+
         save () {
             this.saving = true;
             this.$http.put(this.endpoint, this.project).then(

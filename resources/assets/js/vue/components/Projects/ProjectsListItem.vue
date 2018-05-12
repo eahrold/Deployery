@@ -1,13 +1,13 @@
 <template>
     <div class="row align-items-center">
         <div class="col">
-        <router-link :to="{ name: 'projects.info', params: { project_id: project.id }}">
+        <router-link :to="{ name: 'projects.overview', params: { project_id: project.id }}">
             {{ project.name }}
         </router-link>
         </div>
         <div class="col d-flex justify-content-end align-items-center">
             <small class="help">{{ lastDeployed }}</small>
-            <router-link class='btn btn-info ml-3' :to="{ name: 'projects.info', params: { project_id: project.id }}">
+            <router-link class='btn btn-info ml-3' :to="{ name: 'projects.overview', params: { project_id: project.id }}">
                 Deploy
             </router-link>
         </div>
@@ -40,6 +40,8 @@
 import _ from 'lodash'
 
 export default {
+    name: 'projects-list-item',
+
     props: {
         project: {
             type: Object,

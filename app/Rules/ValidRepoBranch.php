@@ -25,7 +25,8 @@ class ValidRepoBranch implements Rule
      */
     public function passes($attribute, $value)
     {
-        //
+        $pattern = '/^(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/';
+        return boolval(preg_match($pattern, $value));
     }
 
     /**
@@ -35,6 +36,6 @@ class ValidRepoBranch implements Rule
      */
     public function message()
     {
-        return 'The validation error message.';
+        return 'The repo branch is not correctly formatted.';
     }
 }

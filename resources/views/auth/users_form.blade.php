@@ -18,10 +18,11 @@
 
 <div class="container container-lg">
     <div class="row">
-        <div class="col-md-10 col-md-offset-1">
-            <div class="panel panel-default">
-                <div class="panel-heading">User
-                    <span class='pin-right'>
+        <div class="col-md-12 my-4">
+            <div class="card card-default">
+                <div class="card-header">
+                    <span>User</span>
+                    <span class='pull-right'>
                     @if($model->id)
                         <a href='{{ route("users.index") }}' alt='edit'>
                             <i class="fa fa-arrow-left" aria-hidden="true"></i>
@@ -30,7 +31,7 @@
                     @endif
                 </div>
 
-                <div id='main' class="panel-body tab-pane">
+                <div id='main' class="card-body tab-pane">
 
                     {!! BootForm::hidden('id') !!}
 

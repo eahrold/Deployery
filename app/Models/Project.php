@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Jobs\RepositoryClone;
 use App\Models\Traits\Slackable;
+use App\Rules\ValidRepoBranch;
 use App\Services\Git\GitInfo;
 use App\Services\SSHKeyer;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,7 @@ final class Project extends Base
     protected $unique_validation_keys = ['name'];
     protected $validation_rules = [
         'name' => 'required|string',
-        'repo' => 'required|string',
+        'repo' => [ 'required', 'string' ],
         'slack_webhook_url' => 'url|nullable',
     ];
 
@@ -34,6 +35,21 @@ final class Project extends Base
         'guid',
         'uid'
     ];
+
+    public function getValidationRules($id = null, $append=[])
+    {
+        $unique = $this->validation_rules;
+        foreach ($this->unique_validation_keys as $key) {
+            $rule = $this->validation_rules[$key];
+            if ($id = $id ?: $this->id) {
+                $unique[$key] = "{$rule}|unique:{$this->getTable()},{$key},{$id}";
+            } else {
+                $unique[$key] = "{$rule}|unique:{$this->getTable()}";
+            }
+        }
+        $unique['repo'][] = new ValidRepoBranch();
+        return array_merge($unique, $append);
+    }
 
     /**
      * Initialize the project

@@ -2,7 +2,10 @@
     <nav class="navbar  justify-content-center navbar-dark bg-secondary">
         <ul class="nav">
             <li v-for="(link, idx) in links" class='nav-item'>
-                <router-link class='nav-item nav-link text-light' :class='{disabled: link.disabled}' :disabled='link.disabled' :to='{name: link.to}'>
+                <router-link class='nav-item nav-link text-light'
+                    :class='{disabled: link.disabled}'
+                    :disabled='link.disabled'
+                    :to='link.to'>
                     <i class="fa" :class='link.icon' aria-hidden="true"></i>
                     <span class='d-none d-md-inline'>{{ link.text }}</span>
                 </router-link>
@@ -49,14 +52,15 @@ export default {
         links() {
             const disabled = this.status.cloning
             const notReady = disabled && !this.hasServers
+            const params = { project_id: this.$route.params.project_id }
 
             return [
-                { to: 'projects.info', text: 'Overview', icon: 'fa-dashboard', disabled: false },
-                { to: 'projects.servers', text: 'Servers', icon: 'fa-server', disabled, },
-                { to: 'projects.history', text: 'History', icon: 'fa-history', disabled: notReady,},
-                { to: 'projects.configs', text: 'Configs', icon: 'fa-cogs', disabled: notReady, },
-                { to: 'projects.scripts', text: 'Scripts', icon: 'fa-file-code-o', disabled: notReady, },
-                { to: 'projects.details', text: 'Settings', icon: 'fa-rocket', disabled: false },
+                { to: { name: 'projects.overview', params,}, text: 'Overview', icon: 'fa-dashboard', disabled: false },
+                { to: { name: 'projects.servers', params,}, text: 'Servers', icon: 'fa-server', disabled, },
+                { to: { name: 'projects.history', params,}, text: 'History', icon: 'fa-history', disabled: notReady,},
+                { to: { name: 'projects.configs', params,}, text: 'Configs', icon: 'fa-cogs', disabled: notReady, },
+                { to: { name: 'projects.scripts', params,}, text: 'Scripts', icon: 'fa-file-code-o', disabled: notReady, },
+                { to: { name: 'projects.details', params,}, text: 'Settings', icon: 'fa-rocket', disabled: false },
             ]
         }
     },

@@ -4,9 +4,9 @@
 
 <div class="container container-lg">
     <div class="row">
-        <div class="col-md-12">
-            <div class="panel panel-default">
-                <div class="panel-heading">
+        <div class="col-md-12 my-4">
+            <div class="card card-default">
+                <div class="card-header">
                     Users
                     <span aria-hidden="true" class="pull-right">
                         <a href='{{ route("users.create") }}'>
@@ -15,13 +15,13 @@
                     </span>
                 </div>
 
-                <div class="panel-body">
+                <div class="card-body">
                     <table class='table'>
                         <thead>
                             <th class='crunch-2x'>User Name</th>
                             <th class='crunch'>Email</th>
                             <th>Name</th>
-                            <th class='crunch'>Admin</th>
+                            <th class='crunch text-center'>Admin</th>
                             <th class='crunch'></th>
                         </thead>
                         <tbody>
@@ -39,10 +39,10 @@
                                         <i class="fa fa-check" aria-hidden="true"></i>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="text-center">
                                 @if($user->id !== 1 && $user->id !== Auth::user()->id)
                                 @include('includes.trash_button',
-                                        ['route'=>route("users.destroy", $user->id)])
+                                    ['route'=>route("users.destroy", $user->id)])
                                 @else
                                     <i class="fa fa-user-secret" aria-hidden="true"></i>
                                 @endif

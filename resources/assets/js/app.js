@@ -16,6 +16,9 @@ Vue.use(VueForms);
 import ElementsPlugin from './vue/elements'
 Vue.use(ElementsPlugin)
 
+import NavPlugin from './vue/components/Nav'
+Vue.use(NavPlugin)
+
 import DeploymentPlugin from './vue/components/Deployments'
 Vue.use(DeploymentPlugin)
 
@@ -28,7 +31,7 @@ Vue.mixin(LocalTime);
 import { Alerter } from './alerter';
 Vue.prototype.$alerter = Alerter;
 
-import { routes as ProjectRoutes, ProjectsOverview, ProjectForm } from './vue/components/Projects'
+import { routes as ProjectRoutes, ProjectsList, ProjectForm } from './vue/components/Projects'
 import { MyAccount } from './vue/components/Users'
 
 /**
@@ -38,7 +41,7 @@ const routes = [
     {
         path: '/',
         name: 'projects.list',
-        component: ProjectsOverview,
+        component: ProjectsList,
         children: [
             {
                 path: 'projects/create',
@@ -65,12 +68,16 @@ const router = new VueRouter({
 
 window.bus = new Vue({});
 
-
 import Vuex from 'vuex';
 Vue.use(Vuex)
 
 import { store as aStore } from './vue/store'
 const store = new Vuex.Store(aStore)
+
+const { user } = window.Deployery
+if (!_.isEmpty(user)) {
+    store.commit('user', {user,} )
+}
 
 /**
  * Setup the App
@@ -79,5 +86,4 @@ const app = new Vue({
     router,
     store,
     el: '#app'
-
 });

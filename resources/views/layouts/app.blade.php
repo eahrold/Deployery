@@ -24,6 +24,7 @@
         window.Deployery.apiToken = "{{ $apiToken }}";
         window.Deployery.userPubKey = "{!! Auth::user()->pubkey !!}";
         window.Deployery.pusherKey = "{{ env('PUSHER_KEY') }}"
+        window.Deployery.user = {!! Auth::user()->toJson() !!}
     @endif
 
     </script>

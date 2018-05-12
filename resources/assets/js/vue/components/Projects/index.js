@@ -1,6 +1,6 @@
-import ProjectsOverview from './ProjectsOverview'
+import ProjectsList from './ProjectsList'
 import Project from './Project'
-import ProjectInfo from './ProjectInfo'
+import ProjectOverview from './ProjectOverview'
 import ProjectDetails from './ProjectDetails'
 import ProjectForm from './ProjectForm'
 
@@ -16,7 +16,7 @@ export const routes =  {
     component: Project,
 
     children : [
-        { path: 'info', name: 'projects.info', component: ProjectInfo},
+        { path: 'overview', name: 'projects.overview', component: ProjectOverview},
         { path: 'details', name: 'projects.details', component: ProjectDetails},
 
         ServerRoutes,
@@ -28,10 +28,9 @@ export const routes =  {
 }
 
 export {
+    ProjectsList,
     Project,
-    ProjectsOverview,
-    ProjectInfo,
+    ProjectOverview,
     ProjectDetails,
     ProjectForm,
-    ProjectChildMixin,
 }

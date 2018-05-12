@@ -7,9 +7,9 @@
 
     <div v-if='model' slot="body" :class="{loading: loading}" >
         <form-section header='Config'>
-            <form-text v-model='model.name' :errors='errors' property="name"></form-text>
-            <form-text v-model='model.repo' :errors='errors' property="repo"></form-text>
-            <form-text v-model='model.branch' :errors='errors' property="branch"></form-text>
+            <form-text v-model='model.name' :errors='errors' property="name" :required='true'></form-text>
+            <form-text v-model='model.repo' :errors='errors' property="repo" :rules='repoUrl' :required='true'></form-text>
+            <form-text v-model='model.branch' :errors='errors' property="branch" :required='true'></form-text>
         </form-section>
 
         <form-section header='Notifications'>
@@ -23,7 +23,7 @@
     </div>
 
     <template slot="footer">
-        <form-save-button :saving='saving' :is-dirty='isDirty' @save='save'></form-save-button>
+        <form-save-button :disabled='$validation.fails' :saving='saving' :is-dirty='isDirty' @save='save'></form-save-button>
     </template>
 
 </form-modal>
@@ -47,6 +47,11 @@ export default {
     methods : {
         success (response) {
             window.location = '/projects/'+response.data.data.id + '/info';
+        },
+
+        repoUrl(value) {
+            var regex = /^(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/;
+            return regex.test(value) || "The Format is invalid";
         },
     },
 

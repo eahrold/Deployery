@@ -23,7 +23,6 @@ class ProjectsController extends APIController
     public function index()
     {
         // \DB::enableQueryLog();
-
         $projects = $this->model->with([
             'latest_history' => function($query){
                 $query->with(['server' => function($q){
@@ -34,8 +33,6 @@ class ProjectsController extends APIController
                 $query->select(['id', 'name', 'project_id']);
             }
         ])->findUserModels()->get();
-
-        // logger('log', \DB::getQueryLog());
 
         return $this->response->collection($projects, $this->transformer);
     }

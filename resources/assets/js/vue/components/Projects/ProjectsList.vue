@@ -29,7 +29,7 @@
 
             <list-group :items='projects'>
                   <template slot-scope="context">
-                    <projects-overview-list-item :project='context.item'></projects-overview-list-item>
+                    <projects-list-item :project='context.item'></projects-list-item>
                   </template>
             </list-group>
         </form-section>
@@ -40,12 +40,14 @@
 <script>
 
 import ProjectPubKey from './ProjectPubKey'
-import ProjectsOverviewListItem from './ProjectsOverviewListItem'
+import ProjectsListItem from './ProjectsListItem'
+
+import { mapState } from 'vuex'
 
 export default {
-    name: 'project-overview',
+    name: 'projects-list',
     components: {
-        ProjectsOverviewListItem,
+        ProjectsListItem,
         ProjectPubKey
     },
 
@@ -55,8 +57,29 @@ export default {
 
     data () {
         return {
-            projects: [],
+            // projects: [],
             loading: true,
+        }
+    },
+
+
+    computed: {
+        projects: {
+            set(projects) {
+                this.$store.commit('projects', {projects, })
+            },
+
+            get() {
+                return this.$store.state.projects
+            }
+        },
+
+        endpoint(){
+            return '/api/projects';
+        },
+
+        userPubKey () {
+            return _.get(window.Deployery, 'userPubKey', '');
         }
     },
 
@@ -87,15 +110,5 @@ export default {
             return "Never Deployed";
         }
     },
-
-    computed: {
-        endpoint(){
-            return '/api/projects';
-        },
-
-        userPubKey () {
-            return _.get(window.Deployery, 'userPubKey', '');
-        }
-    }
 }
 </script>

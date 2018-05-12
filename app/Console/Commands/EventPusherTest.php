@@ -7,6 +7,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Queue\SerializesModels;
+use Pusher\Pusher;
 
 class EventPusherTest extends Command
 {
@@ -45,7 +46,7 @@ class EventPusherTest extends Command
             'encrypted' => true
         );
 
-        $pusher = new \Pusher(
+        $pusher = new Pusher(
             env('PUSHER_KEY'),
             env('PUSHER_SECRET'),
             env('PUSHER_APP_ID'),

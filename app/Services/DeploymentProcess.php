@@ -7,6 +7,14 @@ use App\Services\Git\GitPreparer;
 
 class DeploymentProcess
 {
+    const PROGRESS_PREPARING = 0;
+    const PROGRESS_PRE_INSTALL = 10;
+    const PROGRESS_SYNC_FILES = 20;
+    const PROGRESS_SYNC_FILES_COMPLETE = 79;
+    const PROGRESS_WRITING_CONFIG = 80;
+    const PROGRESS_POST_INSTALL = 90;
+    const PROGRESS_COMPLETE = 100;
+
     /**
      * Server
      * @var \App\Models\Server
@@ -48,6 +56,12 @@ class DeploymentProcess
      * @var integer
      */
     private $progress = 0;
+
+    /**
+     * Progress
+     * @var integer
+     */
+    private $stage = 0;
 
     /**
      * Is the operation canceled
@@ -107,36 +121,29 @@ class DeploymentProcess
     {
         $this->sendMessage($from ? "Deploying from {$from} to {$to}.\n" : "Deploying entire repo...");
 
-        $this->sendMessage("Preparing Repo for deploy.\n");
 
-        $this->prepareGitRepo($to);
+        // $status = 0;
+        // $actions = [
+        //     $this->preInstall(),
+        //     $this->syncFiles($changes),
+        //     $this->uploadConfigFiles(),
+        //     $this->runPostInstallScripts(),
+        //     $this->runOneOffScripts($script_ids),
+        //     $this->updateServerLastCommit($to)
+        // ];
 
-        $this->sendMessage("Getting changed files.\n");
-
-        // If "from" was not supplied, then grab
-        // the repo from the beginning of time.
-        $changes = $from ? $this->server->git_info->changes($from, $to) : $this->server->git_info->all();
-
-        $status = 0;
         $actions = [
-            $this->runPreInstallScripts(),
-            $this->upload($changes['changed']),
-            $this->remove($changes['removed']),
-            $this->uploadConfigFiles(),
-            $this->runPostInstallScripts(),
-            $this->runOneOffScripts($script_ids),
-            $this->updateServerLastCommit($to)
+            'prepare' => compact('to'),
+            'preInstall' => null,
+            'syncFiles' => compact('to', 'from'),
+            'writeConfig' => null,
+            'postInstall' => compact('script_ids'),
+            'complete' => compact('to')
         ];
+        $status = $this->runOrFail($actions);
 
-        foreach ($actions as $action) {
-            $status = $action;
-            if ($this->canceled || $status !== 0) {
-                break;
-            }
-        }
-
-        $this->progress = 100;
         $this->sendMessage("Deployment completed with status: {$status}.\n");
+        logger("Completed Deployment: {$status}");
 
         return $status;
     }
@@ -160,6 +167,92 @@ class DeploymentProcess
 
     public function getErrors () {
         return $this->errors;
+    }
+
+    //----------------------------------------------------------
+    // Deployment Blueprint Methods
+    //-------------------------------------------------------
+    private function prepare($options=[])
+    {
+        $this->setStage(static::PROGRESS_PREPARING);
+        $this->sendMessage("Preparing Repo for deploy.\n");
+
+        $this->prepareGitRepo($options['to']);
+        return 0;
+    }
+
+    private function preInstall($options=[])
+    {
+        $this->setStage(static::PROGRESS_PRE_INSTALL);
+        return $this->runPreInstallScripts();
+    }
+
+    private function syncFiles($options=[])
+    {
+        $this->setStage(static::PROGRESS_SYNC_FILES);
+
+        $this->sendMessage("Determining changed files.\n");
+
+        $from = $options['from'];
+        $to = $options['to'];
+
+        // If "from" was not supplied, then grab
+        // the repo from the beginning of time.
+        $changes = $from ? $this->server->git_info->changes($from, $to) : $this->server->git_info->all();
+
+        return $this->runOrFail([
+            'upload' => $changes['changed'],
+            'remove' => $changes['removed'],
+        ]);
+    }
+
+    private function writeConfig($options=[])
+    {
+        $this->setStage(static::PROGRESS_WRITING_CONFIG);
+        return $this->uploadConfigFiles();
+    }
+
+    private function postInstall($options=[])
+    {
+        $this->setStage(static::PROGRESS_POST_INSTALL);
+        $script_ids = $options['script_ids'];
+
+        return $this->runOrFail([
+            'runPostInstallScripts' => null,
+            'runOneOffScripts' => $script_ids,
+        ]);
+    }
+
+    private function complete($options=[])
+    {
+        $this->setStage(static::PROGRESS_COMPLETE);
+        $this->updateServerLastCommit($options['to']);
+
+        return 0;
+    }
+    //----------------------------------------------------------
+    // End Deployment Blueprint Methods
+    //-------------------------------------------------------
+
+    private function setStage($stage)
+    {
+        $this->progress = $this->stage = $stage;
+    }
+    /**
+     * Execute an array of methods, fail
+     * @param  array  $actions array of callable methods
+     * @return int    0 for success, any other status code indicating failure.
+     */
+    private function runOrFail(array $actions)
+    {
+        $status = 0;
+        foreach ($actions as $action => $params) {
+            $status = $this->{$action}($params);
+            if ($this->canceled || $status !== 0) {
+                return $this->canceled ? -1 : $status;
+            }
+        }
+        return $status;
     }
 
     /**
@@ -188,6 +281,8 @@ class DeploymentProcess
         $file_count = count($files);
         $this->sendMessage("{$file_count} files need uploading".PHP_EOL);
 
+        $progress_increment = (static::PROGRESS_SYNC_FILES_COMPLETE - $this->progress) / $file_count;
+
         $previous_dir = "";
         foreach ($files as $idx => $file) {
             $local_file = "{$this->server->repo}/{$file}";
@@ -213,12 +308,11 @@ class DeploymentProcess
             }
 
             $percent = (int)(($idx / $file_count) * 100);
-            $this->progress = max($percent, 60);
+            $this->progress = $this->progress + $progress_increment;
 
-            $this->sendMessage("[{$percent}%] Uploaded {$remote_file}".PHP_EOL);
+            $truncated = substr($remote_file, -60);
+            $this->sendMessage("<b>Uploaded {$percent}%</b>: ...{$truncated}".PHP_EOL);
         }
-
-        $this->progress = 60;
 
         return 0;
     }
@@ -247,9 +341,6 @@ class DeploymentProcess
                 $this->sendMessage("Removed {$file_path}".PHP_EOL);
             }
         }
-
-        $this->progress = 70;
-
         return 0;
     }
 
@@ -273,9 +364,6 @@ class DeploymentProcess
                 $this->errorCallback($msg);
             }
         }
-
-        $this->progress = 80;
-
         return $status ? 0 : -1;
     }
 
@@ -299,6 +387,7 @@ class DeploymentProcess
         return 0;
     }
 
+
     /**
      * Run pre-install scripts
      *
@@ -306,8 +395,6 @@ class DeploymentProcess
      */
     private function runPreInstallScripts()
     {
-        $this->progress = 90;
-
         $this->sendMessage("Starting Preinstall Scripts");
         $scripts = $this->server->pre_install_scripts;
         return $this->runScripts($scripts);
@@ -320,8 +407,6 @@ class DeploymentProcess
      */
     private function runPostInstallScripts()
     {
-        $this->progress = 95;
-
         $this->sendMessage("Starting Postinstall Scripts");
         $scripts = $this->server->post_install_scripts;
         return $this->runScripts($scripts);
@@ -392,6 +477,7 @@ class DeploymentProcess
         $preparer->withPubKey($key);
         return $preparer->prepare($repo, $branch, $toCommit, function ($line) {
             \Log::debug("Preparing Repo: {$line}");
+            $this->sendMessage($line);
         });
     }
 
@@ -401,7 +487,7 @@ class DeploymentProcess
     //-------------------------------------------------------
 
     private function sendMessage($message) {
-        $this->callback($message, $this->progress);
+        $this->callback($message, $this->progress, $this->stage);
     }
 
     /**

@@ -1,4 +1,4 @@
-@if(Auth::user()->present()->shouldShowTeamMenu)
+@if(Auth::user() && Auth::user()->present()->shouldShowTeamMenu)
 <li class="nav-item dropdown">
     <a href="#"
         class="nav-link dropdown-toggle"

@@ -92,12 +92,13 @@ class ServerDeploy extends Job implements ShouldQueue
         $this->server->updateGitInfo();
         $this->toCommit = $this->toCommit ?: $this->server->newest_commit['hash'];
 
-        $process = (new DeploymentProcess($this->server))->setCallback(function ($message, $percent=0) {
-            $this->sendMessage($message, [], $percent);
+        $process = (new DeploymentProcess($this->server))->setCallback(function ($message, $percent=0, $stage=null) {
+            $this->sendMessage($message, [], $percent, $stage);
             $this->server->is_deploying = true;
         });
 
-        $scripts = isset($this->options['script_ids']) ? $this->options['script_ids'] : [];
+        $scripts = data_get($this->options, 'script_ids', []);
+
         $rc = $process->deploy($this->toCommit, $this->fromCommit, $scripts);
 
         $changes = $process->getChanges();
@@ -162,14 +163,14 @@ class ServerDeploy extends Job implements ShouldQueue
      * @param  string $message message to send
      * @param  array  $errors  Array of errors
      */
-    private function sendMessage($message, $errors = [], $progress=0)
+    private function sendMessage($message, $errors = [], $progress=0, $stage=null)
     {
         // Don't send empty progress messages...
         if (empty($message)) {
             return;
         }
 
-        event(new DeploymentProgress($this->server, compact('message', 'errors', 'progress')));
+        event(new DeploymentProgress($this->server, compact('message', 'errors', 'progress', 'stage')));
     }
 
     /**

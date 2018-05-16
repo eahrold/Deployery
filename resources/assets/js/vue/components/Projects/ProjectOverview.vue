@@ -40,14 +40,6 @@ export default {
 
     computed : {
         ...mapState(['deployment']),
-
-        projectId() {
-            return _.get(this.$route, 'params.project_id')
-        },
-
-        endpoint () {
-            return `/api/projects/${this.projectId}/info`
-        }
     }
 }
 </script>

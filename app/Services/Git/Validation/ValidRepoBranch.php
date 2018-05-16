@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Rules;
+namespace App\Services\Git\Validation;
 
 use Illuminate\Contracts\Validation\Rule;
 
@@ -43,6 +43,6 @@ class ValidRepoBranch implements Rule
      */
     public function message()
     {
-        return 'The validation error message.';
+        return 'This is not a valid repo branch.';
     }
 }

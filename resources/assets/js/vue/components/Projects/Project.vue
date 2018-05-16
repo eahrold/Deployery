@@ -4,8 +4,11 @@
 
     <!-- Main Body -->
     <div class="col mt-4">
+        <div class='col my-3'>
+            <project-cloning-card :status='status' @reclone='cloneRepo'></project-cloning-card>
+        </div>
+
         <router-view v-bind='{project, loading, info}' />
-        <project-cloning-card class='col my-3' :status='status' @reclone='cloneRepo'></project-cloning-card>
 
         <deployments-info-panel></deployments-info-panel>
 

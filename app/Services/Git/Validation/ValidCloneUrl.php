@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Rules;
+namespace App\Services\Git\Validation;
 
 use Illuminate\Contracts\Validation\Rule;
 
@@ -25,7 +25,8 @@ class ValidCloneUrl implements Rule
      */
     public function passes($attribute, $value)
     {
-        //
+        $pattern = '/^(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/';
+        return boolval(preg_match($pattern, $value));
     }
 
     /**
@@ -35,6 +36,6 @@ class ValidCloneUrl implements Rule
      */
     public function message()
     {
-        return 'The validation error message.';
+        return 'The repo URL is not correctly formatted.';
     }
 }

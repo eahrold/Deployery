@@ -14,27 +14,6 @@
     </div>
 </template>
 
-<!--             <table class='table table-hover'>
-                <thead>
-                    <th>Name</th>
-                    <th>Last Deployed</th>
-                    <th>Servers</th>
-                </thead>
-                <tbody>
-                    <tr v-for='project in projects'>
-                        <td>
-                            <router-link :to="{ name: 'projects.info', params: { project_id: project.id }}">
-                                {{ project.name }}
-                            </router-link>
-                        </td>
-                        <td>
-                            {{ lastDeployed(project) }}
-                        </td>
-                        <td>{{ servers(project).length }}</td>
-                    </tr>
-                </tbody>
-            </table> -->
-
 <script type="text/javascript">
 
 import _ from 'lodash'

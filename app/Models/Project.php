@@ -4,8 +4,9 @@ namespace App\Models;
 
 use App\Jobs\RepositoryClone;
 use App\Models\Traits\Slackable;
-use App\Rules\ValidRepoBranch;
 use App\Services\Git\GitInfo;
+use App\Services\Git\Validation\ValidCloneUrl;
+use App\Services\Git\Validation\ValidRepoBranch;
 use App\Services\SSHKeyer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -47,7 +48,8 @@ final class Project extends Base
                 $unique[$key] = "{$rule}|unique:{$this->getTable()}";
             }
         }
-        $unique['repo'][] = new ValidRepoBranch();
+
+        $unique['repo'][] = new ValidCloneUrl();
         return array_merge($unique, $append);
     }
 

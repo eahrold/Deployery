@@ -30,12 +30,6 @@
             </span>
 
             <span class="mr-2">
-                <div id='status-indicator'
-                    :class="statusClass">
-                </div>
-            </span>
-
-            <span class="mr-2">
                 <i v-if='server.is_deploying' class="fa fa-spinner fa-spin" aria-hidden="true"></i>
                 <router-link v-else :to='{name: "projects.servers.deploy", params:{id: server.id}, query: {server_name: server.name}}'>
                     <i class="fa fa-cloud-download" aria-hidden="true"></i>
@@ -43,6 +37,12 @@
             </span>
 
             <span class="mr-2">
+                <div id='status-indicator'
+                    :class="statusClass">
+                </div>
+            </span>
+
+            <span class="mr-2 clickable">
                 <i :id="statusId"
                    class="fa fa-refresh"
                    aria-hidden="true"

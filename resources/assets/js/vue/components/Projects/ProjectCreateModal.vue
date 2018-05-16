@@ -1,11 +1,11 @@
 <template>
-<form-modal @close='$router.go(-1)'>
+<form-modal @close='close'>
 
     <template slot="header">
         <h4 class="font-weight-bold">Setup a new Project</h4>
     </template>
 
-    <div v-if='model' slot="body" :class="{loading: loading}" >
+    <div slot="body" :class="{loading: loading}" >
         <form-section header='Config'>
             <form-text v-model='model.name' :errors='errors' property="name" :required='true'></form-text>
             <form-text v-model='model.repo' :errors='errors' property="repo" :rules='repoUrl' :required='true'></form-text>
@@ -23,7 +23,11 @@
     </div>
 
     <template slot="footer">
-        <form-save-button :disabled='$validation.fails' :saving='saving' :is-dirty='isDirty' @save='save'></form-save-button>
+        <form-save-button
+            :disabled='$validation.fails'
+            :saving='saving'
+            @save='save'>
+        </form-save-button>
     </template>
 
 </form-modal>
@@ -31,7 +35,6 @@
 
 <script>
 
-import { form, modalForm } from "../../mixins/AdminForm.js";
 import ProjectPubKey from './ProjectPubKey'
 
 export default {
@@ -40,19 +43,42 @@ export default {
         ProjectPubKey,
     },
 
-    mixins: [ form, modalForm ],
+    data() {
+        return {
+            errors: null,
+            model: {
+                name: null,
+                repo: null,
+                branch: null,
+                send_slack_messages: false,
+                slack_webhook_url: '',
+            }
+        }
+    },
 
     mounted () {},
 
     methods : {
-        success (response) {
-            window.location = '/projects/'+response.data.data.id + '/info';
+        save() {
+            const { model } = this;
+            this.$http.post(this.endpoint, model).then((response)=>{
+                const { id } = response.data.data
+                window.location = `/projects/${id}/overview`;
+            }).catch((error)=>{
+                this.errors = _.get(error, 'response.data.errors');
+                this.$vfalert.errorResponse(error.response);
+            })
         },
+
 
         repoUrl(value) {
             var regex = /^(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/;
             return regex.test(value) || "The Format is invalid";
         },
+
+        close() {
+            this.$router.go(-1)
+        }
     },
 
     computed : {

@@ -36,7 +36,7 @@ class DeploymentController extends Controller
     {
         $server = Project::findServer($project_id, $id);
 
-        $this->validate($this->request, [
+        $this->apiValidate($this->request, [
             'script_id' => 'sometimes|array',
             'script_ids.*' => 'exists:scripts,id',
         ]);
@@ -57,6 +57,26 @@ class DeploymentController extends Controller
         return $this->response->array(
             $this->queueDeployment($server, $to, $from, $this->user()->full_name, $oneOffs)
         );
+    }
+
+    /**
+     * Validate request with api error response
+     *
+     * @param  Request $request request object
+     * @param  array   $rules   validation rules
+     * @throws UpdateResourceFailedException on validation failure
+     * @return void
+     */
+    protected function apiValidate(Request $request, array $rules)
+    {
+        $validator = \Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            $class_name = class_basename($this->model);
+            throw new \Dingo\Api\Exception\ResourceException(
+                "he given data was invalid..",
+                $validator->errors()
+            );
+        }
     }
 
     /**
@@ -122,12 +142,13 @@ class DeploymentController extends Controller
      */
     public function webhook($webhook)
     {
-        $server = Server::where('webhook', $this->request->url())
-                        ->firstOrFail();
-
         list($agent,/*version*/) = explode('/', $this->request->header('User-Agent'), 2);
         $name = ucfirst($server->username);
         $sender = "{$name} [ {$agent} ]";
+
+        $server = Server::where('webhook', $this->request->url())
+                        ->firstOrFail();
+
 
         if (!$server->autodeploy) {
             return $this->response->error("Autodeploy is not enabled", 404);
@@ -164,8 +185,8 @@ class DeploymentController extends Controller
         }
 
         $options = compact('script_ids');
-        $deployment = (new ServerDeploy($server, $user_name, $from, $to, $options))->onQueue('deployments');
 
+        $deployment = (new ServerDeploy($server, $user_name, $from, $to, $options))->onQueue('deployments');
         $this->dispatch($deployment);
 
 

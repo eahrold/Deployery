@@ -54,7 +54,7 @@
                             v-model='scriptIds'
                             value-key='id'
                             text-key='description'
-                            property='scriptIds'
+                            property='script_ids'
                             :options='availableScripts'>
                         </form-checkbox-group>
                     </form-panel>
@@ -76,31 +76,42 @@
             </div>
         </div>
 
+        <hr/>
+
+        <div class='row d-flex my-4'>
+            <deployments-status-box
+                class='col'
+                v-for='n in [0,1,2,4,5]'
+                :key='n'
+                :stage='n'
+                :active-stage='stage'>
+            </deployments-status-box>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col-12">
+            <div class="progress">
+                <div class="progress-bar"
+                    role="progressbar"
+                    :aria-valuenow="progress"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    :style='progressStyle'>
+                    <span class="sr-only">{{ progress }}% Complete</span>
+                </div>
+            </div>
+            </div>
+        </div>
+
         <div class='row'>
-            <div class="col-md-12">
-                <div class='form-group'>
-                    <hr/>
-                    <template v-if='primary_status'>
-                        <h3 :class="['primary-status', { 'error': errors.length }]" >
-                            {{ primary_status }}
-                        </h3>
-                    </template>
-                </div>
-
-                <div class="progress">
-                    <div class="progress-bar" role="progressbar" :aria-valuenow="progress" aria-valuemin="0" aria-valuemax="100" :style='progressStyle'>
-                        <span class="sr-only">{{ progress }}% Complete</span>
-                    </div>
-                </div>
-
+            <div class="col-12">
                 <div class='form-group message-container'>
                     <ul class='list-unstyled deploy-messages'>
                         <li v-for='(message, idx) in messages' :key='idx'>
-                            <h4 v-html='message'></h4>
+                            <code v-html='message'></code>
                         </li>
                     </ul>
                 </div>
-
             </div>
         </div>
     </template>
@@ -109,9 +120,14 @@
 <script>
 
 import { mapGetters, mapState } from 'vuex';
+import DeploymentsStatusBox from './DeploymentsStatusBox'
+
 import moment from 'moment'
 
 export default {
+    components: {
+        DeploymentsStatusBox,
+    },
 
     data() {
         return {
@@ -139,7 +155,7 @@ export default {
 
     computed: {
         ...mapState(['actionTypes']),
-        ...mapGetters(['deploying', 'progress', 'messages']),
+        ...mapGetters(['deploying', 'progress', 'messages', 'stage']),
 
         server() {
             return {
@@ -288,17 +304,17 @@ export default {
                 'to': this.toCommit.hash,
                 'deploy_entire_repo': this.deployEntireRepo,
                 'script_ids': this.scriptIds,
-
                 'branch': this.currentBranch,
                 'use_branch_in_future': this.useBranchForFutureDeployments,
             };
+
             this.disabled = true;
             this.$http.post(endpoint, data)
                 .then((response) => {
                     this.beginDeployment();
                 },
                 ({response}) => {
-                    this.$vfalert.error(response.data.message);
+                    this.$vfalert.errorResponse(response);
             }).then(()=>{this.disabled=false});
         },
 

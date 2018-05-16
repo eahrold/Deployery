@@ -13,17 +13,17 @@ class Server extends Presenter
 
     public function deployment_started_message()
     {
-        return "Deployment started on <strong>$this->name</strong> ({$this->entity->hostname})";
+        return "Queued deployment for <strong>$this->name</strong> ({$this->entity->hostname})";
     }
 
     public function deployment_completed_message()
     {
-        return "Deployment completed to $this->name ({$this->entity->hostname})";
+        return "Deployment complete to <strong>$this->name</strong> ({$this->entity->hostname})";
     }
 
     public function deployment_failed_message()
     {
-        return "Deployment to $this->name ({$this->entity->hostname}) failed";
+        return "Deployment failed for <strong>$this->name</strong> ({$this->entity->hostname})";
     }
 
     public function connection_status_message()

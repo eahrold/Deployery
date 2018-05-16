@@ -13,6 +13,7 @@ class WebhookInfo {
     public $source;
     public $from_commit;
     public $to_commit;
+    public $branch;
 }
 
 class WebhookHandler {

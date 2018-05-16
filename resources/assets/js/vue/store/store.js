@@ -1,11 +1,14 @@
 import _ from 'lodash'
+import { Api } from '../services'
 
 import types from './types'
+
 
 const DeploymentSchema=()=>{
     return {
         messages: [],
         progress: 0,
+        stage: -1,
         server_id: null,
         server_name: null,
         deploying: false,
@@ -18,6 +21,7 @@ export default {
     state: {
         user: {},
         project: {},
+        proejctsLoading: false,
         projects: [],
         deployment: DeploymentSchema(),
         history: [],
@@ -34,8 +38,12 @@ export default {
             state.project = payload.project
         },
 
-       projects (state, payload) {
+        projects (state, payload) {
             state.projects = payload.projects
+        },
+
+        proejctsLoading (state, payload) {
+            state.proejctsLoading = payload.proejctsLoading
         },
 
         deployment (state, payload) {
@@ -70,6 +78,10 @@ export default {
 
         progress: (state, getters) => {
             return _.get(state, 'deployment.progress', 0)
+        },
+
+        stage: (state, getters) => {
+            return _.get(state, 'deployment.stage', -1)
         },
 
         /**
@@ -129,6 +141,7 @@ export default {
             const deployment = {
                 messages: [],
                 progress: 0,
+                stage: -1,
                 server_id: null,
                 server_name: null,
                 deploying: false,
@@ -148,6 +161,7 @@ export default {
                 progress: 0,
                 server_id: server.id,
                 server_name: server.name,
+                stage: 0,
                 deploying: true,
             }
             commit('deployment', { deployment })
@@ -159,13 +173,14 @@ export default {
          * @param  object data event data
          */
         [types.DEPLOYMENT_PROGRESS]({commit, state}, {data}){
-            console.log(data)
-            const { errors, progress, message, server_id, server_name } = data
+            console.log("Progress", {data})
+            const { errors, progress, message, server_id, server_name, stage } = data
             const { deployment } = state
 
             if (server_id) deployment.server_id = server_id
             if (server_name) deployment.server_name = server_name
             if (progress) deployment.progress = progress
+            if (stage) deployment.stage = stage
             if (message) deployment.messages.unshift(message)
             if (!_.isEmpty(errors)) deployment.errors = _.merge(deployment.errors, errors)
 
@@ -182,6 +197,7 @@ export default {
             const { messages } = state.deployment
 
             const deployment = {
+                ...state.deployment,
                 messages: _.merge(messages, [message]),
                 progress: 100,
                 server_id: null,
@@ -197,6 +213,19 @@ export default {
 
         [types.USER_SET] ({commit}, { user }) {
             commit('user', { user })
+        },
+
+        [types.PROJECTS_LOAD]({commit, state}) {
+            commit('proejctsLoading', {proejctsLoading: true, })
+            console.log("Dispatching 1 ...")
+            Api.projects().then(({data, pagination})=>{
+                commit('projects', { projects: data })
+                commit('proejctsLoading', {proejctsLoading: false, })
+                return { data, pagination }
+            }).catch((error)=>{
+                commit('proejctsLoading', {proejctsLoading: false, })
+                throw error
+            })
         },
 
         [types.PROJECT_SET] ({commit, state}, { project }) {

@@ -1,39 +1,41 @@
 <template>
-<div class="col">
+<div>
     <router-view></router-view>
+    <div v-if='!this.$route.params.project_id' class="col">
 
-    <transition name='fade'>
-        <div v-if='!loading && !projects.length' class="col-md-8 offset-2 my-4">
+        <transition name='fade'>
+            <div v-if='!loading && !projects.length' class="col-md-8 offset-2 my-4">
 
-            <form-card>
-                <router-link class='text-center' :to="{name:'projects.create'}">
-                    <h5><i class="fa fa-plus-circle" aria-hidden="true"></i> Add your first Project</h5>
-                </router-link>
-
-                <project-pub-key></project-pub-key>
-
-            </form-card>
-        </div>
-    </transition>
-
-    <transition name='fade'>
-        <form-section class='mt-4' v-if='!loading && projects.length'>
-            <div slot="header">
-                Projects
-                <span aria-hidden="true" class="pull-right">
-                    <router-link :to="{name:'projects.create'}">
-                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                <form-card>
+                    <router-link class='text-center' :to="{name:'projects.create'}">
+                        <h5><i class="fa fa-plus-circle" aria-hidden="true"></i> Add your first Project</h5>
                     </router-link>
-                </span>
-            </div>
 
-            <list-group :items='projects'>
-                  <template slot-scope="context">
-                    <projects-list-item :project='context.item'></projects-list-item>
-                  </template>
-            </list-group>
-        </form-section>
-    </transition>
+                    <project-pub-key></project-pub-key>
+
+                </form-card>
+            </div>
+        </transition>
+
+        <transition name='fade'>
+            <form-section class='mt-4' v-if='!loading && projects.length'>
+                <div slot="header">
+                    Projects
+                    <span aria-hidden="true" class="pull-right">
+                        <router-link :to="{name:'projects.create'}">
+                            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                        </router-link>
+                    </span>
+                </div>
+
+                <list-group :items='projects'>
+                      <template slot-scope="context">
+                        <projects-list-item :project='context.item'></projects-list-item>
+                      </template>
+                </list-group>
+            </form-section>
+        </transition>
+    </div>
 </div>
 </template>
 
@@ -51,28 +53,21 @@ export default {
         ProjectPubKey
     },
 
-    mounted () {
-        this.load()
-    },
+    mounted () {},
 
     data () {
         return {
             // projects: [],
-            loading: true,
+            // loading: true,
         }
     },
 
 
     computed: {
-        projects: {
-            set(projects) {
-                this.$store.commit('projects', {projects, })
-            },
-
-            get() {
-                return this.$store.state.projects
-            }
-        },
+        ...mapState({
+            projects: 'projects',
+            loading: 'proejctsLoading'
+        }),
 
         endpoint(){
             return '/api/projects';
@@ -84,15 +79,6 @@ export default {
     },
 
     methods : {
-        load () {
-            this.loading = true;
-            this.$http.get(this.endpoint).then((response)=>{
-                this.loading = false;
-                this.projects = response.data.data;
-            }, ({response})=>{
-                this.loading = false;
-            });
-        },
 
         servers (project) {
             return _.get(project, 'servers', []);

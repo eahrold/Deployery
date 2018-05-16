@@ -10,35 +10,7 @@ window._ = require('lodash');
 window.$ = window.jQuery = require('jquery');
 require('bootstrap');
 
-let axios = window.axios = require('axios');
-axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
-axios.defaults.headers.common['Accept'] = 'application/json'
-axios.defaults.headers.common['Content-Type'] = 'application/json'
-
-if (Deployery.apiToken) {
-    axios.defaults.headers.common['Authorization'] = `Bearer ${Deployery.apiToken}`
-}
-
-let token = document.head.querySelector('meta[name="csrf-token"]');
-if (token) {
-    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
-} else {
-    console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
-}
-
-window.axios.interceptors.response.use(
-    (response)=>{
-        return response;
-  },(error)=>{
-        if(error.response.status === 401) {
-            alert('Looks like your session has expired. reloading the page');
-            window.location = window.location;
-            return;
-        }
-        // Do something with response error
-        return Promise.reject(error);
-  }
-);
+window.noty = require('noty');
 
 /**
  * Vue is a modern JavaScript library for building interactive web interfaces
@@ -48,13 +20,12 @@ window.axios.interceptors.response.use(
 
 window.Vue = require('vue');
 
+import { Api } from './vue/services'
 Object.defineProperty(Vue.prototype, '$http', {
   get () {
-    return axios
+    return Api.httpAdapter
   }
 })
-
-window.noty = require('noty');
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

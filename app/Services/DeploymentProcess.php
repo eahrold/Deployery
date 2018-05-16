@@ -15,6 +15,16 @@ class DeploymentProcess
     const PROGRESS_POST_INSTALL = 90;
     const PROGRESS_COMPLETE = 100;
 
+    const STAGE_PREPARING = 0;
+    const STAGE_PRE_INSTALL = 1;
+    const STAGE_SYNC_FILES = 2;
+    const STAGE_SYNC_FILES_COMPLETE = 3;
+    const STAGE_WRITING_CONFIG = 4;
+    const STAGE_POST_INSTALL = 5;
+    const STAGE_COMPLETE = 6;
+
+    private $stage_progress;
+
     /**
      * Server
      * @var \App\Models\Server
@@ -81,6 +91,16 @@ class DeploymentProcess
         $this->errorCallback = function ($line) {
             \Log::error("Deployment Process Error: {$line}");
         };
+
+        $this->stage_progress = [
+            static::STAGE_PREPARING => static::PROGRESS_PREPARING,
+            static::STAGE_PRE_INSTALL => static::PROGRESS_PRE_INSTALL,
+            static::STAGE_SYNC_FILES => static::PROGRESS_SYNC_FILES,
+            static::STAGE_SYNC_FILES_COMPLETE => static::PROGRESS_SYNC_FILES_COMPLETE,
+            static::STAGE_WRITING_CONFIG => static::PROGRESS_WRITING_CONFIG,
+            static::STAGE_POST_INSTALL => static::PROGRESS_POST_INSTALL,
+            static::STAGE_COMPLETE => static::PROGRESS_COMPLETE,
+        ];
     }
 
     /**
@@ -121,18 +141,7 @@ class DeploymentProcess
     {
         $this->sendMessage($from ? "Deploying from {$from} to {$to}.\n" : "Deploying entire repo...");
 
-
-        // $status = 0;
-        // $actions = [
-        //     $this->preInstall(),
-        //     $this->syncFiles($changes),
-        //     $this->uploadConfigFiles(),
-        //     $this->runPostInstallScripts(),
-        //     $this->runOneOffScripts($script_ids),
-        //     $this->updateServerLastCommit($to)
-        // ];
-
-        $actions = [
+        $tasks = [
             'prepare' => compact('to'),
             'preInstall' => null,
             'syncFiles' => compact('to', 'from'),
@@ -140,10 +149,10 @@ class DeploymentProcess
             'postInstall' => compact('script_ids'),
             'complete' => compact('to')
         ];
-        $status = $this->runOrFail($actions);
+        $status = $this->runTasksOrFail($tasks);
 
         $this->sendMessage("Deployment completed with status: {$status}.\n");
-        logger("Completed Deployment: {$status}");
+        logger("Completed {$this->server->name} Deployment: {$status}");
 
         return $status;
     }
@@ -174,7 +183,7 @@ class DeploymentProcess
     //-------------------------------------------------------
     private function prepare($options=[])
     {
-        $this->setStage(static::PROGRESS_PREPARING);
+        $this->setStage(static::STAGE_PREPARING);
         $this->sendMessage("Preparing Repo for deploy.\n");
 
         $this->prepareGitRepo($options['to']);
@@ -183,14 +192,13 @@ class DeploymentProcess
 
     private function preInstall($options=[])
     {
-        $this->setStage(static::PROGRESS_PRE_INSTALL);
+        $this->setStage(static::STAGE_PRE_INSTALL);
         return $this->runPreInstallScripts();
     }
 
     private function syncFiles($options=[])
     {
-        $this->setStage(static::PROGRESS_SYNC_FILES);
-
+        $this->setStage(static::STAGE_SYNC_FILES);
         $this->sendMessage("Determining changed files.\n");
 
         $from = $options['from'];
@@ -200,24 +208,24 @@ class DeploymentProcess
         // the repo from the beginning of time.
         $changes = $from ? $this->server->git_info->changes($from, $to) : $this->server->git_info->all();
 
-        return $this->runOrFail([
-            'upload' => $changes['changed'],
-            'remove' => $changes['removed'],
+        return $this->runTasksOrFail([
+            'uploadFiles' => $changes['changed'],
+            'removeFiles' => $changes['removed'],
         ]);
     }
 
     private function writeConfig($options=[])
     {
-        $this->setStage(static::PROGRESS_WRITING_CONFIG);
+        $this->setStage(static::STAGE_WRITING_CONFIG);
         return $this->uploadConfigFiles();
     }
 
     private function postInstall($options=[])
     {
-        $this->setStage(static::PROGRESS_POST_INSTALL);
+        $this->setStage(static::STAGE_POST_INSTALL);
         $script_ids = $options['script_ids'];
 
-        return $this->runOrFail([
+        return $this->runTasksOrFail([
             'runPostInstallScripts' => null,
             'runOneOffScripts' => $script_ids,
         ]);
@@ -225,7 +233,7 @@ class DeploymentProcess
 
     private function complete($options=[])
     {
-        $this->setStage(static::PROGRESS_COMPLETE);
+        $this->setStage(static::STAGE_COMPLETE);
         $this->updateServerLastCommit($options['to']);
 
         return 0;
@@ -236,17 +244,18 @@ class DeploymentProcess
 
     private function setStage($stage)
     {
-        $this->progress = $this->stage = $stage;
+        $this->stage = $stage;
+        $this->progress = $this->stage_progress[$stage];
     }
     /**
      * Execute an array of methods, fail
-     * @param  array  $actions array of callable methods
+     * @param  array  $tasks array of callable methods
      * @return int    0 for success, any other status code indicating failure.
      */
-    private function runOrFail(array $actions)
+    private function runTasksOrFail(array $tasks)
     {
         $status = 0;
-        foreach ($actions as $action => $params) {
+        foreach ($tasks as $action => $params) {
             $status = $this->{$action}($params);
             if ($this->canceled || $status !== 0) {
                 return $this->canceled ? -1 : $status;
@@ -276,12 +285,12 @@ class DeploymentProcess
      *
      * @return int    This will return 0 for success, anything else indicated a failure.
      */
-    private function upload(array $files)
+    private function uploadFiles(array $files)
     {
         $file_count = count($files);
         $this->sendMessage("{$file_count} files need uploading".PHP_EOL);
 
-        $progress_increment = (static::PROGRESS_SYNC_FILES_COMPLETE - $this->progress) / $file_count;
+        $progress_increment = (static::PROGRESS_SYNC_FILES_COMPLETE - $this->progress) / ($file_count+1);
 
         $previous_dir = "";
         foreach ($files as $idx => $file) {
@@ -308,7 +317,7 @@ class DeploymentProcess
             }
 
             $percent = (int)(($idx / $file_count) * 100);
-            $this->progress = $this->progress + $progress_increment;
+            $this->progress = floor($this->progress + $progress_increment);
 
             $truncated = substr($remote_file, -60);
             $this->sendMessage("<b>Uploaded {$percent}%</b>: ...{$truncated}".PHP_EOL);
@@ -324,7 +333,7 @@ class DeploymentProcess
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
-    private function remove($files)
+    private function removeFiles($files)
     {
         $file_count = count($files);
         $this->sendMessage("{$file_count} files need removed".PHP_EOL);
@@ -367,6 +376,11 @@ class DeploymentProcess
         return $status ? 0 : -1;
     }
 
+    /**
+     * Run one-off scripts
+     *
+     * @return int  This will return 0 for success, anything else indicated a failure.
+     */
     private function runOneOffScripts($script_ids=[])
     {
         if (!empty($script_ids)) {
@@ -386,7 +400,6 @@ class DeploymentProcess
         }
         return 0;
     }
-
 
     /**
      * Run pre-install scripts

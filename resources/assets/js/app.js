@@ -31,25 +31,13 @@ Vue.mixin(LocalTime);
 import { Alerter } from './alerter';
 Vue.prototype.$alerter = Alerter;
 
-import { routes as ProjectRoutes, ProjectsList, ProjectForm } from './vue/components/Projects'
+import { routes as ProjectRoutes, ProjectsList, ProjectCreateModal } from './vue/components/Projects'
 import { MyAccount } from './vue/components/Users'
 
 /**
  * Setup the router
  */
 const routes = [
-    {
-        path: '/',
-        name: 'projects.list',
-        component: ProjectsList,
-        children: [
-            {
-                path: 'projects/create',
-                name: 'projects.create',
-                component: ProjectForm,
-            },
-        ]
-    },
     {
         path: '/my-account',
         name: 'my.account',
@@ -85,5 +73,10 @@ if (!_.isEmpty(user)) {
 const app = new Vue({
     router,
     store,
-    el: '#app'
+    el: '#app',
+
+    mounted() {
+        if(!this.$store.getters.hasUser) return;
+        this.$store.dispatch('PROJECTS_LOAD')
+    }
 });

@@ -52,7 +52,19 @@ $api->version('v1', function ($api) {
                 "as"=>"api.projects.servers.commit-details",
                 "uses"=>"App\Http\Controllers\Api\DeploymentController@commitDetails"
             ]);
+
+            $api->get('/find-commit', [
+                "as"=>"api.projects.servers.find-commit",
+                "uses"=>"App\Http\Controllers\Api\DeploymentController@findCommit"
+            ]);
+
         });
+
+        $api->get('/branch-commits', [
+            'as' => 'api.projects.branch.commits',
+            'uses' => "App\Http\Controllers\Api\DeploymentController@getBranchCommits"
+        ]);
+
         $api->get('/servers/options', "App\Http\Controllers\Api\ServersController@options");
         $api->resource("/servers", "App\Http\Controllers\Api\ServersController", [
             "only"=>["show", "store", "update", "destroy" ],

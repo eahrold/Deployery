@@ -4,9 +4,12 @@ namespace App\Events;
 
 use App\Events\Abstracts\AbstractServerEvent;
 use App\Models\Server;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-final class DeploymentEnded extends AbstractServerEvent
+final class DeploymentEnded extends AbstractServerEvent implements ShouldQueue
 {
+    use Queueable;
 
     /**
      * Message

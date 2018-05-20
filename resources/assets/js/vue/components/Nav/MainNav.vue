@@ -3,6 +3,11 @@
 
     <ul class="navbar-nav">
         <template v-if='!isGuest'>
+        <li class="nav-item">
+            <router-link v-if='isVueRoute' class='nav-link' :to="{ name: 'projects.dashbaord'}">Dashbaord</router-link>
+            <a v-else class='nav-link' href='/'>Dashbaord</a>
+        </li>
+
         <li class="nav-item dropdown">
             <a href="#"
                 class="nav-link dropdown-toggle"
@@ -26,11 +31,8 @@
                 </li>
             </ul>
         </li>
+
         <slot name='teams'></slot>
-        <li class="nav-item">
-            <router-link v-if='isVueRoute' class='nav-link' :to="{ name: 'projects.list'}">Dashbaord</router-link>
-            <a v-else class='nav-link' href='/'>Dashbaord</a>
-        </li>
 
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle"
@@ -46,14 +48,14 @@
                 <li class="dropdown-item nav-item">
                     <a href="/logout"
                         onclick="event.preventDefault();
-                                 document.getElementById('logout-form').submit();">
+                            document.getElementById('logout-form').submit();">
                         <i class="fa fa-btn fa-sign-out"></i>Logout
                     </a>
                     <form id="logout-form" action="/logout"
-                         method="POST" style="display: none;">
-                                <input type="hidden"
-                                    :value="$vfconfig.csfrToken()"
-                                    name="_token">
+                        method="POST" style="display: none;">
+                        <input type="hidden"
+                            :value="$vfconfig.csfrToken()"
+                            name="_token">
                     </form>
                 </li>
                 <li class="dropdown-item nav-item">
@@ -114,7 +116,7 @@ export default {
     computed: {
         ...mapState(['projects', 'user']),
         isGuest() {
-            return !this.user
+            return _.isEmpty(this.user)
         }
     },
 
@@ -122,7 +124,7 @@ export default {
     // Events
     //-------------------------------------------------------
     // watch: {},
-    // mounted() {},
+    mounted() {},
     // beforeDestroy() { /* dealloc anything you need to here*/ },
 
     //----------------------------------------------------------

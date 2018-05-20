@@ -69,6 +69,24 @@ export class ApiAdapter {
     project(id) {
         return this.httpAdapter.get(`/api/projects/${id}`)
     }
+
+    getBranchCommits({projectId, branch}) {
+        const params = {branch, }
+        return this.httpAdapter.get(`/api/projects/${projectId}/branch-commits`, {params, })
+        .then((response)=>{ return response })
+        .catch((error)=>{
+            throw _.get(error, 'response', { data: { message: 'There was a problem finding that commit'}})
+        })
+    }
+
+    findCommit({projectId, serverId, commit}) {
+        const params = {commit, }
+        return this.httpAdapter.get(`/api/projects/${projectId}/servers/${serverId}/find-commit`, {params, })
+        .then((response)=>{ return response })
+        .catch((error)=>{
+            throw _.get(error, 'response', { data: { message: 'There was a problem finding that commit'}})
+        })
+    }
 }
 
 const Api = new ApiAdapter()

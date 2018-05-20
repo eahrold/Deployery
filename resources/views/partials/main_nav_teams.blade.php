@@ -21,7 +21,7 @@
         @endif
 
         @can('joinTeams', App\Models\Team::class)
-        <li role="separator" class="divider"></li>
+        <li role="separator" class="dropdown-divider"></li>
         <li class="dropdown-item">
             <a href="{{ url('/teams') }}">Show Teams</a>
         </li>

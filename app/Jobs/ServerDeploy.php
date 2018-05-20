@@ -60,6 +60,8 @@ class ServerDeploy extends Job implements ShouldQueue
      */
     private $deployment_started;
 
+    private $original_branch;
+
     /**
      * Create a new job instance.
      * @param null|string $from
@@ -68,6 +70,8 @@ class ServerDeploy extends Job implements ShouldQueue
     public function __construct(Server $server, $user_name, $from, $to, $options = [])
     {
         $this->server = $server;
+        $this->original_branch = $server->branch;
+
         $this->channel = $server->channel_id;
 
         $this->fromCommit = $from;
@@ -89,7 +93,8 @@ class ServerDeploy extends Job implements ShouldQueue
             $this->server->present()->deployment_started_message
         );
 
-        $this->server->updateGitInfo();
+        $this->prepareServer();
+
         $this->toCommit = $this->toCommit ?: $this->server->newest_commit['hash'];
 
         $process = (new DeploymentProcess($this->server))->setCallback(function ($message, $percent=0, $stage=null) {
@@ -103,6 +108,8 @@ class ServerDeploy extends Job implements ShouldQueue
 
         $changes = $process->getChanges();
         $errors = $process->getErrors();
+
+        $this->restoreServerIfNeeded();
 
         $this->registerDeploymentEnded(
             $this->server->present()->deployment_completed_message,
@@ -128,6 +135,37 @@ class ServerDeploy extends Job implements ShouldQueue
             return true;
         }
         return false;
+    }
+
+    /**
+     * Prepare The Server
+     */
+    private function prepareServer()
+    {
+        $branch = data_get($this->options, 'branch', null);
+        logger("Preparing Server", [$branch, $this->server->branch]);
+        if (!empty($branch) && $branch !== $this->server->branch ) {
+            logger("Updating Server Branch: {$branch}");
+
+            $this->server->update(['branch' => $branch]);
+        }
+
+        $this->server->updateGitInfo();
+    }
+
+    /**
+     * Restore Server if needed
+     */
+    private function restoreServerIfNeeded()
+    {
+        $use_branch_in_future = data_get($this->options, 'use_branch_in_future', false);
+        $branch = $this->original_branch;
+        logger("Checking For Server Restore", [$branch, $this->server->branch, $use_branch_in_future]);
+
+        if( ! $use_branch_in_future && $branch !== $this->server->branch) {
+            logger("Restoring Server Branch: {$branch}");
+            $this->server->update(['branch' => $branch]);
+        }
     }
 
     /**

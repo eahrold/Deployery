@@ -13,6 +13,9 @@ require('./bootstrap');
 import { VueForms } from 'vue-forms'
 Vue.use(VueForms);
 
+import { ApiPlugin } from './vue/services'
+Vue.use(ApiPlugin)
+
 import ElementsPlugin from './vue/elements'
 Vue.use(ElementsPlugin)
 
@@ -22,6 +25,8 @@ Vue.use(NavPlugin)
 import DeploymentPlugin from './vue/components/Deployments'
 Vue.use(DeploymentPlugin)
 
+import { Filters } from './vue/util'
+Vue.use(Filters)
 /**
  * Register Mixins
  */

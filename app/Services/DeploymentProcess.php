@@ -288,6 +288,7 @@ class DeploymentProcess
     private function uploadFiles(array $files)
     {
         $file_count = count($files);
+
         $this->sendMessage("{$file_count} files need uploading".PHP_EOL);
 
         $progress_increment = (static::PROGRESS_SYNC_FILES_COMPLETE - $this->progress) / ($file_count+1);
@@ -320,7 +321,7 @@ class DeploymentProcess
             $this->progress = floor($this->progress + $progress_increment);
 
             $truncated = substr($remote_file, -60);
-            $this->sendMessage("<b>Uploaded {$percent}%</b>: ...{$truncated}".PHP_EOL);
+            $this->sendMessage("<b class='text-info'>Uploaded {$percent}%:</b> ...{$truncated}".PHP_EOL);
         }
 
         return 0;
@@ -340,6 +341,8 @@ class DeploymentProcess
 
         foreach ($files as $file) {
             $file_path = "{$this->server->deployment_path}/$file";
+            $truncated = substr($remote_file, -60);
+
             if ($this->server->connection->exists($file_path)) {
                 if($this->server->connection->delete($file_path)) {
                     $this->removed['success'][] = $file;
@@ -347,7 +350,9 @@ class DeploymentProcess
                     $this->errors[] = "Could not remove {$file}";
                     $this->removed['failed'][] = $file;
                 }
-                $this->sendMessage("Removed {$file_path}".PHP_EOL);
+                $this->sendMessage("<b class='text-danger'>Removed</b> {$truncated}".PHP_EOL);
+            } else {
+                $this->sendMessage("<b class='text-danger'>Removed</b> {$truncated}".PHP_EOL);
             }
         }
         return 0;

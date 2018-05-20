@@ -1,19 +1,23 @@
 const moment = require('moment');
 
-const LocalTime = {
-    methods : {
-        localTime(time) {
-            var time = moment.parseZone(time).local();
-            if (time.isValid()) {
-                return time.format('LLL');
-            }
-            return '';
-        },
+const timeFunctions = {
+    localTime: function(time) {
+        if( ! time)return ""
 
-        timeFromNow(time) {
-            return moment(time).fromNow();
+        var time = moment.parseZone(time).local();
+        if (time.isValid()) {
+            return time.format('LLL');
         }
+        return '';
+    },
+    timeFromNow: function(time) {
+        return moment(time).fromNow()
     }
+}
+
+const LocalTime = {
+    filters: timeFunctions,
+    methods : timeFunctions
 }
 
 export { LocalTime }

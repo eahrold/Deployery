@@ -1,4 +1,4 @@
-import ProjectsList from './ProjectsList'
+import ProjectsDashboard from './ProjectsDashboard'
 import Project from './Project'
 import ProjectOverview from './ProjectOverview'
 import ProjectDetails from './ProjectDetails'
@@ -12,8 +12,8 @@ import { routes as ScriptsRoutes } from '../Scripts'
 
 export const routes =  {
     path: '/',
-    name: 'projects.list',
-    component: ProjectsList,
+    name: 'projects.dashbaord',
+    component: ProjectsDashboard,
     children: [
         {
             path: 'projects/create',
@@ -40,7 +40,7 @@ export const routes =  {
 }
 
 export {
-    ProjectsList,
+    ProjectsDashboard,
     Project,
     ProjectOverview,
     ProjectDetails,

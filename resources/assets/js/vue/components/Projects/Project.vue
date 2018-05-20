@@ -13,11 +13,10 @@
         <deployments-info-panel></deployments-info-panel>
 
         <transition name='bottomup'>
-            <div v-if='loading' class="btn btn-info btn-loading">
+            <div v-if='loading' class="bottom-up loading">
                 Getting Project Data...
             </div>
         </transition>
-
     </div>
 </div>
 </template>
@@ -228,6 +227,8 @@ export default {
          *
          */
         deleteDataFromProject(object, type){
+            if( ! confirm(`Are you sure you want to remove this item`))return;
+
             if(object.id && type){
                 var endpoint = this.endpoint+'/'+type+'/'+object.id;
                 this.$http.delete(endpoint).then(
@@ -258,16 +259,20 @@ export default {
 </script>
 
 <style>
-.btn.btn-loading {
+.bottom-up.loading {
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     position: fixed;
     bottom: 0;
     left: 0;
+    right: 0;
     width: 100%;
     height: 60px;
     opacity: .5;
     z-index: 1000;
-    line-height: 4em;
-    vertical-align:middle;
     border: none;
     background-color: #96a8ad;
 }

@@ -2,11 +2,12 @@
 
 namespace App\Services\Git\Validation;
 
+use App\Services\Git\GitInfo;
 use Illuminate\Contracts\Validation\Rule;
 
 class ValidRepoBranch implements Rule
 {
-    private $url;
+    private $path;
     private $pub_key;
 
     /**
@@ -14,7 +15,7 @@ class ValidRepoBranch implements Rule
      *
      * @return void
      */
-    public function __construct($url, $pub_key=null)
+    public function __construct($path, $pub_key=null)
     {
         $this->path = $path;
         $this->pub_key = $pub_key;
@@ -29,7 +30,7 @@ class ValidRepoBranch implements Rule
      */
     public function passes($attribute, $value)
     {
-        $info = new GitInfo($path);
+        $info = new GitInfo($this->path);
         if (isset($this->pub_key)) {
             $info->withPubKey($pub_key);
         }

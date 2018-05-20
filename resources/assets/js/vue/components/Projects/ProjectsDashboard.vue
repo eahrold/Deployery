@@ -5,7 +5,6 @@
 
         <transition name='fade'>
             <div v-if='!loading && !projects.length' class="col-md-8 offset-2 my-4">
-
                 <form-card>
                     <router-link class='text-center' :to="{name:'projects.create'}">
                         <h5><i class="fa fa-plus-circle" aria-hidden="true"></i> Add your first Project</h5>
@@ -29,9 +28,11 @@
                 </div>
 
                 <list-group :items='projects'>
-                      <template slot-scope="context">
-                        <projects-list-item :project='context.item'></projects-list-item>
-                      </template>
+                    <template slot-scope="context">
+                        <projects-dashboard-list-item
+                            :project='context.item'>
+                        </projects-dashboard-list-item>
+                    </template>
                 </list-group>
             </form-section>
         </transition>
@@ -42,14 +43,14 @@
 <script>
 
 import ProjectPubKey from './ProjectPubKey'
-import ProjectsListItem from './ProjectsListItem'
+import ProjectsDashboardListItem from './ProjectsDashboardListItem'
 
 import { mapState } from 'vuex'
 
 export default {
-    name: 'projects-list',
+    name: 'projects-dashboard',
     components: {
-        ProjectsListItem,
+        ProjectsDashboardListItem,
         ProjectPubKey
     },
 

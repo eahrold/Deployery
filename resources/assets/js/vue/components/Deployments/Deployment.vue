@@ -8,18 +8,14 @@
 <template>
 <form-modal @close='close'>
     <template slot="header">
-        <h4 v-if='loading' class="modal-title">
-            <div class="pull-left sk-wave sk-anywhere sk-sm">
-                <!-- <div v-for='n in 5' :class='["sk-rect", "sk-rect"+n]'></div> -->
-                <div class="sk-rect sk-rect1"></div>
-                <div class="sk-rect sk-rect2"></div>
-                <div class="sk-rect sk-rect3"></div>
-                <div class="sk-rect sk-rect4"></div>
-                <div class="sk-rect sk-rect5"></div>
-            </div>
-            <div class="pull-left"> Getting Commit Data...</div>
+        <h4 v-if='loading' class="modal-title d-flex align-items-center justify-content-start">
+            <span class="pull-left">Getting Commit Data</span>
+            <progress-rects class='pull-left'></progress-rects>
         </h4>
-        <h4 v-else class="modal-title">Deploy {{ serverName }}</h4>
+        <h4 v-else class="modal-title">
+            <span>Deploy {{ serverName }}</span>
+            <i class="fa fa-refresh" @click="getServerCommitDetails" :class='{"fa-spin": loading && loaded}'></i>
+        </h4>
     </template>
 
     <template slot="body">
@@ -27,11 +23,32 @@
             <div class="row commit-selection">
                 <div class="col-md-12">
                     <form-panel>
-                        <div v-if='loaded' @click="getCommitDetails" class='refresh-spinner col-md-12 text-right'>
-                            <span><em>Refresh</em><i class="fa fa-refresh" :class='{"fa-spin": loading}'></i></span>
-                        </div>
+                        <form-select label='Branch' v-model='currentBranch' :options='availableBranches' property='branch'>
+                            <form-checkbox
+                                slot='help'
+                                v-if='currentBranch !== originalBranch'
+                                v-model='useBranchForFutureDeployments'
+                                label='Use this branch for future releases.'
+                                property='use_branch_in_future'>
+                            </form-checkbox>
+                        </form-select>
 
-                        <form-select
+
+                        <deployments-commit-toggler
+                            title='From Commit'
+                            :find-commit='findCommit'
+                            :commit.sync='fromCommit'
+                            :commits='availableFromCommits'>
+                        </deployments-commit-toggler>
+
+                        <deployments-commit-toggler
+                            title='To Commit'
+                            :find-commit='findCommit'
+                            :commit.sync='toCommit'
+                            :commits='availableToCommits'>
+                        </deployments-commit-toggler>
+
+                       <!--  <form-select
                             v-model='fromCommit'
                             label="From Commit"
                             property='from_commit'
@@ -43,7 +60,7 @@
                             label="To Commit"
                             property='to_commit'
                             :options='selectCommits'>
-                        </form-select>
+                        </form-select> -->
 
                         <form-checkbox v-model='deployEntireRepo' property='deploy_entire_repo'></form-checkbox>
 
@@ -121,12 +138,14 @@
 
 import { mapGetters, mapState } from 'vuex';
 import DeploymentsStatusBox from './DeploymentsStatusBox'
+import DeploymentsCommitToggler from './DeploymentsCommitToggler'
 
 import moment from 'moment'
 
 export default {
     components: {
         DeploymentsStatusBox,
+        DeploymentsCommitToggler,
     },
 
     data() {
@@ -137,11 +156,13 @@ export default {
             deployEntireRepo: false,
             lastDeployedCommit: null,
             availableFromCommits: [],
-            availableCommits: [],
+            availableToCommits: [],
             availableScripts: [],
 
             availableBranches: [],
             currentBranch: null,
+            originalBranch: null,
+
             useBranchForFutureDeployments: false,
             scriptIds: [],
             loading: true,
@@ -155,7 +176,7 @@ export default {
 
     computed: {
         ...mapState(['actionTypes']),
-        ...mapGetters(['deploying', 'progress', 'messages', 'stage']),
+        ...mapGetters(['deploying', 'progress', 'messages', 'stage', 'lastDeployment']),
 
         server() {
             return {
@@ -211,15 +232,6 @@ export default {
             return `/api/projects/${this.projectId}/servers/${this.serverId}`
         },
 
-        selectCommits(){
-            return _.map(this.availableCommits, (commit)=>{
-                const label = `${commit.hash} : ${commit.message} (${moment(commit.date).format("ll h:mm a")})`
-                return {
-                    text: label.substring(0, 80) + (label.length > 80 ? '...' : ""),
-                    value: commit
-                };
-            });
-        }
     },
 
     beforeRouteEnter (to, from, next) {
@@ -229,17 +241,45 @@ export default {
     },
 
     mounted () {
-        this.availableFromCommits.push({'hash': 0, 'message': 'Beginning of time'});
-        this.getCommitDetails();
+        this.getServerCommitDetails();
         if ( ! this.deploying ) {
             this.$store.dispatch(this.actionTypes.DEPLOYMENT_RESET)
         }
     },
 
+    watch: {
+        currentBranch(branch) {
+            this.getBranchCommits(branch)
+        },
+
+        lastDeployment(lastDeployment) {
+            if (lastDeployment.success) {
+                const newFrom = _.find(this.availableToCommits, {hash: lastDeployment.to_commit})
+                if (newFrom) this.fromCommit = newFrom
+            }
+        }
+    },
 
     methods: {
+        findCommit(commit) {
+            const { projectId, serverId } = this
+            return this.$api.findCommit({commit, projectId, serverId})
+        },
 
-        getCommitDetails(){
+        getBranchCommits(branch) {
+            const { projectId } = this
+            this.loading = true;
+            return this.$api.getBranchCommits({ branch, projectId }).then(({data})=>{
+                console.log({data})
+                this.availableToCommits = _(data).uniqBy('hash').orderBy(['date'],['desc']).value()
+            }).catch((error)=>{
+                console.log('Error Getting Branch Commits',{branch, error})
+            }).then(()=>{
+                this.loading = false;
+            })
+        },
+
+        getServerCommitDetails(){
             this.loading = true;
 
             this.$http.get(this.apiEndpoint+'/commit-details')
@@ -255,7 +295,7 @@ export default {
                     this.availableScripts = available_scripts
 
                     this.availableBranches = available_branches
-                    this.currentBranch = current_branch
+                    this.originalBranch = this.currentBranch = current_branch
 
                     // Append the last commit to the list of available commits
                     // in case the previous commit was from a different branch
@@ -266,9 +306,17 @@ export default {
 
                     this.deployEntireRepo = !lastHash
                     this.lastDeployedCommit = last_deployed_commit_details;
-                    this.availableCommits = _(available_commits).uniqBy('hash').orderBy(['date'],['desc']).value()
 
-                    this.toCommit = _.first(this.availableCommits);
+                    this.availableToCommits = _(available_commits).uniqBy('hash').orderBy(['date'],['desc']).value()
+
+
+                    this.availableFromCommits = _.concat([],
+                        this.availableToCommits,
+                        {'hash': 0, 'message': 'Beginning of time', 'date': null, 'user': null}
+                    )
+
+
+                    this.toCommit = _.first(this.availableToCommits);
                     this.fromCommit = last_deployed_commit_details || { hash: null,  'label': 'Never deployed', date: null, user: null};
 
                     this.error = false;
@@ -280,22 +328,9 @@ export default {
                 }).then(()=>{this.loading=false});
         },
 
-
-        /**
-         * Start Deployment
-         */
-        beginDeployment(){
-            const data = {
-                server: this.server,
-                message: `Deployment began on ${this.server.name}`
-            };
-            this.$store.dispatch(this.actionTypes.DEPLOYMENT_STARTED, {data})
-        },
-
-
         deploy(){
             if(this.error == true) {
-                return this.getCommitDetails();
+                return this.getServerCommitDetails();
             }
 
             var endpoint = `${this.apiEndpoint}/deploy`
@@ -311,12 +346,25 @@ export default {
             this.disabled = true;
             this.$http.post(endpoint, data)
                 .then((response) => {
-                    this.beginDeployment();
+                    this.triggerBeginDeployment();
                 },
                 ({response}) => {
                     this.$vfalert.errorResponse(response);
             }).then(()=>{this.disabled=false});
         },
+
+
+        /**
+         * Start Deployment
+         */
+        triggerBeginDeployment(){
+            const data = {
+                server: this.server,
+                message: `Deployment began on ${this.server.name}`
+            };
+            this.$store.dispatch(this.actionTypes.DEPLOYMENT_STARTED, {data})
+        },
+
 
         close() {
             if (!_.isEmpty(this.$_AdminForm__from_route)) {

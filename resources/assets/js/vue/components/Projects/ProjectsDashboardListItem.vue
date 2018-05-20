@@ -19,7 +19,7 @@
 import _ from 'lodash'
 
 export default {
-    name: 'projects-list-item',
+    name: 'projects-dashboard-list-item',
 
     props: {
         project: {

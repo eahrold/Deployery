@@ -7,6 +7,8 @@ use App\Http\Requests\BaseRequest as Request;
 use App\Jobs\ServerDeploy;
 use App\Models\Project;
 use App\Models\Server;
+use App\Services\Git\GitInfo;
+use App\Services\Git\Validation\ValidRepoBranch;
 use Dingo\Api\Routing\Helpers;
 
 class DeploymentController extends Controller
@@ -39,23 +41,30 @@ class DeploymentController extends Controller
         $this->apiValidate($this->request, [
             'script_id' => 'sometimes|array',
             'script_ids.*' => 'exists:scripts,id',
+            'use_branch_in_future' => 'sometimes|boolean',
+            'branch' => [
+                'sometimes', new ValidRepoBranch($server->repo)
+            ]
         ]);
 
         $scriptIds = $this->request->get('script_ids', []);
-        $oneOffs = $server->oneOffScripts()->whereIn('id', $scriptIds)->pluck('id')->values()->all();
+        $oneOffScripts = $server->oneOffScripts()->whereIn('id', $scriptIds)->pluck('id')->values()->all();
 
         $this->authorize('deploy', $server->project);
 
         if ($this->request->get('deploy_entire_repo')) {
-            $to = $server->newest_commit['hash'];
             $from = null;
+            $to = $server->newest_commit['hash'];
         } else {
-            $to = $this->request->get('to') ?: $server->newest_commit['hash'];
             $from = $this->request->get('from') ?: $server->last_deployed_commit;
+            $to = $this->request->get('to') ?: $server->newest_commit['hash'];
         }
 
+        $options = $this->request->only(['branch', 'use_branch_in_future']);
+        $options['script_ids'] = $oneOffScripts;
+
         return $this->response->array(
-            $this->queueDeployment($server, $to, $from, $this->user()->full_name, $oneOffs)
+            $this->queueDeployment($server, $to, $from, $this->user()->full_name, $options)
         );
     }
 
@@ -123,6 +132,18 @@ class DeploymentController extends Controller
         });
     }
 
+    public function getBranchCommits($project_id)
+    {
+        $project = Project::findOrFail($project_id);
+        $this->authorize('deploy', $project);
+
+        $branch = $this->request->branch;
+
+        $gitInfo = (new GitInfo($project->repoPath()))->branch($this->request->branch);
+        $commits = $gitInfo->commits(30);
+
+        return $this->response->array($commits);
+    }
     /**
      * Find a specific commit
      *
@@ -132,7 +153,17 @@ class DeploymentController extends Controller
      */
     public function findCommit($project_id, $id)
     {
-        # code...
+        $server = Project::findServer($project_id, $id);
+        $this->authorize('deploy', $server->project);
+
+        $hash = $this->request->commit;
+        $commit = $server->findCommit($hash);
+
+        if (!$commit) {
+            abort(422, 'Could not find a matching commit');
+        }
+
+        return $this->response->array($commit);
     }
 
     /**
@@ -178,17 +209,14 @@ class DeploymentController extends Controller
      *
      * @return array  Message
      */
-    private function queueDeployment(Server $server, string $to = null, string $from = null, $user_name = null, $script_ids=[])
+    private function queueDeployment(Server $server, string $to = null, string $from = null, $user_name = null, $options=[])
     {
         if ($user_name === '' || $user_name === null) {
             $user_name = $server->project->user->username;
         }
 
-        $options = compact('script_ids');
-
         $deployment = (new ServerDeploy($server, $user_name, $from, $to, $options))->onQueue('deployments');
         $this->dispatch($deployment);
-
 
         return [
             'message'=>'Queued deployment',

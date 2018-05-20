@@ -84,6 +84,10 @@ export default {
             return _.get(state, 'deployment.stage', -1)
         },
 
+        lastDeployment: (state, getters) => {
+            return _.first(state.history)
+        },
+
         /**
          * Return the id of the server that is deploying
          *
@@ -217,7 +221,6 @@ export default {
 
         [types.PROJECTS_LOAD]({commit, state}) {
             commit('proejctsLoading', {proejctsLoading: true, })
-            console.log("Dispatching 1 ...")
             Api.projects().then(({data, pagination})=>{
                 commit('projects', { projects: data })
                 commit('proejctsLoading', {proejctsLoading: false, })

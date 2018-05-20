@@ -4,6 +4,7 @@ import FormCard from './FormCard'
 import FormSection from './FormSection'
 
 import ListPlugin, { ListGroup, ListGroupItem } from './List'
+import ProgressPlugin from './Progress'
 
 export default {
     install(Vue, options) {
@@ -13,6 +14,7 @@ export default {
         Vue.component('form-section', FormSection)
 
         Vue.use(ListPlugin)
+        Vue.use(ProgressPlugin)
     }
 }
 

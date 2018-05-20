@@ -264,22 +264,41 @@ class GitInfo
      */
     public function changes($from, $to = null)
     {
-        $builder = $this->gitBuilder()->setTask("diff --name-status {$from}");
+        // The -z arg here instructs git to use NULs as output field terminators
+        // Consequently the result will be a single line
+        $diff_filters='AMDR'; // (A)dd, (M)Modified, (D)elete, (R)ename
+        $builder = $this->gitBuilder()->setTask("diff --name-status -z --diff-filter={$diff_filters} {$from}");
         if ($to) {
             $builder->add($to);
         }
 
-        $stdout = $this->run($builder);
-        $files = [];
-        foreach ($stdout as $buffered) {
-            $lines = explode(PHP_EOL, $buffered);
-            $files = array_merge($files, $lines);
+        list($stdout, ) = $this->run($builder);
+
+        // First we'll normalize RXXX (rename) values to just R
+        // From https://git-scm.com/docs/git-status
+        //     <X><score>  The rename or copy score (denoting the percentage
+        //     of similarity between the source and target of the
+        //     move or copy). For example "R100" or "C75".
+        $stdout = preg_replace('/([R])\d+\0/', "R\0", $stdout);
+
+        // Now we'll set up things so we can get a clean explosion
+        $df_split = str_split($diff_filters);
+        foreach ($df_split as $key) {
+            // The \0 before represents the end of the previous line, we replace this
+            // with the PRETTY_FORMAT_DELIM, to differentiate it from the
+            // rest of the NUL field terminators.
+            // The $key is the first part of the new line (the action),
+            // The following \0 is between the action and the file
+            $stdout = str_replace("\0{$key}\0", static::PRETTY_FORMAT_DELIM."{$key}\0", $stdout);
         }
+        $files = explode(static::PRETTY_FORMAT_DELIM, $stdout);
+
         $changed = [];
         $removed = [];
 
         foreach ($files as $result) {
-            $parts = preg_split('/\s+/', $result);
+            // $parts = preg_split('/\s+/', $result);
+            $parts = explode("\0", $result);
             $char = trim($parts[0])[0];
             $file = trim($parts[1]);
 

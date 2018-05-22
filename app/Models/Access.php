@@ -15,15 +15,15 @@ class Access
 
     private function teams() {
         if($this->user()) {
-            return $this->user()->presenter()->shouldShowTeamMenu()
+            return $this->user()->presenter()->shouldShowTeamMenu();
         }
         return false;
     }
 
     public function forUser() {
-        return {
+        return [
             'is_guest' => $this->guard()->guest(),
             'teams' => $this->teams(),
-        }
+        ];
     }
 }

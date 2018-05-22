@@ -25,7 +25,7 @@ final class DeploymentEnded extends AbstractServerEvent implements ShouldQueue
 
     /**
      * Errors
-     * @var array
+     * @var boolean
      */
     public $success;
 

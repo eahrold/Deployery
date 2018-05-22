@@ -32,7 +32,7 @@ class ValidRepoBranch implements Rule
     {
         $info = new GitInfo($this->path);
         if (isset($this->pub_key)) {
-            $info->withPubKey($pub_key);
+            $info->withPubKey($this->pub_key);
         }
         return $info->hasBranch($value);
     }

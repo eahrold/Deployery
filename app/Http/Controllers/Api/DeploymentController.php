@@ -174,11 +174,11 @@ class DeploymentController extends Controller
     public function webhook($webhook)
     {
         list($agent,/*version*/) = explode('/', $this->request->header('User-Agent'), 2);
-        $name = ucfirst($server->username);
-        $sender = "{$name} [ {$agent} ]";
-
         $server = Server::where('webhook', $this->request->url())
                         ->firstOrFail();
+
+        $name = ucfirst($server->username);
+        $sender = "{$name} [ {$agent} ]";
 
 
         if (!$server->autodeploy) {

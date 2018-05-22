@@ -9,17 +9,13 @@ class GitCloneValidation
 
     public function validate($attribute, $value, $parameters, Validator $validator)
     {
-        $url = $parameters[0];
-        $info = new GitInfo($path);
-        if (isset($parameters[1])) {
-            $info->withPubKey($parameters[1]);
-        }
-        return $info->hasBranch($value);
+        $pattern = '/^(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/';
+        return boolval(preg_match($pattern, $value));
     }
 
     public function replace($message, $attribute, $rule, $parameters)
     {
-        return "The git branch is not valid";
+        return "The git clone url is not valid";
     }
 
 }

@@ -12,6 +12,7 @@ final class MyAccountController extends Controller
 {
     protected $request;
     protected $model;
+
     public function __construct(BaseRequest $request, User $model)
     {
         $this->request = $request;
@@ -66,7 +67,7 @@ final class MyAccountController extends Controller
         $model = $this->user();
         $this->authorize($model);
         $model->delete();
-        return $this->response->array([
+        return response()->json([
             'message' => 'deleted',
         ]);
     }

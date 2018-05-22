@@ -341,7 +341,7 @@ class DeploymentProcess
 
         foreach ($files as $file) {
             $file_path = "{$this->server->deployment_path}/$file";
-            $truncated = substr($remote_file, -60);
+            $truncated = substr($file, -60);
 
             if ($this->server->connection->exists($file_path)) {
                 if($this->server->connection->delete($file_path)) {
@@ -499,14 +499,13 @@ class DeploymentProcess
         });
     }
 
+    private function sendMessage($message) {
+        $this->callback($message, $this->progress, $this->stage);
+    }
 
     //----------------------------------------------------------
     // Magic Methods
     //-------------------------------------------------------
-
-    private function sendMessage($message) {
-        $this->callback($message, $this->progress, $this->stage);
-    }
 
     /**
      * Determine if the method is a callable method

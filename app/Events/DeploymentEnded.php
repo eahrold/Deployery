@@ -24,6 +24,12 @@ final class DeploymentEnded extends AbstractServerEvent implements ShouldQueue
     public $errors;
 
     /**
+     * Errors
+     * @var array
+     */
+    public $success;
+
+    /**
      * Event indicating deployment ended
      *
      * @param Server $server  Server being deployed
@@ -31,10 +37,11 @@ final class DeploymentEnded extends AbstractServerEvent implements ShouldQueue
      * @param array  $errors  List any errors
      * @return  void
      */
-    public function __construct(Server $server, string $message, array $errors = [])
+    public function __construct(Server $server, string $message, array $errors = [], $success=true)
     {
         parent::__construct($server);
         $this->message = $message;
         $this->errors = $errors;
+        $this->success = $success;
     }
 }

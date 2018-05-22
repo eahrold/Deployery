@@ -20,6 +20,10 @@ class GitInfo
 {
     use GitAuthenticatable;
 
+    /**
+     * String Seperator unlikely to occur anywhere in a commit.
+     * Used for explosion
+     */
     const PRETTY_FORMAT_DELIM = '|-*-*-|';
 
     /**
@@ -90,6 +94,11 @@ class GitInfo
         return $this;
     }
 
+    /**
+     * Convert a stdout line to a commit array
+     * @param  string $line the stdout text for a commit
+     * @return array       array representation fo a commit
+     */
     private function formatCommitLine($line)
     {
         list($hash, $user, $date, $message) = explode(static::PRETTY_FORMAT_DELIM, $line);
@@ -101,6 +110,10 @@ class GitInfo
         ];
     }
 
+    /**
+     * Create a common format for git log results
+     * @return string git log format
+     */
     private function gitLogFormat()
     {
         return "--pretty=format:%h".static::PRETTY_FORMAT_DELIM."%an".static::PRETTY_FORMAT_DELIM."%aI".static::PRETTY_FORMAT_DELIM."%s";
@@ -166,14 +179,15 @@ class GitInfo
         // Clean Hash //
         $commitHash = substr(preg_replace("/[^A-Za-z0-9 ]/", '', $commitHash),0, 7);
 
-        $task = "log origin/{$this->branch} -1 {$commitHash} {$this->gitLogFormat()}";
+        $task = "log --all --oneline {$commitHash} {$this->gitLogFormat()}";
         $builder = $this->gitBuilder()->setTask($task);
         $stdout = $this->run($builder);
 
-        $end = end($stdout);
+        $end = collect($stdout)->filter(function($item) use ($commitHash){
+            return starts_with($item, $commitHash);
+        })->first();
 
         if (empty($end)) return false;
-
         return $this->formatCommitLine($end);
     }
 
@@ -272,7 +286,7 @@ class GitInfo
             $builder->add($to);
         }
 
-        list($stdout, ) = $this->run($builder);
+        $stdout = data_get($this->run($builder), 0);
 
         // First we'll normalize RXXX (rename) values to just R
         // From https://git-scm.com/docs/git-status
@@ -291,7 +305,7 @@ class GitInfo
             // The following \0 is between the action and the file
             $stdout = str_replace("\0{$key}\0", static::PRETTY_FORMAT_DELIM."{$key}\0", $stdout);
         }
-        $files = explode(static::PRETTY_FORMAT_DELIM, $stdout);
+        $files = array_filter(explode(static::PRETTY_FORMAT_DELIM, $stdout));
 
         $changed = [];
         $removed = [];

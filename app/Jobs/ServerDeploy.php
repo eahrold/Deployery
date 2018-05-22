@@ -188,7 +188,7 @@ class ServerDeploy extends Job implements ShouldQueue
      */
     private function registerDeploymentEnded(string $message, int $rc, array $changes = [], array $errors = [])
     {
-        event(new DeploymentEnded($this->server, $message, $errors));
+        event(new DeploymentEnded($this->server, $message, $errors, $rc===0));
         $history = $this->saveHistory($rc, $changes, $errors);
 
         $this->server->is_deploying = false;

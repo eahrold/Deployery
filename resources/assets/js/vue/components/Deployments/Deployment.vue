@@ -14,7 +14,6 @@
         </h4>
         <h4 v-else class="modal-title">
             <span>Deploy {{ serverName }}</span>
-            <i class="fa fa-refresh" @click="getServerCommitDetails" :class='{"fa-spin": loading && loaded}'></i>
         </h4>
     </template>
 
@@ -62,7 +61,17 @@
                             :options='selectCommits'>
                         </form-select> -->
 
-                        <form-checkbox v-model='deployEntireRepo' property='deploy_entire_repo'></form-checkbox>
+                        <div class="row d-flex align-items-center justify-content-center">
+                            <div class="col">
+                                <form-checkbox v-model='deployEntireRepo' property='deploy_entire_repo'></form-checkbox>
+                            </div>
+                            <div class="col d-flex justify-content-end">
+                                <div class="btn btn-info" @click="getServerCommitDetails" :disabled='loading'>
+                                    <span class="pr-1">Reload Remote Details</span>
+                                    <i class="fa fa-refresh" :class='{"fa-spin": loading && loaded}'></i>
+                                </div>
+                            </div>
+                        </div>
 
                         <hr />
                         <form-checkbox-group

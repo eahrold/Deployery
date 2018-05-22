@@ -200,6 +200,8 @@ export default {
             const { message } = data
             const { messages } = state.deployment
 
+            console.log("Deployment Ended", {data,})
+
             const deployment = {
                 ...state.deployment,
                 messages: _.merge(messages, [message]),
@@ -207,6 +209,7 @@ export default {
                 server_id: null,
                 server_name: null,
                 deploying: false,
+                stage: 100,
             }
             commit('deployment', { deployment })
         },

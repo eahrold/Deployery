@@ -13,7 +13,7 @@
 <transition name='fade'>
     <form-modal v-if='showPanel'>
 
-        <div slot='body'>
+        <div slot='body' class='project-clone-modal'>
             <div class="d-flex justify-content-center">
                 <h4><i v-if='status.cloning' class="fa fa-spinner fa-spin fa-fw"></i> {{ header }}</h4>
             </div>

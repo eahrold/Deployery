@@ -2,27 +2,16 @@
 
 namespace App\Models;
 
-use App\Jobs\RepositoryClone;
+use App\Models\Observers\ProjectObserver;
 use App\Models\Traits\Slackable;
-use App\Services\Git\GitCloner;
 use App\Services\Git\GitInfo;
 use App\Services\Git\Validation\ValidCloneUrl;
-use App\Services\Git\Validation\ValidRepoBranch;
-use App\Services\SSHKeyer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Symfony\Component\Process\ProcessBuilder;
 
 final class Project extends Base
 {
     use Slackable;
-
-    protected $unique_validation_keys = ['name'];
-    protected $validation_rules = [
-        'name' => 'required|string',
-        'repo' => [ 'required', 'string' ],
-        'slack_webhook_url' => 'url|nullable',
-    ];
 
     protected $fillable = [
         'name',
@@ -40,18 +29,12 @@ final class Project extends Base
 
     public function getValidationRules($id = null, $append=[])
     {
-        $unique = $this->validation_rules;
-        foreach ($this->unique_validation_keys as $key) {
-            $rule = $this->validation_rules[$key];
-            if ($id = $id ?: $this->id) {
-                $unique[$key] = "{$rule}|unique:{$this->getTable()},{$key},{$id}";
-            } else {
-                $unique[$key] = "{$rule}|unique:{$this->getTable()}";
-            }
-        }
-
-        $unique['repo'][] = new ValidCloneUrl();
-        return array_merge($unique, $append);
+        $rules = [
+            'name' => 'required|string|unique:projects,name,{$id}"',
+            'repo' => [ 'required', 'string', new ValidCloneUrl() ],
+            'slack_webhook_url' => 'url|nullable',
+        ];
+        return array_merge($rules, $append);
     }
 
     /**
@@ -333,46 +316,6 @@ final class Project extends Base
     protected static function boot()
     {
         parent::boot();
-
-        static::updating(function ($model) {
-            if( $model->repo_exists && $model->isDirty('repo')) {
-                (new GitCloner)->updateRepoUrl($model->repo_path, $model->repo);
-            }
-        });
-
-        static::saved(function ($model) {
-            if (!$model->repo_exists) {
-                dispatch((new RepositoryClone($model))->onQueue('clones'));
-            }
-        });
-
-        static::saving(function ($model) {
-            $model->slug = str_slug($model->slug ?: $model->name);
-        });
-
-        // Register for events
-        static::creating(function ($model) {
-            $user = Auth::user();
-
-            $model->uid = uniqid();
-            $model->user_id = $user->id;
-            $model->team_id = ($user && $user instanceof User) ? $user->current_team_id : -1;
-        });
-
-        static::created(function ($model) {
-            $keyer = new SSHKeyer();
-            $keyer->generate($model->keyPath(), true);
-        });
-
-        static::deleting(
-            function ($model) {
-                if ($model->uid) {
-                    \File::deleteDirectory($model->fileStore());
-                }
-                // Clears any cached keys
-                $model->is_cloning = false;
-                $model->is_deploying = false;
-            }
-        );
+        static::observe(new ProjectObserver);
     }
 }

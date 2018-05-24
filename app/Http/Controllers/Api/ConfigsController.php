@@ -58,7 +58,8 @@ class ConfigsController extends APIController
 
         \DB::transaction(function() use ($project, $model) {
             $project->configs()->save($model);
-            if(($server_ids = $this->request->server_ids)) {
+            $server_ids = $this->request->get('server_ids');
+            if( !! $server_ids ) {
                 $model->servers()->sync($server_ids);
             }
         });

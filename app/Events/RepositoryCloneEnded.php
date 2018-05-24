@@ -10,13 +10,13 @@ final class RepositoryCloneEnded extends AbstractEventMessage
     /**
      * Exit status of the clone process.
      *
-     * @var string
+     * @var integer
      */
     public $success;
 
     /**
      * The Size of the newly cloned repo
-     * @var [type]
+     * @var integer
      */
     public $repo_size;
 

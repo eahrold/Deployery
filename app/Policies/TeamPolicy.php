@@ -20,9 +20,14 @@ class TeamPolicy extends BasePolicy
         return $user->isOwnerOfTeam($team);
     }
 
-    public function destroy(User $user, Team $team)
+    public function delete(User $user, Team $team)
     {
         return $user->isOwnerOfTeam($team);
+    }
+
+    public function destroy(User $user, Team $team)
+    {
+        return $this->delete($user, $team);
     }
 
     public function manageTeams(User $user)

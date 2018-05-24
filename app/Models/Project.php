@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Jobs\RepositoryClone;
 use App\Models\Traits\Slackable;
+use App\Services\Git\GitCloner;
 use App\Services\Git\GitInfo;
 use App\Services\Git\Validation\ValidCloneUrl;
 use App\Services\Git\Validation\ValidRepoBranch;
@@ -335,7 +336,7 @@ final class Project extends Base
 
         static::updating(function ($model) {
             if( $model->repo_exists && $model->isDirty('repo')) {
-                // TODO: Run git updateRepoName //
+                (new GitCloner)->updateRepoUrl($model->repo_path, $model->repo);
             }
         });
 

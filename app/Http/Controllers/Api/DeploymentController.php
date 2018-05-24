@@ -137,9 +137,9 @@ class DeploymentController extends Controller
         $project = Project::findOrFail($project_id);
         $this->authorize('deploy', $project);
 
-        $branch = $this->request->branch;
+        $branch = $this->request->get('branch');
 
-        $gitInfo = (new GitInfo($project->repoPath()))->branch($this->request->branch);
+        $gitInfo = (new GitInfo($project->repoPath()))->branch($branch);
         $commits = $gitInfo->commits(30);
 
         return $this->response->array($commits);
@@ -156,7 +156,7 @@ class DeploymentController extends Controller
         $server = Project::findServer($project_id, $id);
         $this->authorize('deploy', $server->project);
 
-        $hash = $this->request->commit;
+        $hash = $this->request->get('commit');
         $commit = $server->findCommit($hash);
 
         if (!$commit) {

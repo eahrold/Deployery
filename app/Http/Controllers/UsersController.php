@@ -87,6 +87,12 @@ final class UsersController extends Controller
     public function destroy($id)
     {
         $model = $this->model->findOrFail($id);
+        if($model->projects()->count()) {
+            return redirect()->back()->withErrors([
+                "{$model->email} currently owns projects and cannot be deleted at this time"
+            ]);
+        }
+
         $this->authorize($model);
 
         $model->delete();
@@ -99,15 +105,12 @@ final class UsersController extends Controller
      */
     private function upsert($id = null)
     {
-        $this->validate(
-            $this->request,
+        $data = array_filter(request()->validate(
             $this->model->getValidationRules($id)
-        );
+        ));
 
-        $model = $id ? $this->model->findOrFail($id):
-                       $this->model->newInstance();
-
-        $model->fill($this->sanatizeRequestData());
+        $model = $this->model->findOrNew($id);
+        $model->fill($data);
 
         $this->updateAdminAttrs($model);
 
@@ -135,32 +138,5 @@ final class UsersController extends Controller
                 $model->{$attr} = $this->request->get($attr) ? true : false;
             }
         }
-    }
-
-    /**
-     * Update the request data with an
-     * encrypted version of the password
-     */
-    private function sanatizeRequestData()
-    {
-        $keys = [
-            'username',
-            'email',
-            'first_name',
-            'last_name'
-        ];
-
-        $data = [];
-        foreach ($keys as $key) {
-            if ($value = $this->request->get($key)) {
-                $data[$key] = $value;
-            }
-        }
-
-        if ($password = $this->request->get('password')) {
-            $data['password'] = bcrypt($password);
-        }
-
-        return $data;
     }
 }

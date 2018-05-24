@@ -11,20 +11,23 @@
 
 <template>
 <transition name='fade'>
-    <form-card v-if='showPanel' >
-        <div slot='header'>
-            <i v-if='status.cloning' class="fa fa-spinner fa-spin fa-fw"></i> {{ header }}
+    <form-modal v-if='showPanel'>
+
+        <div slot='body'>
+            <div class="d-flex justify-content-center">
+                <h4><i v-if='status.cloning' class="fa fa-spinner fa-spin fa-fw"></i> {{ header }}</h4>
+            </div>
+            <p class="status-line"><code>{{ message }}</code></p>
+            <ul v-if='showErrors' class='list-unstyled'>
+                <li v-for='error in status.errors'>
+                    {{ error }}
+                </li>
+            </ul>
         </div>
-
-        <p class="status-line">Status: {{ message }}</p>
-        <ul v-if='showErrors' class='list-unstyled'>
-            <li v-for='error in status.errors'>
-                {{ error }}
-            </li>
-        </ul>
-        <div v-if='!status.cloning' class='btn btn-warning' @click='reclone'>Attempt Reclone</div>
-
-    </form-card>
+        <div slot='footer' class="d-flex justify-content-center">
+            <div v-if='!status.cloning' class='btn btn-warning' @click='reclone'>Attempt Reclone</div>
+        </div>
+    </form-modal>
 </transition>
 </template>
 

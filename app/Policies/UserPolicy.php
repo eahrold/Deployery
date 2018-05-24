@@ -13,17 +13,17 @@ class UserPolicy extends BasePolicy
      */
     public function before($user, $ability)
     {
-        $restrice = [
-            'destroy',
+        $restrict = [
+            'delete',
             'modifyAdminAttributes',
         ];
 
-        if ($user->is_admin && !in_array($ability, $restrice)) {
+        if ($user->is_admin && !in_array($ability, $restrict)) {
             return true;
         }
     }
 
-    public function destroy(User $user, User $model)
+    public function delete(User $user, User $model)
     {
         return ($this->adminModifyingOther($user, $model) ||
                !$this->nonAdminModifyingSelf($user, $model)) &&

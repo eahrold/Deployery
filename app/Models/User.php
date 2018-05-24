@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\BcryptsPassword;
 use App\Presenters\PresentableTrait;
 use App\Services\SSHKeyer;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -14,6 +15,7 @@ class User extends Authenticatable implements JWTSubject
     use UserHasTeams;
     use PresentableTrait;
     use Notifiable;
+    use BcryptsPassword;
 
     protected $presenter = 'App\Presenters\User';
 
@@ -50,12 +52,17 @@ class User extends Authenticatable implements JWTSubject
             return [
                 'username' => "required|max:255|unique:users,username,{$user_id}",
                 'email' =>    "required|email|max:255|unique:users,email,{$user_id}",
-                'password' => 'min:6|confirmed'
+                'first_name' => 'sometimes|string',
+                'last_name' => 'sometimes|string',
+                'password' => 'sometimes|min:6|confirmed|nullable'
             ];
         }
+
         return [
             'username' => 'required|max:255|unique:users',
             'email' => 'required|email|max:255|unique:users',
+            'first_name' => 'sometimes|string',
+            'last_name' => 'sometimes|string',
             'password' => 'required|min:6|confirmed'
         ];
     }

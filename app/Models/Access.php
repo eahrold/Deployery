@@ -14,7 +14,7 @@ class Access
     }
 
     private function teams() {
-        if($this->user()) {
+        if ($this->user()) {
             return $this->user()->presenter()->shouldShowTeamMenu();
         }
         return false;

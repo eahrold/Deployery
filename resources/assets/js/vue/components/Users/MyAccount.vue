@@ -115,7 +115,7 @@ export default {
                 })
 
             }).catch(error=>{
-                this.errors = _.get(error, 'response.data.errors')
+                this.$vfalert.errorResponse(error.response)
             })
         }
     },

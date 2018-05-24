@@ -31,7 +31,8 @@ class HistoryController extends APIController
         $project = $this->project->findOrFail($project_id);
         $this->authorize('listChildren', $project);
 
-        return $this->response->paginator($project->history()->paginate($this->request->limit), $this->transformer);
+        $limit = $this->request->get('limit');
+        return $this->response->paginator($project->history()->paginate($limit), $this->transformer);
     }
 
     /**

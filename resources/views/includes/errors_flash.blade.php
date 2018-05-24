@@ -1,12 +1,12 @@
-{{-- @if (count($errors) > 0)
+@if (isset($errors) && count($errors) > 0)
     <div class="alert alert-danger">
-        <ul>
+        <ul class="list-unstyled text-center">
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
     </div>
-@endif --}}
+@endif
 
 @if (session('success'))
     <div class="flash-message">
@@ -17,7 +17,7 @@
 @elseif(session('failure'))
     <div class="flash-message">
         <div class="alert alert-error">
-             {{ session('success') }}
+             {{ session('failure') }}
         </div>
     </div>
 @endif

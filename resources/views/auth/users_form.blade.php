@@ -44,12 +44,14 @@
                     {!! BootForm::password("Confirm Password", 'password_confirmation') !!}
 
                     @if($model->id)
-                    <div>
-                        <a href="#sshkey" data-toggle="collapse">
-                            SSH Key Used to authenticate to the GitHub/Bitbucket/etc
-                        </a>
-                        <div id="sshkey" class="collapse">
-                            <textarea  class="form-control" rows="8">{{ $model->pubkey }}</textarea>
+                    <div class="card my-4">
+                        <div class="card-body">
+                            <a href="#sshkey" data-toggle="collapse">
+                                Show SSH Key Used to authenticate to the GitHub/Bitbucket/etc
+                            </a>
+                            <div id="sshkey" class="collapse">
+                                <textarea  class="form-control" rows="8" readonly>{{ $model->pubkey }}</textarea>
+                            </div>
                         </div>
                     </div>
                     @endif

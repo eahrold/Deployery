@@ -19,15 +19,19 @@ final class MyAccountController extends Controller
         $this->model = $model;
     }
 
+    /**
+     * Get The Current User
+     * @return Auth The currrent authenticated user
+     */
     public function user() {
-        return Auth::user();
+        return Auth::guard()->user();
     }
 
    /**
      * Update the specified user in storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show()
     {
@@ -38,17 +42,17 @@ final class MyAccountController extends Controller
      * Update the specified user in storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update()
     {
-        $this->validate(
-            $this->request,
-            $this->model->getValidationRules($this->user()->id)
-        );
-
         $model = $this->user();
-        $model->fill($this->sanatizeRequestData());
+
+        $data = array_filter(request()->validate(
+            $this->model->getValidationRules($model->getAuthIdentifier())
+        ));
+
+        $model->fill($data);
         $this->updateAdminAttrs($model);
 
         $model->save();
@@ -59,8 +63,7 @@ final class MyAccountController extends Controller
     /**
      * Remove the specified user from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy()
     {
@@ -93,32 +96,5 @@ final class MyAccountController extends Controller
                 $model->{$attr} = $this->request->get($attr) ? true : false;
             }
         }
-    }
-
-    /**
-     * Update the request data with an
-     * encrypted version of the password
-     */
-    private function sanatizeRequestData()
-    {
-        $keys = [
-            'username',
-            'email',
-            'first_name',
-            'last_name'
-        ];
-
-        $data = [];
-        foreach ($keys as $key) {
-            if ($value = $this->request->get($key)) {
-                $data[$key] = $value;
-            }
-        }
-
-        if ($password = $this->request->get('password')) {
-            $data['password'] = bcrypt($password);
-        }
-
-        return $data;
     }
 }

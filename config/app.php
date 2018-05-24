@@ -123,10 +123,6 @@ return [
 
     'providers' => [
 
-        Barryvdh\Debugbar\ServiceProvider::class,
-        Dingo\Api\Provider\LaravelServiceProvider::class,
-        Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
-
         /*
          * Laravel Framework Service Providers...
          */
@@ -154,6 +150,18 @@ return [
         Illuminate\View\ViewServiceProvider::class,
 
         /*
+         * Vendor
+         */
+        Ajthinking\Tinx\TinxServiceProvider::class,
+        Collective\Remote\RemoteServiceProvider::class,
+        Laravel\Tinker\TinkerServiceProvider::class,
+        Mpociot\Teamwork\TeamworkServiceProvider::class,
+        AdamWathan\BootForms\BootFormsServiceProvider::class,
+        Barryvdh\Debugbar\ServiceProvider::class,
+        Dingo\Api\Provider\LaravelServiceProvider::class,
+        Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+
+        /*
          * Application Service Providers...
          */
         App\Providers\AppServiceProvider::class,
@@ -164,12 +172,6 @@ return [
         App\Providers\ModelObserverProvider::class,
         App\Providers\ValidationServiceProvider::class,
 
-        /*
-         * Vendor
-         */
-        Collective\Remote\RemoteServiceProvider::class,
-        Mpociot\Teamwork\TeamworkServiceProvider::class,
-        AdamWathan\BootForms\BootFormsServiceProvider::class,
 
         /**
          * Main Deployery Service Provider..

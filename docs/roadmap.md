@@ -5,7 +5,7 @@
 ### Backend
 - [x] User based SSH Key generation used in connecting to Git hosts
 - [x] Slack
-- [ ] Configure site settings in backend
+- [x] Configure site settings in backend
 - [x] Subclass \Remote class to support SFTP zero byte issue
 - [x] Validate the source of the webhook request
 - [x] Migrate API Auth to JWT
@@ -14,12 +14,12 @@
 - [x] Migrate to Users -> Teams
 
 ### Frontend
-- [ ] Add Settings page
-- [ ] Add confirmation handling to related model delete requests (trash can)
-- [ ] Fix secondary nav bar hi-light height
-- [ ] Add global deploy button somewhere
+- [x] Add Settings page
+- [x] Add confirmation handling to related model delete requests (trash can)
+- [x] Fix secondary nav bar hi-light height
+- [x] Add global deploy button somewhere
 - [x] Add more info to the dashborad
-- [ ] Change deployment panel, Make `to` and `from` disabled by default
+- [x] Change deployment panel, Make `to` and `from` disabled by default
 - [x] Update deployment panel to be filterable.
 - [x] Change local of deploying message on main project page.
 - [ ] Display Server IP address and message about whitelisting it on deployment targets

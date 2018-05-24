@@ -44,7 +44,7 @@
                                 @include('includes.trash_button',
                                     ['route'=>route("users.destroy", $user->id)])
                                 @else
-                                    <i class="fa fa-user-secret" aria-hidden="true"></i>
+                                    <i class="fa fa-lock" aria-hidden="true"></i>
                                 @endif
                                 </td>
                             </tr>

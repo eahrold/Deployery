@@ -4,7 +4,14 @@ namespace App\Services;
 
 use App\Models\Server;
 use App\Services\Git\GitPreparer;
+use Illuminate\Database\Eloquent\Collection;
 
+/**
+ * Deployment Process
+ *
+ * @method string callback() call the callback \Closure property
+ * @method string errorCallback() call the errorCallback \Closure property
+ */
 class DeploymentProcess
 {
     const PROGRESS_PREPARING = 0;
@@ -167,6 +174,10 @@ class DeploymentProcess
         $this->canceled = true;
     }
 
+    /**
+     * Get a list of the changed files
+     * @return array Changes
+     */
     public function getChanges () {
         return [
             'uploaded' => $this->uploaded,
@@ -174,6 +185,10 @@ class DeploymentProcess
         ];
     }
 
+    /**
+     * Get the errors that occurred during deployment
+     * @return array Errors
+     */
     public function getErrors () {
         return $this->errors;
     }
@@ -433,11 +448,11 @@ class DeploymentProcess
     /**
      * Execute scripts on server
      *
-     * @param  array  $scripts  Array of scripts to execute
+     * @param  Collection  $scripts  Collection of scripts to execute
      *
      * @return int  This will return 0 for success, anything else indicated a failure.
      */
-    private function runScripts($scripts)
+    private function runScripts(Collection $scripts)
     {
         $status = 0;
         $connection = $this->server->connection;
@@ -466,11 +481,11 @@ class DeploymentProcess
 
             $status = $connection->status();
             if ($status !== 0) {
-                $msg = "Install Script '{$script->description}' failed. [code: {$status}]";
+                $msg = "Install Script '{$script->description}' failed. <b class='text-danger'>code: {$status}</b>";
                 $this->errors[] = $msg;
                 $this->sendMessage($msg);
                 if ($script->stop_on_failure) {
-                    return $status;
+                    return -1;
                 }
             }
         }

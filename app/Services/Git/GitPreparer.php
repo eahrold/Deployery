@@ -18,7 +18,7 @@ class GitPreparer
      * @param  string   $branch   branch to use
      * @param  string   $to       the commit the repo should be set to
      * @param  \Closure $callback Progress message.
-     * @return void
+     * @return int  Exit Code
      */
     public function prepare(string $repo, string $branch, string $to, \Closure $callback = null)
     {
@@ -31,7 +31,7 @@ class GitPreparer
         ];
 
         $manager = new GitProcessManager($repo);
-        $manager->withPubKey($this->pub_key)
+        return $manager->withPubKey($this->pub_key)
                 ->run($tasks, null, $callback, true);
     }
 }

@@ -30,7 +30,7 @@ final class Project extends Base
     public function getValidationRules($id = null, $append=[])
     {
         $rules = [
-            'name' => 'required|string|unique:projects,name,{$id}"',
+            'name' => ['required','string', Rule::unique('projects')->ignore($id)],
             'repo' => [ 'required', 'string', new ValidCloneUrl() ],
             'slack_webhook_url' => 'url|nullable',
         ];

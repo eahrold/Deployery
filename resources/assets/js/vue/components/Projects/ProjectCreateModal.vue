@@ -38,7 +38,7 @@
 import ProjectPubKey from './ProjectPubKey'
 
 export default {
-    name: 'project-form',
+    name: 'project-create-modal',
     components: {
         ProjectPubKey,
     },
@@ -46,6 +46,8 @@ export default {
     data() {
         return {
             errors: null,
+            loading: false,
+            saving: false,
             model: {
                 name: null,
                 repo: null,

@@ -164,12 +164,15 @@ export default {
             bus.$on('delete-project-item', this.deleteDataFromProject);
             bus.$on('add-project-item', this.appendProjectData);
             bus.$on('project-info', this.updateInfo);
+            bus.$on('project-refresh-info', this.loadInfo);
+
         },
 
         stopListening() {
             bus.$off('delete-project-item', this.deleteDataFromProject);
             bus.$off('add-project-item', this.appendProjectData);
             bus.$off('project-info', this.updateInfo);
+            bus.$on('project-refresh-info', this.loadInfo);
         },
 
 

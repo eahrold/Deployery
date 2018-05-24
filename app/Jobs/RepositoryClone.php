@@ -54,9 +54,9 @@ class RepositoryClone extends Job implements ShouldQueue
         $cloner = (new GitCloner())->withPubKey($project->user->auth_key);
 
         $callback = function ($message) {
-            \Log::debug($message);
+            // logger($message);
             $this->sendProgress($message);
-            $this->project->is_cloning = true;
+            $this->project->setIsCloningAttribute(true);
         };
 
         $success = $cloner->cloneRepo(
@@ -71,12 +71,14 @@ class RepositoryClone extends Job implements ShouldQueue
 
     private function sendStartedMessage($message)
     {
-        $this->project->is_cloning = true;
-        event(new RepositoryCloneStarted([
-            'message'=>$message,
-            'channel_id'=>$this->channel(),
-            'project_name'=>$this->project->name
-        ]));
+        $this->project->setIsCloningAttribute(true);
+        $payload = [
+            'message' => $message,
+            'channel_id' => $this->channel(),
+            'project_name' => $this->project->name
+        ];
+        logger("Clone Started", $payload);
+        event(new RepositoryCloneStarted($payload));
     }
 
     /**
@@ -91,18 +93,22 @@ class RepositoryClone extends Job implements ShouldQueue
         if (empty($message) && empty($errors)) {
             return;
         }
+        $payload = [
+            'message' => $message,
+            'errors' => $errors,
+            'channel_id' => $this->channel(),
+            'project_name' => $this->project->name
+        ];
 
-        event(new RepositoryCloneProgress([
-            'message'=>$message,
-            'errors'=>$errors,
-            'channel_id'=>$this->channel(),
-            'project_name'=>$this->project->name
-        ]));
+        event(new RepositoryCloneProgress($payload));
     }
 
     private function sendCompleteMessage($success, $errors, $message = null)
     {
-        $this->project->is_cloning = false;
+        $this->project->setIsCloningAttribute(false);
+
+        $message = $message ?: $success ? "Your project has been successfully cloned.":
+            "There was an error cloning the repo, please make sure you've added the account SSH key to the repo host.";
 
         $payload = [
             'channel_id' => $this->channel(),
@@ -110,10 +116,8 @@ class RepositoryClone extends Job implements ShouldQueue
             'errors' => $errors,
         ];
 
-        $message = $message ?: $success ? "Your project has been successfully cloned.":
-            "There was an error cloning the repo, please make sure you've added the account SSH key to the repo host.";
-
-        $size = $success ? $this->project->repo_size : 0;
+        $size = $success ? $this->project->getRepoSizeAttribute(true) : 0;
+        logger("Clone Complete", compact('payload', 'success', 'size'));
 
         event(new RepositoryCloneEnded($payload, $success, $size));
     }
@@ -122,6 +126,6 @@ class RepositoryClone extends Job implements ShouldQueue
     {
         $message = "A fatal error occurred while cloning {$this->project->repo}.";
         \Log::error("[Job Failed] {$message}");
-        $this->sendCompleteMessage(-1, [], $message);
+        $this->sendCompleteMessage(false, [], $message);
     }
 }

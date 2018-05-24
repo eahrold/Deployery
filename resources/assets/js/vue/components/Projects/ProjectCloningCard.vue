@@ -1,3 +1,14 @@
+<style lang='scss' scoped>
+.status-line {
+    height: 2em;
+    width: 100%;
+    line-height: 2em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+</style>
+
 <template>
 <transition name='fade'>
     <form-card v-if='showPanel' >
@@ -5,7 +16,7 @@
             <i v-if='status.cloning' class="fa fa-spinner fa-spin fa-fw"></i> {{ header }}
         </div>
 
-        <div>Status: {{ message }}</div>
+        <p class="status-line">Status: {{ message }}</p>
         <ul v-if='showErrors' class='list-unstyled'>
             <li v-for='error in status.errors'>
                 {{ error }}
@@ -42,9 +53,9 @@
             },
 
             message () {
-                return _.get(this.status, 'message', false) ||
+                return _.get(this.status, 'message',
                     this.status.cloningError ? "Cloning Failed" : "Repo Clone in progress..."
-                ;
+                )
             },
 
             showPanel () {

@@ -19,8 +19,8 @@ export const EchoListener = {
                 .listen('DeploymentStarted', this.handleDeployStarted)
                 .listen('DeploymentEnded', this.handleDeployEnded)
 
-                .listen('RepositoryCloneProgress', this.handleCloneProgress)
                 .listen('RepositoryCloneStarted', this.handleCloneStarted)
+                .listen('RepositoryCloneProgress', this.handleCloneProgress)
                 .listen('RepositoryCloneEnded', this.handleCloneEnded)
 
                 .listen('HistoryCreatedEvent', this.handleHistoryCreated)
@@ -71,9 +71,9 @@ export const EchoListener = {
          *
          * @param  object data event data
          */
-        handleCloneProgress(data){
-            this.status.message = data.message;
-            this.status.errors = data.errors;
+        handleCloneProgress({message, errors}){
+            // console.log("Progress", {message, errors})
+            this.status = _.assign({}, this.status, {message, errors});
         },
 
         /**
@@ -86,8 +86,10 @@ export const EchoListener = {
             this.status.message = data.message;
             this.status.errors = data.errors;
             this.status.cloningError = !data.success;
+
             this.project.repo_exists = data.success;
             this.project.repo_size = data.repo_size;
+
             bus.$emit('project-refresh-info');
         },
 

@@ -108,7 +108,7 @@ class RepositoryClone extends Job implements ShouldQueue
         $this->project->setIsCloningAttribute(false);
 
         $message = $message ?: $success ? "Your project has been successfully cloned.":
-            "There was an error cloning the repo, please make sure you've added the account SSH key to the repo host.";
+            "There was an error cloning the repo, if this is a private repo make sure you've added your account SSH key to the repo's host.";
 
         $payload = [
             'channel_id' => $this->channel(),

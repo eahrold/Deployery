@@ -78,27 +78,28 @@ export default {
 
         save () {
             this.saving = true;
-            this.$http.put(this.endpoint, this.project).then(
-                (response) => {
+            const { project } = this
+            this.$store.dispatch('PROJECT_UPDATE', {project,})
+                .then((response) => {
                     this.saving = false;
-                    this.errors = response.data.errors;
-                },
-                ({response}) => {
-                    this.saving = false;
-                    this.errors = response.data.errors;
-                    console.error('Error saving project', response);
-            });
+                    this.$vfalert.toast("Project Saved ");
+                    this.$emit("update:project", project)
+                }).catch(({response})=>{
+                    this.errors = response.data.errors
+                    this.$vfalert.errorResponse(response)
+                }).then(()=>{ this.saving = false });
         },
 
         remove () {
             this.deleting = true;
-            this.$http.delete(this.endpoint).then(
+            const { project } = this
+            this.$store.dispatch('PROJECT_DELETE', {project,}).then(
                 (response) => {
-                    window.location = '/';
+                    this.$router.push({name: 'projects.dashbaord'})
                 },
                 ({response}) => {
-                    this.$alerter.error('Error Deleting Project');
-                    console.error('Error Deleting Project', response);
+                    const message = _.get(response, 'data.message', 'Error Deleting Project')
+                    this.$vfalert.error(message);
             });
         },
     }

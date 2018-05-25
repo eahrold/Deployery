@@ -238,6 +238,27 @@ export default {
             commit('project', { project })
         },
 
+        [types.PROJECT_UPDATE] ({commit, state}, { project }) {
+            return Api.projectSave(project).then((response)=>{
+                const idx = _.findIndex(state.projects, {id: project.id})
+                if(idx !== -1) {
+                    let projects = state.projects
+                    projects[idx] = _.assign({}, projects[idx], project)
+                    commit('projects', { projects })
+                }
+                return response
+            })
+        },
+
+        [types.PROJECT_DELETE] ({commit, state}, { project }) {
+            return Api.projectDelete(project).then((response)=>{
+                const projects = _.filter(state.projects, (aProject)=>{
+                    return aProject.id !== project.id
+                })
+                commit('projects', { projects })
+            })
+        },
+
         [types.PROJECT_RESET] ({commit, state}) {
             commit('project', { project: {} })
             commit('history', { history: [] })

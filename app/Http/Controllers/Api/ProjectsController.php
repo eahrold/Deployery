@@ -181,6 +181,12 @@ class ProjectsController extends APIController
         $this->authorize('update', $model);
 
         if(!file_exists($model->repoPath())){
+            $repo = $this->request->get('repo');
+
+            if($repo && $repo !== $model->repo) {
+                $model->update(compact('repo'));
+            }
+
             $clone = (new RepositoryClone($model))->onQueue('clones');
             $this->dispatch($clone);
         } else {

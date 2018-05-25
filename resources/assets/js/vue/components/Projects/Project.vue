@@ -5,10 +5,10 @@
     <!-- Main Body -->
     <div class="col mt-4">
         <div class='col my-3'>
-            <project-cloning-card :status='status' @reclone='cloneRepo'></project-cloning-card>
+            <project-cloning-card :repo='project.repo' :status='status' @reclone='cloneRepo'></project-cloning-card>
         </div>
 
-        <router-view v-bind='{project, loading, info}' />
+        <router-view v-bind='{loading, info}' :project.sync='project' />
 
         <deployments-info-panel></deployments-info-panel>
 
@@ -244,13 +244,14 @@ export default {
             }
         },
 
-        cloneRepo(){
-            var endpoint = this.endpoint+'/clone-repo';
-            this.status.cloningError = false;
-            this.status.cloning = true;
-            this.$http.post(endpoint).then(
+        cloneRepo({repo,}){
+            var endpoint = this.endpoint+'/clone-repo'
+            this.status.cloningError = false
+            this.status.cloning = true
+            this.project.repo = repo
+            this.$http.post(endpoint, {repo,}).then(
                 (response) => {
-                    this.$vfalert.success(response.data.message)
+                    // this.$vfalert.toast(response.data.message)
                 },
                 ({response}) => {
                     this.status.false = true;

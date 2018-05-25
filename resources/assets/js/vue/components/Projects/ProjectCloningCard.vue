@@ -1,12 +1,5 @@
 <style lang='scss' scoped>
-.status-line {
-    height: 2em;
-    width: 100%;
-    line-height: 2em;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
+.status-line {}
 </style>
 
 <template>
@@ -17,12 +10,18 @@
             <div class="d-flex justify-content-center">
                 <h4><i v-if='status.cloning' class="fa fa-spinner fa-spin fa-fw"></i> {{ header }}</h4>
             </div>
+            <input v-model='aRepo' class="form-control text-center" :disabled='status.cloning'>
+
             <p class="status-line"><code>{{ message }}</code></p>
             <ul v-if='showErrors' class='list-unstyled'>
                 <li v-for='error in status.errors'>
                     {{ error }}
                 </li>
             </ul>
+
+            <transition name='fade'>
+                <project-pub-key v-if='!status.cloning'></project-pub-key>
+            </transition>
         </div>
         <div slot='footer' class="d-flex justify-content-center">
             <div v-if='!status.cloning' class='btn btn-warning' @click='reclone'>Attempt Reclone</div>
@@ -32,49 +31,75 @@
 </template>
 
 <script>
-    export default {
-        name: "project-cloning-card",
+import ProjectPubKey from './ProjectPubKey'
 
-        props : {
-            status : {
-                type: Object,
-                required: true
-            }
+export default {
+    name: "project-cloning-card",
+    components: {
+        ProjectPubKey,
+    },
+
+    props : {
+        status : {
+            type: Object,
+            required: true
         },
 
-        computed : {
-            header () {
-                if(this.status.cloning) {
-                    return "Cloning Repo...";
-                }
+        repo : {
+            type: String,
+            required: false
+        }
+    },
 
-                if(this.status.cloningError) {
-                    return "Error Cloning Repo";
-                }
+    data() {
+        return {
+            aRepo: this.repo
+        }
+    },
 
-                return "Cloning Status";
-            },
+    computed : {
+        header () {
+            if(this.status.cloning) {
+                return "Cloning Repo...";
+            }
 
-            message () {
-                return _.get(this.status, 'message',
-                    this.status.cloningError ? "Cloning Failed" : "Repo Clone in progress..."
-                )
-            },
+            if(this.status.cloningError) {
+                return "Error Cloning Repo";
+            }
 
-            showPanel () {
-                return this.status.cloning || this.status.cloningError;
-            },
-
-            showErrors () {
-                return !this.status.cloning && this.status.cloningError
-            },
-
+            return "Cloning Status";
         },
 
-        methods : {
-            reclone () {
-                this.$emit('reclone');
-            }
+        message () {
+            return _.get(this.status, 'message',
+                this.status.cloningError ? "Cloning Failed" : "Repo Clone in progress..."
+            )
+        },
+
+        showPanel () {
+            return this.status.cloning || this.status.cloningError;
+        },
+
+        showErrors () {
+            return !this.status.cloning && this.status.cloningError
+        },
+
+    },
+
+    mounted() {
+        this.aRepo = this.repo;
+    },
+
+    watch: {
+        repo(repo) {
+            this.aRepo = repo;
+        }
+    },
+
+    methods : {
+        reclone () {
+            this.$emit('reclone', {repo: this.aRepo});
         }
     }
+}
 </script>

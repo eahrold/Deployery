@@ -66,8 +66,17 @@ export class ApiAdapter {
         return this.get(`/api/projects`)
     }
 
-    project(id) {
+    project({id,}) {
         return this.httpAdapter.get(`/api/projects/${id}`)
+    }
+
+    projectSave(project) {
+        const { id } = project
+        return this.httpAdapter.put(`/api/projects/${id}`, project)
+    }
+
+    projectDelete({id}) {
+        return this.httpAdapter.delete(`/api/projects/${id}`)
     }
 
     getBranchCommits({projectId, branch}) {

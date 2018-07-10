@@ -127,7 +127,7 @@ class GitInfo
      */
     public function commits($take = 10)
     {
-        $task = "log origin/{$this->branch} --no-merges -n{$take} {$this->gitLogFormat()}";
+        $task = "log origin/{$this->branch} -n{$take} {$this->gitLogFormat()}";
         $builder = $this->gitBuilder()->setTask($task);
 
         $stdout = $this->run($builder);

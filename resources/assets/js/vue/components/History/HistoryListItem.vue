@@ -1,22 +1,18 @@
 <template>
     <div class="row justify-content-start align-items-center" :class="{clickable: !!history}" @click='open'>
-        <div class="col text-nowrap">
+        <div class="col-3 text-nowrap">
             {{ history ? history.server.name : "Server" }}
         </div>
 
-        <div class="col text-nowrap text-left d-none d-md-block">
-            {{ history ? history.from_commit : "From" }}
+        <div class="col-3 text-nowrap text-left d-none d-md-block">
+            {{ history ? history.from_commit : "From" }} -> {{ history ? history.to_commit : "To" }}
         </div>
 
-        <div class="col text-nowrap text-left d-none d-md-block">
-            {{ history ? history.to_commit : "To" }}
-        </div>
-
-        <div class="col text-nowrap text-left d-none d-md-block">
+        <div class="col-3 text-nowrap text-left d-none d-md-block mw-user">
             {{ history ?  history.user_name : "User" }}
         </div>
 
-        <div class="col text-nowrap text-right">
+        <div class="col-3 text-nowrap text-left">
             {{ history ? localTime(history.created_at) : "Deployed" }}
         </div>
 
@@ -56,4 +52,10 @@ export default {
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.text-nowrap {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+</style>

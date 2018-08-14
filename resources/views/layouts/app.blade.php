@@ -44,21 +44,21 @@
 </head>
 <body id="app-layout">
     <div id='app'>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
             <div class="navbar-brand">
                 Deployery
             </div>
-                <button class="navbar-toggler"
-                        type="button"
-                        data-toggle="collapse"
-                        data-target="#app-navbar-collapse"
-                        aria-controls="pp-navbar-collapse"
-                        aria-expanded="false"
-                        aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+            <button class="navbar-toggler"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="#app-navbar-collapse"
+                    aria-controls="pp-navbar-collapse"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-                @include('partials.main_nav')
+            @include('partials.main_nav')
         </nav>
 
         @include('includes.errors_flash')
@@ -75,11 +75,8 @@
     </div>
 
     <script type="text/javascript" src="https://js.pusher.com/3.1/pusher.min.js"></script>
-
     <script src="{{ mix('/js/app.js') }}"></script>
-
     @yield('js')
     @yield('vue-js')
-
 </body>
 </html>

@@ -173,13 +173,14 @@ class DeploymentController extends Controller
      */
     public function webhook($webhook)
     {
-        list($agent,/*version*/) = explode('/', $this->request->header('User-Agent'), 2);
+        $info = (new \App\Services\WebHooks\WebhookHandler($this->request))->info();
+        dump($info);
+
         $server = Server::where('webhook', $this->request->url())
+                        ->where('branch', $info->branch)
                         ->firstOrFail();
 
-        $name = ucfirst($server->username);
-        $sender = "{$name} [ {$agent} ]";
-
+        $sender = "{$info->user} [{$info->source}]";
 
         if (!$server->autodeploy) {
             return $this->response->error("Autodeploy is not enabled", 404);

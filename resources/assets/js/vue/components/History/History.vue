@@ -18,8 +18,8 @@
         </div>
     </form-section>
 
-    <div v-else class="col justify-content-center align-items-center">
-        <h4>Never been deployed</h4>
+    <div v-else class="col d-flex justify-content-center align-items-center">
+        <h4 class="text-secondary">{{ message }}</h4>
     </div>
 </div>
 </template>
@@ -45,7 +45,12 @@ export default {
     },
 
     computed: {
-        ...mapState(['history'])
+        ...mapState(['history']),
+        ...mapGetters(['hasProject']),
+
+        message() {
+            return _.isEmpty(this.project) ? "Loading..." : "This Project Has Never Been Deployed"
+        }
     },
 
     methods: {

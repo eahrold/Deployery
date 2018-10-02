@@ -98,6 +98,10 @@ class DeploymentController extends Controller
     public function commitDetails($project_id, $id)
     {
         $cacheKey = "commit-details-{$project_id}-{$id}";
+        if (request()->force === true) {
+            \Cache::forget($cacheKey);
+        }
+
         return \Cache::remember($cacheKey, 1, function() use ($project_id, $id) {
             $server = Project::findServer($project_id, $id);
             $this->authorize('deploy', $server->project);

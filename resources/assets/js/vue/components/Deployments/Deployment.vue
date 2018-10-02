@@ -66,7 +66,7 @@
                                 <form-checkbox v-model='deployEntireRepo' property='deploy_entire_repo'></form-checkbox>
                             </div>
                             <div class="col d-flex justify-content-end">
-                                <div class="btn btn-info" @click="getServerCommitDetails" :disabled='loading'>
+                                <div class="btn btn-info" @click="getServerCommitDetails({force:true})" :disabled='loading'>
                                     <span class="pr-1">Reload Remote Details</span>
                                     <i class="fa fa-refresh" :class='{"fa-spin": loading && loaded}'></i>
                                 </div>
@@ -266,6 +266,10 @@ export default {
                 const newFrom = _.find(this.availableToCommits, {hash: lastDeployment.to_commit})
                 if (newFrom) this.fromCommit = newFrom
             }
+        },
+
+        availableToCommits(newVal) {
+            this.toCommit = _.first(newVal);
         }
     },
 
@@ -279,7 +283,6 @@ export default {
             const { projectId } = this
             this.loading = true;
             return this.$api.getBranchCommits({ branch, projectId }).then(({data})=>{
-                console.log({data})
                 this.availableToCommits = _(data).uniqBy('hash').orderBy(['date'],['desc']).value()
             }).catch((error)=>{
                 console.log('Error Getting Branch Commits',{branch, error})
@@ -288,10 +291,11 @@ export default {
             })
         },
 
-        getServerCommitDetails(){
+        getServerCommitDetails(params){
             this.loading = true;
+            const force = _.get(params, 'force');
 
-            this.$http.get(this.apiEndpoint+'/commit-details')
+            this.$http.get(this.apiEndpoint+'/commit-details', {params: {force,}})
                 .then(response => {
                     const {
                         current_branch,
@@ -315,18 +319,16 @@ export default {
 
                     this.deployEntireRepo = !lastHash
                     this.lastDeployedCommit = last_deployed_commit_details;
-
-                    this.availableToCommits = _(available_commits).uniqBy('hash').orderBy(['date'],['desc']).value()
-
+                    this.availableToCommits = _(available_commits).uniqBy('hash')
+                                                                  .orderBy(['date'],['desc'])
+                                                                  .value()
 
                     this.availableFromCommits = _.concat([],
                         this.availableToCommits,
                         {'hash': 0, 'message': 'Beginning of time', 'date': null, 'user': null}
                     )
 
-
-                    this.toCommit = _.first(this.availableToCommits);
-                    this.fromCommit = last_deployed_commit_details || { hash: null,  'label': 'Never deployed', date: null, user: null};
+                    this.fromCommit = this.lastDeployedCommit || { hash: null,  'label': 'Never deployed', date: null, user: null};
 
                     this.error = false;
                     this.loaded = true;

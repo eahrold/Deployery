@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\BaseRequest;
+use App\Http\Resources\Management\ConfigResource;
 use App\Models\Project;
 use App\Transformers\ConfigTransformer;
 
@@ -34,8 +35,7 @@ class ConfigsController extends APIController
 
         $model->server_ids = $model->servers()->get()->pluck('id');
 
-        $this->transformer->makeVisible('server_ids');
-        return $this->response->item($model, $this->transformer);
+        return new ConfigResource($model);
     }
 
     /**
@@ -56,17 +56,17 @@ class ConfigsController extends APIController
         $data = $this->request->all();
         $model = $this->model->newInstance($data);
 
-        \DB::transaction(function() use ($project, $model) {
+        $model = \DB::transaction(function() use ($project, $model) {
             $project->configs()->save($model);
             $server_ids = $this->request->get('server_ids');
             if( !! $server_ids ) {
                 $model->servers()->sync($server_ids);
             }
+            $model->server_ids = $server_ids;
+            return $model;
         });
 
-        $this->transformer->makeVisible('server_ids');
-
-        return $this->response->item($model, $this->transformer);
+        return new ConfigResource($model);
     }
 
     /**
@@ -86,15 +86,16 @@ class ConfigsController extends APIController
         $model = $this->project->findConfig($project_id, $id);
         $this->authorize($model->project);
 
-        \DB::transaction(function() use ($model) {
+        $model = \DB::transaction(function() use ($model) {
             $model->update($this->request->all());
             if($server_ids = $this->request->server_ids) {
                 $model->servers()->sync($server_ids);
             }
+            $model->server_ids = $server_ids;
+            return $model;
         });
 
-        $this->transformer->makeVisible('server_ids');
-        return $this->response->item($model, $this->transformer);
+        return new ConfigResource($model);
     }
 
     /**

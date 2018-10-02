@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\BaseRequest;
+use App\Http\Resources\Management\HistoryResource;
 use App\Models\Project;
 use App\Transformers\HistoryTransformer;
 
@@ -32,7 +33,9 @@ class HistoryController extends APIController
         $this->authorize('listChildren', $project);
 
         $limit = $this->request->get('limit');
-        return $this->response->paginator($project->history()->paginate($limit), $this->transformer);
+        return HistoryResource::collection($project->history()->with([
+            "server"
+        ])->paginate($limit));
     }
 
     /**
@@ -48,8 +51,7 @@ class HistoryController extends APIController
         $this->authorize($project);
 
         $history = $project->history()->findOrFail($id);
-
-        $this->transformer->makeVisible(['details']);
-        return $this->response->item($history, $this->transformer);
+        $history->makeVisible(["details"]);
+        return new HistoryResource($history);
     }
 }

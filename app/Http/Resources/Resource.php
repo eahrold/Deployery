@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Http\Resources\Exceptions\ResourceException;
 use App\Http\Resources\ResourceCollection;
 use Illuminate\Http\Resources\Json\Resource as ConcreteResource;
+use Illuminate\Http\Resources\MissingValue;
 use Illuminate\Support\Str;
 
 class Resource extends ConcreteResource
@@ -30,11 +31,13 @@ class Resource extends ConcreteResource
     {
         if(is_array($this->whenLoadedIncludes)) {
             foreach ($this->whenLoadedIncludes as $include) {
-                if (method_exists($this, $fnc = 'include'.Str::studly($include))) {
-                    $data[$include] = $this->{$fnc}();
-                } else {
-                    $class = static::class;
-                    throw new ResourceException("Method {$fnc} does not exist on {$class}");
+                if(! $this->whenLoaded($include) instanceof MissingValue) {
+                    if (method_exists($this, $fnc = 'include'.Str::studly($include))) {
+                        $data[$include] = $this->{$fnc}();
+                    } else {
+                        $class = static::class;
+                        throw new ResourceException("Method {$fnc} does not exist on {$class}");
+                    }
                 }
             }
         }

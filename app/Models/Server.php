@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Config;
 use App\Models\History;
+use App\Models\Observers\ServerObserver;
 use App\Models\Project;
 use App\Models\Script;
 use App\Models\Traits\GitInfoTrait;
@@ -92,7 +93,6 @@ final class Server extends Base
         'environment',
         'sub_directory',
         'autodeploy',
-        'webhook',
         'slack_webhook_url',
         'send_slack_messages',
     ];
@@ -152,20 +152,6 @@ final class Server extends Base
         } else {
             Cache::forget($this->deploymentCacheKey());
         }
-    }
-
-    /**
-     * Getter for the webhook attribute
-     *
-     * @param  string $value webhook attribute or random string
-     * @return string        deployment webhook url
-     */
-    public function getWebhookAttribute($value = '')
-    {
-        if (!$value) {
-            return url('/api/webhooks/'.str_random(32));
-        }
-        return $value;
     }
 
     /**
@@ -270,13 +256,21 @@ final class Server extends Base
         return $this->project->branches;
     }
 
+    public function resetWebhook($save = false)
+    {
+        $this->webhook = url('/api/webhooks/'.str_random(32));
+        if ($save === true) {
+            $this->save();
+        }
+    }
+
     //----------------------------------------------------------
     // Relations
     //-------------------------------------------------------
 
     public function project()
     {
-        return $this->belongsTo(Project::class)->order();
+        return $this->belongsTo(Project::class);
     }
 
     public function configs()
@@ -341,6 +335,12 @@ final class Server extends Base
                 }
                 return false;
             });
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::observe(new ServerObserver);
     }
 
     //----------------------------------------------------------

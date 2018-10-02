@@ -58,6 +58,10 @@ $api->version('v1', function ($api) {
                 "uses"=>"App\Http\Controllers\Api\DeploymentController@findCommit"
             ]);
 
+            $api->put("/webhook/reset", [
+                "as"=>"api.projects.servers.webhook.reset",
+                "uses"=>"App\Http\Controllers\Api\ServersController@webhookReset"
+            ]);
         });
 
         $api->get('/branch-commits', [

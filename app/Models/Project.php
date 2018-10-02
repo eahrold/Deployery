@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Observers\ProjectObserver;
+use App\Models\Traits\OrderableTrait;
 use App\Models\Traits\Slackable;
 use App\Services\Git\GitInfo;
 use App\Services\Git\Validation\ValidCloneUrl;
@@ -13,6 +14,7 @@ use Illuminate\Validation\Rule;
 final class Project extends Base
 {
     use Slackable;
+    use OrderableTrait;
 
     protected $fillable = [
         'name',
@@ -304,11 +306,6 @@ final class Project extends Base
     public function scopeFindScript($query, $id, $model_id)
     {
         return $query->getUserModel($id)->scripts()->findOrFail($model_id);
-    }
-
-    public function scopeOrder($query)
-    {
-        return $query->orderBy('name');
     }
 
     //----------------------------------------------------------

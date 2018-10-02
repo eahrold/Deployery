@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\ServerRequest;
+use App\Http\Resources\Management\ServerResource;
 use App\Jobs\ServerDeploy;
 use App\Models\Project;
 use App\Models\Server;
@@ -57,7 +58,7 @@ class ServersController extends APIController
             }
         });
 
-        return $this->response->item($model, new $this->transformer);
+        return new ServerResource($model);
     }
 
     /**
@@ -71,9 +72,9 @@ class ServersController extends APIController
     {
         $model = $this->projects->findServer($project_id, $id);
         $this->authorize($model->project);
-        $model->updateGitInfo();
 
-        return $this->response->item($model, new $this->transformer);
+        $model->updateGitInfo();
+        return new ServerResource($model);
     }
 
     /**
@@ -98,7 +99,7 @@ class ServersController extends APIController
             }
         });
 
-        return $this->response->item($model, new $this->transformer);
+        return new ServerResource($model);
     }
 
     /**
@@ -152,6 +153,18 @@ class ServersController extends APIController
             ]);
         }
         abort(412, $server->present()->connection_status_message);
+    }
+
+    public function webhookReset($project_id, $id)
+    {
+        $model = $this->projects->findServer($project_id, $id);
+        $this->authorize('deploy', $model->project);
+
+        \DB::transaction(function() use ($model) {
+            $model->resetWebhook(true);
+        });
+
+        return new ServerResource($model);
     }
 
     public function pubkey($id)

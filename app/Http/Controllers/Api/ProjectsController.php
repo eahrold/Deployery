@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\BaseRequest;
+use App\Http\Resources\Management\ProjectResource;
 use App\Jobs\RepositoryClone;
 use App\Models\Project;
 use App\Transformers\ProjectTransformer;
@@ -22,8 +23,8 @@ class ProjectsController extends APIController
      */
     public function index()
     {
-        // \DB::enableQueryLog();
-        $projects = $this->model->with([
+        \DB::enableQueryLog();
+        $query = $this->model->with([
             'latest_history' => function($query){
                 $query->with(['server' => function($q){
                     $q->select(['name', 'id']);
@@ -32,9 +33,14 @@ class ProjectsController extends APIController
             'servers' => function($query){
                 $query->select(['id', 'name', 'project_id']);
             }
-        ])->findUserModels()->get();
+        ])->findUserModels()
+          ->order([
+            'order' => 'latest_history.created_at',
+            'direction' => 1,
+        ]);
 
-        return $this->response->collection($projects, $this->transformer);
+        $projects = $query->get();
+        return ProjectResource::collection($projects);
     }
 
 
@@ -49,7 +55,7 @@ class ProjectsController extends APIController
         $this->apiValidate($this->request, $rules);
 
         $model = $this->model->create($this->request->all());
-        return $this->response->item($model, $this->transformer);
+        return new ProjectResource($model->load("servers", "configs", "scripts"));
     }
 
     /**
@@ -71,7 +77,7 @@ class ProjectsController extends APIController
         ])->findOrFail($id);
 
         $this->authorize($model);
-        return $this->response->item($model, $this->transformer);
+        return new ProjectResource($model);
     }
 
     /**

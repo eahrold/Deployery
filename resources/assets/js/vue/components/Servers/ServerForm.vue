@@ -30,7 +30,11 @@
 
             <form-section header='Web Hooks'>
                 <form-checkbox v-model='model.autodeploy' :errors='errors' property="autodeploy"></form-checkbox>
-                {{ model.webhook }}
+                <form-text :value='model.webhook' property='webhook' :readonly="true">
+                    <template slot='addon'>
+                        <a @click='resetWebhook' class="clickable">Reset</a>
+                    </template>
+                </form-text>
             </form-section>
 
 
@@ -84,5 +88,12 @@
                 return 'servers';
             },
         },
+
+        methods: {
+            resetWebhook() {
+                let endpoint = `${this.apiEndpoint}/webhook/reset`
+                this.$http.put(endpoint).then(this.saved, this.failure);
+            }
+        }
     }
 </script>

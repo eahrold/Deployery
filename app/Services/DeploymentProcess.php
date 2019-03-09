@@ -221,8 +221,13 @@ class DeploymentProcess
 
         // If "from" was not supplied, then grab
         // the repo from the beginning of time.
-        $changes = $from ? $this->server->git_info->changes($from, $to) : $this->server->git_info->all();
+        if (!$from) {
+            return $this->runTasksOrFail([
+                'rsyncRepo' => null,
+            ]);
+        }
 
+        $changes = $from ? $this->server->git_info->changes($from, $to) : $this->server->git_info->all();
         return $this->runTasksOrFail([
             'uploadFiles' => $changes['changed'],
             'removeFiles' => $changes['removed'],
@@ -253,6 +258,7 @@ class DeploymentProcess
 
         return 0;
     }
+
     //----------------------------------------------------------
     // End Deployment Blueprint Methods
     //-------------------------------------------------------
@@ -262,6 +268,7 @@ class DeploymentProcess
         $this->stage = $stage;
         $this->progress = $this->stage_progress[$stage];
     }
+
     /**
      * Execute an array of methods, fail
      * @param  array  $tasks array of callable methods
@@ -294,6 +301,43 @@ class DeploymentProcess
     }
 
     /**
+     * Rsync Repo
+     *
+     * @return int  This will return 0 for success, anything else indicated a failure.
+     */
+    private function rsyncRepo() {
+        $server = $this->server;
+        $project = $server->project;
+
+        $auth = $server->getConnectionAuth();
+        $rsyncer = new \App\Services\Rsyncer(
+            $server->name,
+            $server->hostname,
+            $server->username,
+            $auth
+        );
+
+        $rsyncer->setDryRun(false);
+
+        $this->sendMessage("Rsyncing Files.".PHP_EOL);
+
+        $rsyncer->setStdOut(function($message){
+            $this->uploaded['success'][] = $message;
+            $this->sendMessage("<b class='text-info'>Uploaded {$message}</b>".PHP_EOL);
+        });
+
+        $rsyncer->setStdErr(function($message){
+            $this->errors[] = "[Rsync Error] {$message}";
+            $this->sendMessage("<b class='text-error'>{$message}</b>".PHP_EOL);
+        });
+
+        return $rsyncer->rsync(
+            $project->repo_path,
+            $server->deployment_path
+        );
+    }
+
+    /**
      * Upload a list of files
      *
      * @param  array  $files Local files to upload to remote
@@ -309,34 +353,39 @@ class DeploymentProcess
         $progress_increment = (static::PROGRESS_SYNC_FILES_COMPLETE - $this->progress) / ($file_count+1);
 
         $previous_dir = "";
+
+        $throttler = new \App\Services\ProcessThrottler($seconds=0.500);
+
         foreach ($files as $idx => $file) {
-            $local_file = "{$this->server->repo}/{$file}";
-            $remote_file = "{$this->server->deployment_path}/{$file}";
+            $throttler->exec(function() use ($idx, $file, $previous_dir, $progress_increment, $file_count){
+                $local_file = "{$this->server->repo}/{$file}";
+                $remote_file = "{$this->server->deployment_path}/{$file}";
 
-            // SFTP won't automatically create the directory so we need to check
-            // and do it ourselves.  We hold on to the previous parent directory
-            // to minimize the number of times the remote is queried.
-            $pardir = dirname($remote_file);
-            if ($pardir != $previous_dir) {
-                if (!$this->server->connection->exists($pardir)) {
-                    // We need to access the SFTP Connection directly.
-                    $this->server->connection->getGateway()->getConnection()->mkdir($pardir, -1, true);
+                // SFTP won't automatically create the directory so we need to check
+                // and do it ourselves.  We hold on to the previous parent directory
+                // to minimize the number of times the remote is queried.
+                $pardir = dirname($remote_file);
+                if ($pardir != $previous_dir) {
+                    if (!$this->server->connection->exists($pardir)) {
+                        // We need to access the SFTP Connection directly.
+                        $this->server->connection->mkdir($pardir, -1, true);
+                    }
+                    $previous_dir = $pardir;
                 }
-                $previous_dir = $pardir;
-            }
 
-            if ($this->server->connection->put($local_file, $remote_file)) {
-                $this->uploaded['success'][] = $file;
-            } else {
-                $this->uploaded['failed'][] = $file;
-                $this->errors[] = "Could not upload {$file}";
-            }
+                if ($this->server->connection->put($local_file, $remote_file)) {
+                    $this->uploaded['success'][] = $file;
+                } else {
+                    $this->uploaded['failed'][] = $file;
+                    $this->errors[] = "Could not upload {$file}";
+                }
 
-            $percent = (int)(($idx / $file_count) * 100);
-            $this->progress = floor($this->progress + $progress_increment);
+                $percent = (int)(($idx / $file_count) * 100);
+                $this->progress = floor($this->progress + $progress_increment);
 
-            $truncated = substr($remote_file, -60);
-            $this->sendMessage("<b class='text-info'>Uploaded {$percent}%:</b> ...{$truncated}".PHP_EOL);
+                $truncated = substr($remote_file, -60);
+                $this->sendMessage("<b class='text-info'>Uploaded {$percent}%:</b> ...{$truncated}".PHP_EOL);
+            });
         }
 
         return 0;
@@ -407,8 +456,9 @@ class DeploymentProcess
 
             $this->sendMessage("Starting One-Off Scripts");
 
-            $pre = $this->server->pre_install_scripts->pluck('id');
-            $post = $this->server->post_install_scripts->pluck('id');
+            $pre = $this->server->getPreInstallScripts()->pluck('id');
+            $post = $this->server->getPostInstallScripts()->pluck('id');
+
             $unique = $pre->merge($post)->values()->all();
 
             $scripts = $this->server->oneOffScripts()
@@ -429,7 +479,7 @@ class DeploymentProcess
     private function runPreInstallScripts()
     {
         $this->sendMessage("Starting Preinstall Scripts");
-        $scripts = $this->server->pre_install_scripts;
+        $scripts = $this->server->getPreInstallScripts();
         return $this->runScripts($scripts);
     }
 
@@ -441,7 +491,7 @@ class DeploymentProcess
     private function runPostInstallScripts()
     {
         $this->sendMessage("Starting Postinstall Scripts");
-        $scripts = $this->server->post_install_scripts;
+        $scripts = $this->server->getPostInstallScripts();
         return $this->runScripts($scripts);
     }
 

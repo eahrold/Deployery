@@ -30,8 +30,10 @@ class GitProcessBuilder
         $this->args = ['/usr/bin/git'];
     }
 
-    public function getProcess() : Process {
-        return (new Process($this->args, $this->repo))->setEnv($this->env);
+    public function getProcess(int $timeout=100) : Process {
+        return (new Process($this->args, $this->repo))
+           ->setEnv($this->env)
+           ->setTimeout($timeout);
     }
 
     /**
@@ -65,6 +67,7 @@ class GitProcessBuilder
         $this->env[$key] = $value;
         return $this;
     }
+
     /**
      * Update the ProcessBuilder's args using a string.
      *

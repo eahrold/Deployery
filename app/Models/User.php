@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\BcryptsPassword;
 use App\Presenters\PresentableTrait;
-use App\Services\SSHKeyer;
+use App\Services\SSH\SSHKeyer;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Mpociot\Teamwork\Traits\UserHasTeams;

@@ -177,7 +177,7 @@ export default {
          * @param  object data event data
          */
         [types.DEPLOYMENT_PROGRESS]({commit, state}, {data}){
-            console.log("Progress", {data})
+            // console.log("Progress", {data})
             const { errors, progress, message, server_id, server_name, stage } = data
             const { deployment } = state
 

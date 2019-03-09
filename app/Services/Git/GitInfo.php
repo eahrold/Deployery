@@ -87,7 +87,7 @@ class GitInfo
      * @param  string $branch the branch to switch to.
      * @return $this          this
      */
-    public function branch(string $branch)
+    public function branch(string $branch=null)
     {
         $this->validateBranch($branch);
         $this->branch = $branch;

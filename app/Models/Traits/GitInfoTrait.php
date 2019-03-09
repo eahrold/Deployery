@@ -3,7 +3,8 @@
 namespace App\Models\Traits;
 
 use App\Services\Git\GitInfo;
-use App\Services\SSHConnection;
+use App\Services\SSH\SSHConnection;
+use Illuminate\Support\Facades\Input;
 
 /**
  *  @property GitInfo $git_info

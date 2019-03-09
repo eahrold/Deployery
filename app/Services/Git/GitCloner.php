@@ -88,10 +88,10 @@ class GitCloner
         $builder = new GitProcessBuilder($repo);
 
         $builder->withPubKey($this->pub_key)
-                ->setTimeout(300)
                 ->setTask($task);
 
-        $process = $builder->getProcess();
+        $process = $builder->getProcess($timeout=300);
+
         $process->run(function ($type, $buffer) {
             if (!empty($buffer)) {
                 $this->sendMessage($buffer);

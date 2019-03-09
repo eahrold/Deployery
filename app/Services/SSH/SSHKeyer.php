@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\SSH;
 
 use AdamBrett\ShellWrapper\Command\Builder as Command;
 use AdamBrett\ShellWrapper\Command\Param;

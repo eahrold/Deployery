@@ -2,7 +2,7 @@
 
 namespace App\Models\Traits;
 
-use App\Services\SSHConnection;
+use App\Services\SSH\SSHConnection;
 
 /**
 * @property SSHConnection $connection
@@ -26,7 +26,7 @@ trait SSHAble {
     {
         static::updating(function($model) {
             // A list of properties that if changed, require revalidating of the server connection
-            $check = ['hostname', 'username', 'password', 'port', 'deployment_path'];
+            $check = [ 'hostname', 'username', 'password', 'port', 'deployment_path' ];
             if ($model->isDirty($check)) {
                 $model->successfully_connected = SSHConnection::CONNECTION_STATUS_UNKNOWN;
             }
@@ -38,7 +38,7 @@ trait SSHAble {
      *
      * @return array credentials
      */
-    private function getConnectionAuth()
+    public function getConnectionAuth()
     {
         if ($this->use_ssh_key) {
             return ['key' => $this->project->ssh_key,
@@ -86,6 +86,6 @@ trait SSHAble {
 
         $this->successfully_connected = $status;
         $this->save();
-        return ($status === SSHConnection::CONNECTION_STATUS_SUCCESS);
+        return ($status == SSHConnection::CONNECTION_STATUS_SUCCESS);
     }
 }

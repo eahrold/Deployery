@@ -19,6 +19,7 @@
                 <form-text v-model='model.username' :errors='errors' property="username" :required='true'></form-text>
                 <form-password v-model='model.password' :errors='errors' property="password"></form-password>
                 <form-checkbox v-model='model.use_ssh_key' :errors='errors' label='Use SSH Key' property="use_ssh_key"></form-checkbox>
+                <textarea v-if='model.use_ssh_key' rows='8' readonly>{{ pubkey }}</textarea>
             </form-section>
 
             <form-section header='Deployment Info'>
@@ -64,6 +65,12 @@
             }
         },
 
+        data() {
+            return {
+                pubkey: null,
+            }
+        },
+
         computed: {
             header() {
                 return this.loading ? "Loading..." : `Editing Server ${this.model.name}`
@@ -89,7 +96,25 @@
             },
         },
 
+        watch: {
+            'model.use_ssh_key' : function(use) {
+                if(use) {
+                    this.getPubKey()
+                }
+            }
+        },
+
         methods: {
+            getPubKey () {
+                if (this.pubkey) return;
+
+                this.$http.get(this.endpoint + '/pubkey').then((response)=>{
+                    this.pubkey = response.data.key;
+                }, ({response}) => {
+                    console.error('error getting pubkey');
+                });
+            },
+
             resetWebhook() {
                 let endpoint = `${this.apiEndpoint}/webhook/reset`
                 this.$http.put(endpoint).then(this.saved, this.failure);

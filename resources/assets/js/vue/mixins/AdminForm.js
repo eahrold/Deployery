@@ -178,7 +178,8 @@ export const form = {
 
         $_AdminForm_navigateBack() {
             const canReturn = _.get(this.$_AdminForm__from_route, 'meta.canReturn');
-            if (!_.isEmpty(this.$_AdminForm__from_route.name) && canReturn !== false) {
+            const adminBackName = _.get(this.$_AdminForm__from_route, "name")
+            if (!_.isEmpty(adminBackName) && canReturn !== false) {
                 this.$router.go(-1);
                 return;
             }

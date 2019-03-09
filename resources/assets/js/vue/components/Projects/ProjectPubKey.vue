@@ -6,7 +6,7 @@
             data-clipboard-action="copy"
             data-clipboard-target='#pubkey'>
         </i>
-        <span>Add this key to your repo host</span>
+        <span>Add this key to your GitHub/BitBucket repo host</span>
     </div>
     <code id='pubkey' class='pubkey'>{{ userPubKey }}</code>
 </form-card>

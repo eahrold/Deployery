@@ -14,6 +14,31 @@
 $api = app('Dingo\Api\Routing\Router');
 $api->version('v1', function ($api) {
 
+    $api->get('/rsync-test', function(){
+
+        $server = \App\Models\Server::first();
+        $project = $server->project;
+
+        // $name, $host, $username, array $auth
+        $auth = $server->getConnectionAuth();
+        $rsyncer = new \App\Services\Rsyncer(
+            $server->name,
+            $server->hostname,
+            $server->username,
+            $auth
+        );
+
+        $rsyncer->setDryRun(false);
+
+        $response = $rsyncer->rsync(
+            $project->repo_path,
+            $server->deployment_path
+        );
+
+        // return response()->json($server);
+        return response()->json($response);
+    });
+
     $api->group(["prefix" => "projects/{project}", "middleware" => "api.auth"], function ($api) {
 
         //----------------------------------------------------------

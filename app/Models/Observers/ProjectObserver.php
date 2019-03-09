@@ -5,7 +5,7 @@ namespace App\Models\Observers;
 use App\Jobs\RepositoryClone;
 use App\Models\User;
 use App\Services\Git\GitCloner;
-use App\Services\SSHKeyer;
+use App\Services\SSH\SSHKeyer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 

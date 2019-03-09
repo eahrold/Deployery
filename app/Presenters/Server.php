@@ -2,7 +2,7 @@
 
 namespace App\Presenters;
 
-use App\Services\SSHConnection;
+use App\Services\SSH\SSHConnection;
 
 
 /**
@@ -44,9 +44,9 @@ class Server extends Presenter
                 $message = "The user doesn't have write access to {$this->deployment_path}";
                 break;
             case SSHConnection::CONNECTION_STATUS_FAILURE:
-                $message = "Failed to connected to the server, check the username and ";
+                $message = "Failed to connected to the server as \"{$this->username}\", check the username and ";
                 if($this->entity->use_ssh_key) {
-                    $message .= "make sure to add the ssh key to the user's ~/.ssh/authorized_keys file";
+                    $message .= "make sure to add the ssh key to the user's ~/.ssh/authorized_keys file on {$this->hostname}";
                 } else {
                     $message .= 'password';
                 }

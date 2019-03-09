@@ -159,10 +159,13 @@ final class Project extends Base
         if(!$value && $size = \Cache::get($key)) {
             return $size;
         }
-        $size = (new GitInfo($this->repoPath(), $this->branch))->size();
+        try {
+            $size = (new GitInfo($this->repoPath(), $this->branch))->size();
+        } catch (\Exception $exception) {
+            $size = 0;
+        }
 
         \Cache::put($key, $size, 1);
-
         return $size;
     }
 

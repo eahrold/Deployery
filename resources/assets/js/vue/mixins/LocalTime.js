@@ -2,7 +2,7 @@ const moment = require('moment');
 
 const timeFunctions = {
     localTime: function(time) {
-        if( ! time)return ""
+        if( ! time) return ""
 
         var time = moment.parseZone(time).local();
         if (time.isValid()) {
@@ -10,8 +10,9 @@ const timeFunctions = {
         }
         return '';
     },
+
     timeFromNow: function(time) {
-        return moment(time).fromNow()
+        return moment.parseZone(time).fromNow()
     }
 }
 

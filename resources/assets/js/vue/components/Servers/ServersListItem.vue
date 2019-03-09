@@ -15,7 +15,7 @@
         </div>
 
         <div class="col">
-            {{ server.path }}
+            {{ server.deployment_path }}
         </div>
 
         <div class="col d-flex justify-content-end align-items-center">

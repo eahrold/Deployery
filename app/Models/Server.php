@@ -33,8 +33,6 @@ use Illuminate\Support\Facades\Input;
 * @property Array      $last_deployed_commit_details
 * @property string     $name
 * @property string     $password
-* @property Collection $post_install_scripts
-* @property Collection $pre_install_scripts
 * @property string     $protocol
 * @property string     $port
 * @property string     $username
@@ -297,12 +295,12 @@ final class Server extends Base
     // Script extras
     //-------------------------------------------------------
 
-    public function getPreInstallScriptsAttribute()
+    public function getPreInstallScripts()
     {
         return $this->filteredInstallScripts($predeploy = true);
     }
 
-    public function getPostInstallScriptsAttribute()
+    public function getPostInstallScripts()
     {
         return $this->filteredInstallScripts($predeploy = false);
     }

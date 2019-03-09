@@ -2,14 +2,13 @@
 
 namespace App\Services\SSH;
 
+use App\Services\SSH\SFTP;
 use App\Services\SSH\SecLibGateway;
 use Collective\Remote\Connection;
 use Collective\Remote\GatewayInterface;
 use Illuminate\Filesystem\Filesystem;
 use League\Flysystem\Filesystem as FlysystemFS;
 use League\Flysystem\Sftp\SftpAdapter;
-use phpseclib\Net\SFTP;
-use phpseclib\Net\SSH2;
 
 
 class SSHConnection extends Connection {
@@ -40,7 +39,7 @@ class SSHConnection extends Connection {
      * @param  array   $auth     auth
      * @param  integer $timeout  timeout
      *
-     * @return League\Flysystem\Filesystem
+     * @return \League\Flysystem\Filesystem
      */
     private function createSftpFileSystem(string $name, string $host, string $username, array $auth, $timeout=300) {
         $params = [

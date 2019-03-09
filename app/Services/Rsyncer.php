@@ -96,7 +96,7 @@ class Rsyncer  {
      * Set the standard out pipe
      *
      * @param Callable the function callback for std_err
-     * @return  ProcessManager current process manager object
+     * @return  $this
      */
     public function setStdOut($fn)
     {
@@ -110,7 +110,8 @@ class Rsyncer  {
      * Set the standard error pipe
      *
      * @param Callable the function callback for std_err
-     * @return  ProcessManager current process manager object
+     *
+     * @return  $this
      */
     public function setStdErr($fn)
     {

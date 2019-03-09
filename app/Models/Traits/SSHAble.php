@@ -53,7 +53,7 @@ trait SSHAble {
     /**
      * Getter for the connection attribute
      *
-     * @return \App\Services\SSHConnection
+     * @return \App\Services\SSH\SSHConnection
      */
     public function getConnectionAttribute()
     {

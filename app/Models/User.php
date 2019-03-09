@@ -112,7 +112,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function getApiTokenAttribute($value = '')
     {
-        if ($this === \Auth::user()) {
+        if ($this->id === data_get(\Auth::user(), 'id')) {
             return \JWTAuth::fromUser($this);
         }
     }

@@ -7,15 +7,16 @@ use App\Presenters\PresentableTrait;
 use App\Services\SSH\SSHKeyer;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
 use Mpociot\Teamwork\Traits\UserHasTeams;
-use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable implements JWTSubject
+class User extends Authenticatable
 {
     use UserHasTeams;
     use PresentableTrait;
     use Notifiable;
     use BcryptsPassword;
+    use HasApiTokens;
 
     protected $presenter = 'App\Presenters\User';
 
@@ -95,26 +96,6 @@ class User extends Authenticatable implements JWTSubject
     public function isTeamMember($team)
     {
         return $this->teams->contains('id', is_numeric($team) ? $team : $team->id);
-    }
-
-    //----------------------------------------------------------
-    // Api Auth
-    //-------------------------------------------------------
-    public function getJWTIdentifier()
-    {
-        return $this->getKey();
-    }
-
-    public function getJWTCustomClaims()
-    {
-        return [];
-    }
-
-    public function getApiTokenAttribute($value = '')
-    {
-        if ($this->id === data_get(\Auth::user(), 'id')) {
-            return \JWTAuth::fromUser($this);
-        }
     }
 
     //----------------------------------------------------------

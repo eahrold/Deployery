@@ -6,14 +6,13 @@ use App\Http\Requests\BaseRequest;
 use App\Http\Resources\Management\ProjectResource;
 use App\Jobs\RepositoryClone;
 use App\Models\Project;
-use App\Transformers\ProjectTransformer;
 
 class ProjectsController extends APIController
 {
 
-    public function __construct(BaseRequest $request, Project $project, ProjectTransformer $transformer)
+    public function __construct(BaseRequest $request, Project $project)
     {
-        parent::__construct($request, $project, $transformer);
+        parent::__construct($request, $project);
     }
 
     /**
@@ -52,7 +51,7 @@ class ProjectsController extends APIController
     public function store()
     {
         $rules = $this->model->getValidationRules();
-        $this->apiValidate($this->request, $rules);
+        $data = $this->request->validate($rules);
 
         $model = $this->model->create($this->request->all());
         return new ProjectResource($model->load("servers", "configs", "scripts"));
@@ -91,11 +90,11 @@ class ProjectsController extends APIController
         $this->authorize($model);
 
         $rules = $model->getValidationRules($id);
-        $this->apiValidate($this->request, $rules);
+        $data = $this->request->validate($rules);
 
         $model->update($this->request->all());
 
-        return $this->response->array([
+        return response()->json([
             "message" => "Successfully updated the project",
             "is_cloning" => $model->is_cloning,
             "status_code" => 200,
@@ -114,8 +113,9 @@ class ProjectsController extends APIController
         $model = $this->model->findOrFail($id);
         $this->authorize($model);
 
-        $model->delete();
-        return $this->response->array([
+        abort_unless($model->delete(), 422, 'Could not delete the project');
+
+        return response()->json([
             'message' => "Successfully deleted the project",
             "status_code" => 200
         ]);
@@ -139,7 +139,7 @@ class ProjectsController extends APIController
         $last = $history ? $history->created_at->toIso8601String(): 'Never Deployed';
         $server = $history ? $history->server->name : "";
 
-        return $this->response->array([
+        return response()->json([
             'deployments' => [
                 'last' => [
                     'date' => $last,
@@ -170,7 +170,7 @@ class ProjectsController extends APIController
         $model = $this->model->findOrFail($id);
         $this->authorize('view', $model);
 
-        return $this->response->array([
+        return response()->json([
             'key' => $model->pubkey
         ]);
     }
@@ -199,7 +199,7 @@ class ProjectsController extends APIController
             abort(400, 'The repository already exists. No need to reclone.');
         }
 
-        return $this->response->array([
+        return response()->json([
             'message'=>'Trying to reclone the repo.',
             'status_code'=>'200'
         ]);

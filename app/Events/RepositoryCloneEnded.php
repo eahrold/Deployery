@@ -21,11 +21,13 @@ final class RepositoryCloneEnded extends AbstractEventMessage
     public $repo_size;
 
     /**
-     * Create a new event instance.
+     * Event for Repo Clone ended
+     * {@inheritdoc}
      *
-     * @param  $data configuration data for the event
+     * @param integer $success   Retrun Code
+     * @param integer $repo_size Size Fo the Repo
      */
-    public function __construct($data, $success=0, $repo_size=0)
+    public function __construct(array $data, $success=0, $repo_size=0)
     {
         parent::__construct($data);
         $this->success = $success;

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Config;
 use App\Models\Observers\ProjectObserver;
 use App\Models\Traits\OrderableTrait;
 use App\Models\Traits\Slackable;
@@ -165,14 +166,14 @@ final class Project extends Base
             $size = 0;
         }
 
-        \Cache::put($key, $size, 1);
+        \Cache::put($key, $size, 10);
         return $size;
     }
 
     public function getBranchesAttribute($value = false)
     {
         $key = "project-{$this->id}->branches";
-        return \Cache::remember($key, 2, function() {
+        return \Cache::remember($key, 10, function() {
             return (new GitInfo($this->repoPath(), $this->branch))->branches();
         });
     }
@@ -243,7 +244,7 @@ final class Project extends Base
     public function setIsCloningAttribute($value = false)
     {
         if ($value) {
-            Cache::put($this->cloningCacheKey(), $value, 5);
+            Cache::put($this->cloningCacheKey(), $value, 120);
         } else {
             Cache::forget($this->cloningCacheKey());
         }
@@ -265,7 +266,7 @@ final class Project extends Base
     public function setIsDeployingAttribute($value = false)
     {
         if ($value) {
-            Cache::put($this->deploymentCacheKey(), $value, 1);
+            Cache::put($this->deploymentCacheKey(), $value, 120);
         } else {
             Cache::forget($this->deploymentCacheKey());
         }
@@ -301,12 +302,13 @@ final class Project extends Base
         return $query->getUserModel($id)->servers()->findOrFail($model_id);
     }
 
-    public function scopeFindConfig($query, $id, $model_id)
+
+    public function scopeFindConfig($query, $id, $model_id) : ?Config
     {
         return $query->getUserModel($id)->configs()->findOrFail($model_id);
     }
 
-    public function scopeFindScript($query, $id, $model_id)
+    public function scopeFindScript($query, $id, $model_id) :?Script
     {
         return $query->getUserModel($id)->scripts()->findOrFail($model_id);
     }

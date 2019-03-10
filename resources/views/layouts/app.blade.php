@@ -10,8 +10,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     @if(Auth::user())
-<!-- Form Data -->
-    <meta name="remember-token" content="{{ Auth::user()->remember_token }}">
+        <!-- Form Data -->
+        <meta name="remember-token" content="{{ Auth::user()->remember_token }}">
     @endif
 
     <!-- Scripts -->
@@ -20,8 +20,7 @@
         json_encode(['csrfToken' => csrf_token()])
     !!}
 
-    @if(Auth::user() && $apiToken = Auth::user()->api_token)
-        window.Deployery.apiToken = "{{ $apiToken }}";
+    @if(Auth::user())
         window.Deployery.userPubKey = "{!! Auth::user()->pubkey !!}";
         window.Deployery.pusherKey = "{{ env('PUSHER_KEY') }}"
         window.Deployery.user = {!! Auth::user()->toJson() !!}

@@ -23,20 +23,4 @@ abstract class Controller extends BaseController
         $this->model = $model;
         $this->request = $request;
     }
-
-    /**
-     * Checkboxes will not return the data for off state,
-     * so we'll ensure the boolean fields are set here
-     *
-     * @param  Model  $model the model
-     * @param  array  $keys  expected boolean keys
-     *
-     * @return void
-     */
-    protected function setBooleansForModel(Model $model, array $keys)
-    {
-        foreach ($keys as $key) {
-            $model->{$key} = $this->request->get($key) ? true : false;
-        }
-    }
 }

@@ -15,11 +15,9 @@ final class HistoryCreatedEvent extends AbstractEchoEvent
     public $history;
 
     /**
-     * Create a new event instance.
+     * Event when a history is created
      *
-     * @param  $data configuration data for the event
-     * @return void
-     * @return void
+     * @param History $history [description]
      */
     public function __construct(History $history)
     {

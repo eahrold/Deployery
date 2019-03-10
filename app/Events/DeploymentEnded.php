@@ -35,6 +35,7 @@ final class DeploymentEnded extends AbstractServerEvent implements ShouldQueue
      * @param Server $server  Server being deployed
      * @param string $message Completed messages
      * @param array  $errors  List any errors
+     *
      * @return  void
      */
     public function __construct(Server $server, string $message, array $errors = [], $success=true)

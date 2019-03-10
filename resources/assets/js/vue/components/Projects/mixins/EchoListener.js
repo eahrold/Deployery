@@ -4,17 +4,24 @@ export const EchoListener = {
 
     mounted () {
         this.addEchoListeners();
+
+    },
+
+    computed: {
+        __Echo(){
+            return window.Echo
+        }
     },
 
     methods : {
 
          /**
-         * Subscribe to the echo events
+         * Subscribe to the Echo events
          */
         addEchoListeners() {
             const { project_id } = this.$route.params;
-            // Setup echo listeners.
-            echo.private('project.'+ project_id)
+            // Setup Echo listeners.
+            this.__Echo.private('project.'+ project_id)
                 .listen('DeploymentProgress', this.handleDeployProgress)
                 .listen('DeploymentStarted', this.handleDeployStarted)
                 .listen('DeploymentEnded', this.handleDeployEnded)
@@ -25,18 +32,18 @@ export const EchoListener = {
 
                 .listen('HistoryCreatedEvent', this.handleHistoryCreated)
 
-            echo.join('project-viewers.' + project_id)
+            this.__Echo.join('project-viewers.' + project_id)
                 .here(this.handleViewersUpdated);
 
             return this;
         },
 
          /**
-         * Unsubscribe to the echo events
+         * Unsubscribe to the Echo events
          */
         removeEchoListener(route) {
             const { project_id } = route.params;
-            echo.leave('project.'+project_id);
+            this.__Echo.leave('project.'+project_id);
 
             return this;
         },

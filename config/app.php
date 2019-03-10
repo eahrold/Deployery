@@ -152,14 +152,9 @@ return [
         /*
          * Vendor
          */
-        Ajthinking\Tinx\TinxServiceProvider::class,
         Collective\Remote\RemoteServiceProvider::class,
         Laravel\Tinker\TinkerServiceProvider::class,
         Mpociot\Teamwork\TeamworkServiceProvider::class,
-        AdamWathan\BootForms\BootFormsServiceProvider::class,
-        Barryvdh\Debugbar\ServiceProvider::class,
-        Dingo\Api\Provider\LaravelServiceProvider::class,
-        Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -224,18 +219,12 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'Carbon' => \Carbon\Carbon::class,
 
-        /*
-         * Vendor
-         */
-        'JWTAuth' => \Tymon\JWTAuth\Facades\JWTAuth::class,
         /**
          *  Deployery
          */
         'Project' => App\Models\Project::class,
         'User' => App\Models\User::class,
         'Team' => App\Models\Team::class,
-        'BootForm' => AdamWathan\BootForms\Facades\BootForm::class,
-
     ],
 
 ];

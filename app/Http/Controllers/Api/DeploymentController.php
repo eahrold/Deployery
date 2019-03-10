@@ -9,12 +9,9 @@ use App\Models\Project;
 use App\Models\Server;
 use App\Services\Git\GitInfo;
 use App\Services\Git\Validation\ValidRepoBranch;
-use Dingo\Api\Routing\Helpers;
 
 class DeploymentController extends Controller
 {
-    use Helpers;
-
     /**
      * @var \App\Http\Requests\Request
      */
@@ -38,7 +35,7 @@ class DeploymentController extends Controller
     {
         $server = Project::findServer($project_id, $id);
 
-        $this->apiValidate($this->request, [
+        $data = $this->request->validate([
             'script_id' => 'sometimes|array',
             'script_ids.*' => 'exists:scripts,id',
             'use_branch_in_future' => 'sometimes|boolean',
@@ -63,36 +60,18 @@ class DeploymentController extends Controller
         $options = $this->request->only(['branch', 'use_branch_in_future']);
         $options['script_ids'] = $oneOffScripts;
 
-        return $this->response->array(
+        return response()->json(
             $this->queueDeployment($server, $to, $from, $this->user()->full_name, $options)
         );
     }
 
-    /**
-     * Validate request with api error response
-     *
-     * @param  Request $request request object
-     * @param  array   $rules   validation rules
-     * @throws UpdateResourceFailedException on validation failure
-     * @return void
-     */
-    protected function apiValidate(Request $request, array $rules)
-    {
-        $validator = \Validator::make($request->all(), $rules);
-        if ($validator->fails()) {
-            $class_name = class_basename($this->model);
-            throw new \Dingo\Api\Exception\ResourceException(
-                "he given data was invalid..",
-                $validator->errors()
-            );
-        }
-    }
 
     /**
      * Get details for the commit
      *
      * @param  integer $project_id Project ID
      * @param  integer $id         Server ID
+     *
      * @return \Dingo\Api\Http\Response|null
      */
     public function commitDetails($project_id, $id)
@@ -102,7 +81,7 @@ class DeploymentController extends Controller
             \Cache::forget($cacheKey);
         }
 
-        return \Cache::remember($cacheKey, 1, function() use ($project_id, $id) {
+        return \Cache::remember($cacheKey, 10, function() use ($project_id, $id) {
             $server = Project::findServer($project_id, $id);
             $this->authorize('deploy', $server->project);
 
@@ -122,7 +101,7 @@ class DeploymentController extends Controller
             })->values();
 
             if ($server->validateConnection()) {
-                return $this->response->array(
+                return response()->json(
                     compact(
                         'last_deployed_commit_details',
                         'available_commits',
@@ -146,7 +125,7 @@ class DeploymentController extends Controller
         $gitInfo = (new GitInfo($project->repoPath()))->branch($branch);
         $commits = $gitInfo->commits(30);
 
-        return $this->response->array($commits);
+        return response()->json($commits);
     }
     /**
      * Find a specific commit
@@ -167,18 +146,17 @@ class DeploymentController extends Controller
             abort(422, 'Could not find a matching commit');
         }
 
-        return $this->response->array($commit);
+        return response()->json($commit);
     }
 
     /**
-     * Trigger Deployment from frontend
+     * Trigger Deployment from webhook
      *
      * @return \Dingo\Api\Http\Response|null
      */
     public function webhook($webhook)
     {
         $info = (new \App\Services\WebHooks\WebhookHandler($this->request))->info();
-        dump($info);
 
         $server = Server::where('webhook', $this->request->url())
                         ->where('branch', $info->branch)
@@ -186,9 +164,7 @@ class DeploymentController extends Controller
 
         $sender = "{$info->user} [{$info->source}]";
 
-        if (!$server->autodeploy) {
-            return $this->response->error("Autodeploy is not enabled", 404);
-        }
+        abort_unless($server->autodeploy, 404, "Autodeploy is not enabled");
 
         $server->updateGitInfo();
 
@@ -197,7 +173,7 @@ class DeploymentController extends Controller
 
         $response = $this->queueDeployment($server, $to, $from, $sender);
 
-        return $this->response->array($response);
+        return response()->json($response);
     }
 
     //----------------------------------------------------------

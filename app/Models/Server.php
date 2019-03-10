@@ -144,9 +144,9 @@ final class Server extends Base
      */
     public function setIsDeployingAttribute($value = false)
     {
-        $this->project->is_deploying = (bool)$value;
-        if ((bool)$value) {
-            Cache::put($this->deploymentCacheKey(), (bool)$value, 5);
+        $bool = $this->project->is_deploying = (bool)$value;
+        if ($bool) {
+            Cache::put($this->deploymentCacheKey(), $bool, 120);
         } else {
             Cache::forget($this->deploymentCacheKey());
         }

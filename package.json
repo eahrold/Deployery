@@ -12,13 +12,17 @@
   "devDependencies": {
     "cross-env": "^3.2.3",
     "es6-promise": "^4.1.1",
-    "laravel-mix": "^1.0",
+    "laravel-mix": "^4.0.14",
+    "node-sass": "^4.11.0",
+    "resolve-url-loader": "2.3.1",
+    "sass": "^1.15.2",
+    "sass-loader": "^7.1.0",
     "vue-loader": "^13.7.1",
     "vue-style-loader": "^3.0.1",
     "vue-template-compiler": "^2.5.13"
   },
   "dependencies": {
-    "axios": "^0.16.2",
+    "axios": "^0.18.0",
     "bootstrap": "^4.1.1",
     "bootstrap-daterangepicker": "^2.1.24",
     "bootstrap-sass": "^3.3.7",

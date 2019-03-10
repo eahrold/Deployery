@@ -8,7 +8,6 @@ use App\Jobs\ServerDeploy;
 use App\Models\Project;
 use App\Models\Server;
 use App\Services\Git\GitInfo;
-use App\Transformers\ServerTransformer;
 use Illuminate\Support\Facades\Auth;
 
 class ServersController extends APIController
@@ -20,10 +19,10 @@ class ServersController extends APIController
      */
     private $projects;
 
-    public function __construct(ServerRequest $request, Project $project, ServerTransformer $transformer)
+    public function __construct(ServerRequest $request, Project $project)
     {
         $this->projects = $project;
-        parent::__construct($request, $project->servers()->getModel(), $transformer);
+        parent::__construct($request, $project->servers()->getModel());
     }
 
     //----------------------------------------------------------
@@ -38,8 +37,7 @@ class ServersController extends APIController
      */
     public function store($project_id)
     {
-        $this->apiValidate(
-            $this->request,
+        $this->request->validate(
             $this->model->getValidationRules()
         );
 
@@ -89,8 +87,9 @@ class ServersController extends APIController
         $model = $this->projects->findServer($project_id, $id);
         $this->authorize($model->project);
 
-        $rules = $model->getValidationRules($id);
-        $this->apiValidate($this->request, $rules);
+        $this->request->validate(
+            $model->getValidationRules($id)
+        );
 
         \DB::transaction(function() use ($model) {
             $model->update($this->request->all());
@@ -114,11 +113,9 @@ class ServersController extends APIController
         $model = $this->projects->findServer($project_id, $id);
         $this->authorize($model->project);
 
-        if (!$model->delete()) {
-            $this->response->error('Could not detete the server.', 422);
-        }
+        abort_unless($model->delete(), 422, 'Could not detete the server.');
 
-        return $this->response->array([
+        return response()->json([
             'message'=>'Successfully deleted the server.',
             'status_code'=>'200'
         ]);
@@ -136,8 +133,9 @@ class ServersController extends APIController
             $branches = $project->branches;
         }
 
-        return $this->response
-            ->array(['options' => compact('protocols', 'branches')]);
+        return response()->json(
+            ['options' => compact('protocols', 'branches')
+        ]);
     }
 
 
@@ -147,7 +145,7 @@ class ServersController extends APIController
         $this->authorize('deploy', $server->project);
 
         if ($server->validateConnection()) {
-            return $this->response->array([
+            return response()->json([
                 'success'=> true,
                 'message'=> $server->present()->connection_status_message
             ]);
@@ -172,7 +170,7 @@ class ServersController extends APIController
         $project = $this->projects->findOrFail($id);
         $this->authorize('deploy', $project);
 
-        return $this->response->array([
+        return response()->json([
             'key' => $project->pubkey
         ]);
     }

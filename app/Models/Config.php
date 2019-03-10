@@ -7,7 +7,8 @@ final class Config extends Base
 
     protected $validation_rules = [
         'path' => 'required:max:255',
-        'contents' => 'required'
+        'contents' => 'required',
+        'server_ids' => 'exists:servers,id',
     ];
 
     protected $fillable = [

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\BaseRequest;
 use App\Http\Resources\Management\ScriptResource;
 use App\Models\Project;
-use App\Transformers\ScriptTransformer;
 
 class ScriptsController extends APIController
 {
@@ -16,10 +15,10 @@ class ScriptsController extends APIController
      */
     private $projects;
 
-    public function __construct(BaseRequest $request, Project $project, ScriptTransformer $transformer)
+    public function __construct(BaseRequest $request, Project $project)
     {
         $this->projects = $project;
-        parent::__construct($request, $project->scripts()->getModel(), $transformer);
+        parent::__construct($request, $project->scripts()->getModel());
     }
 
     /**
@@ -109,10 +108,9 @@ class ScriptsController extends APIController
         $model = $this->model->findOrFail($id);
         $this->authorize($model->project);
 
-        if (!$model->delete()) {
-            $this->response->error('Could not detete the model.', 422);
-        }
-        return $this->response->array([
+        abort_unless($model->delete(), 422, 'Could not detete the model.');
+
+        return response()->json([
             'message'=>'Successfully deleted the install script.',
             'status_code'=>'200'
         ]);

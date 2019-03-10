@@ -14,12 +14,11 @@ final class RepositoryCloneProgress extends AbstractEventMessage
     public $project_name;
 
     /**
-     * Create a new event instance.
+     * Event for repo clone progress
      *
-     * @param  $data configuration data for the event
-     * @return void
+     * {@inheritdoc}
      */
-    public function __construct($data)
+    public function __construct(array $data)
     {
         parent::__construct($data);
         $this->project_name = $data['project_name'];

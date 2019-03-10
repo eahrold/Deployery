@@ -7,13 +7,11 @@ use App\Events\Abstracts\AbstractEventMessage;
 final class RepositoryCloneStarted extends AbstractEventMessage
 {
 
-
     /**
-     * Create a new event instance.
-     *
-     * @param  $data configuration data for the event
+     * Event for repo clone started.
+     * {@inheritdoc}
      */
-    public function __construct($data)
+    public function __construct(array $data)
     {
         parent::__construct($data);
     }

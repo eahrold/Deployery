@@ -33,11 +33,10 @@ final class DeploymentProgress extends AbstractEventMessage
     public $stage;
 
     /**
-     * Event indicating deployment ended
+     * Event for deployment progress messaging.
      *
-     * @param Server $server  Server being deployed
-     * @param   $data configuration data for the event
-     * @return  void
+     * @param Server $server Server being deployed
+     *
      */
     public function __construct(Server $server, $data)
     {

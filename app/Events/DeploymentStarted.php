@@ -19,7 +19,7 @@ final class DeploymentStarted extends AbstractServerEvent
      *
      * @param  Server $server  Server being deployed
      * @param  string $message Completed messages
-     * @return void
+     *
      */
     public function __construct(Server $server, string $message)
     {

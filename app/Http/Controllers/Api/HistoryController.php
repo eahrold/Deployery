@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\BaseRequest;
 use App\Http\Resources\Management\HistoryResource;
 use App\Models\Project;
-use App\Transformers\HistoryTransformer;
 
 class HistoryController extends APIController
 {
@@ -16,10 +15,10 @@ class HistoryController extends APIController
      */
     private $project;
 
-    public function __construct(BaseRequest $request, Project $project, HistoryTransformer $transformer)
+    public function __construct(BaseRequest $request, Project $project)
     {
         $this->project = $project;
-        parent::__construct($request, $project->history()->getModel(), $transformer);
+        parent::__construct($request, $project->history()->getModel());
     }
 
     /**

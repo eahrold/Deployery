@@ -13,10 +13,16 @@
 
 $router = app("Illuminate\Routing\Router");
 
-$router->group(["middleware" => "auth"], function ($router) {
-    $router->get("/", "ProjectsController@view");
-    $router->get("/project/create", "ProjectsController@view");
-    $router->get("/projects/{id?}/{relation?}/{relation_id?}/{action?}", "ProjectsController@view");
+$router->group(["middleware" => ["auth:web"]], function ($router) {
+    $router->get("/", [
+        'uses' => "ProjectsController@view",
+        'as' => "web.project.home",
+    ]);
+
+    $router->get("/projects/{id?}/{relation?}/{relation_id?}/{action?}", [
+        'uses' => "ProjectsController@view",
+        'as' => "web.project",
+    ]);
 
     $router->get("/my-account", "ProjectsController@view");
 

@@ -15,12 +15,10 @@ abstract class AbstractEventMessage extends AbstractEchoEvent
     public $type;
 
     /**
-     * Create a new event instance.
-     *
-     * @param  $data configuration data for the event
-     * @return void
+     * Abstract Event
+     * @param array $data Configuration data for event
      */
-    public function __construct($data)
+    public function __construct(array $data)
     {
         $this->message = $data['message'];
 

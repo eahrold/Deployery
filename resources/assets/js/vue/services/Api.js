@@ -1,29 +1,21 @@
-let { Deployery } = window
 let axios = window.axios = require('axios');
 
-axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
-axios.defaults.headers.common['Accept'] = 'application/json'
-axios.defaults.headers.common['Content-Type'] = 'application/json'
 
-if (Deployery.apiToken) {
-    axios.defaults.headers.common['Authorization'] = `Bearer ${Deployery.apiToken}`
-}
-
-let token = document.head.querySelector('meta[name="csrf-token"]');
-if (token) {
-    axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
-} else {
-    console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
-}
-
-
+let RELOADING = false;
 axios.interceptors.response.use(
     (response)=>{
+        RELOADING = false;
         return response;
   },(error)=>{
+        console.log(error.response.headers);
+        console.log(error.response.request);
+
+        if(RELOADING) return;
         if(error.response.status === 401) {
+
             alert('Looks like your session has expired. reloading the page');
-            window.location = window.location;
+            // window.location = window.location;
+            RELOADING = true
             return;
         }
         // Do something with response error

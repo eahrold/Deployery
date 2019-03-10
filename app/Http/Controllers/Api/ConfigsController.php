@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\BaseRequest;
 use App\Http\Resources\Management\ConfigResource;
 use App\Models\Project;
-use App\Transformers\ConfigTransformer;
 
 class ConfigsController extends APIController
 {
@@ -15,10 +14,10 @@ class ConfigsController extends APIController
      */
     private $project;
 
-    public function __construct(BaseRequest $request, Project $project, ConfigTransformer $transformer)
+    public function __construct(BaseRequest $request, Project $project)
     {
         $this->project = $project;
-        parent::__construct($request, $project->configs()->getModel(), $transformer);
+        parent::__construct($request, $project->configs()->getModel());
     }
 
     /**
@@ -78,19 +77,22 @@ class ConfigsController extends APIController
      */
     public function update($project_id, $id)
     {
-        $this->validate(
-            $this->request,
+        $data = $this->request->validate(
             $this->model->getValidationRules($id)
         );
 
         $model = $this->project->findConfig($project_id, $id);
         $this->authorize($model->project);
 
-        $model = \DB::transaction(function() use ($model) {
+        $model = \DB::transaction(function() use ($model, $data) {
             $model->update($this->request->all());
-            if($server_ids = $this->request->server_ids) {
+
+            $server_ids = data_get($data, 'server_ids');
+            if(is_array($server_ids)) {
+                logger("Setting NO Server IDS", compact('data', 'server_ids'));
                 $model->servers()->sync($server_ids);
             }
+
             $model->server_ids = $server_ids;
             return $model;
         });
@@ -110,10 +112,9 @@ class ConfigsController extends APIController
         $model = $this->project->findConfig($project_id, $id);
         $this->authorize($model->project);
 
-        if (!$model->delete()) {
-            $this->response->error('Could not delete the configuration file.', 422);
-        }
-        return $this->response->array([
+        abort_unless($model->delete(), 422, 'Could not delete the configuration file.');
+
+        return response()->json([
             'message'=>'Successfully deleted the config file.',
             'status_code'=>'200'
         ]);
@@ -131,6 +132,8 @@ class ConfigsController extends APIController
         $this->authorize('update', $project);
 
         $servers = $project->servers->pluck('name', 'id');
-        return  $this->response->array(['options' => compact('servers')]);
+        return response()->json([
+            'options' => compact('servers'),
+        ]);
     }
 }

@@ -16,6 +16,15 @@ const DeploymentSchema=()=>{
     }
 }
 
+const ProjectInfoSchema=()=>{
+    return {
+        deployments: {},
+        repo: {},
+        status: {},
+    }
+}
+
+
 export default {
 
     state: {
@@ -23,6 +32,7 @@ export default {
         project: {},
         proejctsLoading: false,
         projects: [],
+        info: ProjectInfoSchema(),
         deployment: DeploymentSchema(),
         history: [],
         viewers: [],
@@ -40,6 +50,10 @@ export default {
 
         projects (state, payload) {
             state.projects = payload.projects
+        },
+
+        info (state, payload) {
+            state.info = payload.info
         },
 
         proejctsLoading (state, payload) {
@@ -263,6 +277,14 @@ export default {
             commit('project', { project: {} })
             commit('history', { history: [] })
             commit('deployment', { deployment: DeploymentSchema() })
+        },
+
+        [types.PROJECT_INFO_SET] ({commit, state}, { info }) {
+            commit('info', { info: info })
+        },
+
+        [types.PROJECT_INFO_RESET] ({commit, state}) {
+            commit('info', { info: {} })
         },
 
     }

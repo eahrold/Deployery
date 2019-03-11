@@ -39,6 +39,6 @@ export default {
 .vf-form-section .vf-section-title {
     width: 100%;
     padding-bottom: 1em;
-    border-bottom: 4px solid #eeeeee;
+    border-bottom: 2px solid #eeeeee;
 }
 </style>

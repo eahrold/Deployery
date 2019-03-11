@@ -45,8 +45,12 @@ export default {
     },
 
     methods: {
-        open(history) {
-            this.$router.push({name: 'projects.history.details', params: {id: this.history.id}})
+        open() {
+            if (this.history === false) return;
+            this.$router.push({
+                name: 'projects.history.details',
+                params: {id: this.history.id}
+            })
         }
     }
 }

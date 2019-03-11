@@ -1,7 +1,7 @@
 <template>
 <form-modal @close='close'>
     <template slot='header'>
-        <b>{{ heading }}</b>
+        <b class="ml-3">{{ header }}</b>
     </template>
 
     <!-- Modal Body -->

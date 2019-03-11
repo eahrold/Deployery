@@ -4,6 +4,7 @@
     <form-section v-if='history.length'>
         <div slot="header">
             History
+            <span class="help-text">This repo has been deployed  times</span>
         </div>
 
         <list-group :items='history'>

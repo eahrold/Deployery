@@ -25,11 +25,47 @@
             </div>
         </div>
 
+        <hr/>
+
         <div class='row'>
             <div class='col-sm-4'><b>Last Deployed</b></div>
             <div class='col-sm-8 text-right'>
                 <i v-if='loading' class="fa fa-spinner fa-spin"></i>
-                <code v-else>{{ lastDeployedString }}</code>
+                <code v-else>To <b>{{ lastDeployedServer }}</b> on <b>{{ lastDeployedDate }}</b></code>
+            </div>
+        </div>
+
+        <div class='row'>
+            <div class='col-sm-4'><b>Number of deployments</b></div>
+            <div class='col-sm-8 text-right'>
+                <i v-if='loading' class="fa fa-spinner fa-spin"></i>
+                <code v-else>{{ info.deployments.count }}</code>
+            </div>
+        </div>
+
+        <hr/>
+
+        <div class='row'>
+            <div class='col-sm-4'><b>Number of Servers</b></div>
+            <div class='col-sm-8 text-right'>
+                <i v-if='loading' class="fa fa-spinner fa-spin"></i>
+                <code v-else>{{ project.servers.length }}</code>
+            </div>
+        </div>
+
+        <div class='row'>
+            <div class='col-sm-4'><b>Number of Configuration Files</b></div>
+            <div class='col-sm-8 text-right'>
+                <i v-if='loading' class="fa fa-spinner fa-spin"></i>
+                <code v-else>{{ project.configs.length }}</code>
+            </div>
+        </div>
+
+        <div class='row'>
+            <div class='col-sm-4'><b>Number of Executable Scripts</b></div>
+            <div class='col-sm-8 text-right'>
+                <i v-if='loading' class="fa fa-spinner fa-spin"></i>
+                <code v-else>{{ project.scripts.length }}</code>
             </div>
         </div>
     </form-card>
@@ -69,14 +105,15 @@ export default {
             return _.get(this.info, 'repo.size', '0MB');
         },
 
-        lastDeployedString () {
+        lastDeployedServer() {
+            return _.get(this.info, 'deployments.last.server', '???')
+        },
+
+        lastDeployedDate () {
             if (this.info) {
-                var lastDate = _.get(this.info, 'deployments.last.date', '???');
-                var date = this.localTime(lastDate);
-                if(date) {
-                    return date;
-                }
-                return lastDate;
+                const rawDate = _.get(this.info, 'deployments.last.date', '???');
+                const localDate = this.localTime(rawDate);
+                return localDate || rawDate
             }
         },
     },

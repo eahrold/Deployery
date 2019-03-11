@@ -15,7 +15,13 @@
 
             <project-pub-key></project-pub-key>
 
-            <form-save-button class='mt-4' :disabled='$validation.fails' :saving='saving' @save='save'></form-save-button>
+            <form-save-button
+                class='mt-4'
+                :disabled='$validation.fails'
+                :saving='saving'
+                @save='save'>
+            </form-save-button>
+
         </form-card>
 
 

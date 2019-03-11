@@ -52,13 +52,6 @@ export default {
             loading: true,
             saving: false,
             deleting: false,
-            info: null,
-
-            info: {
-                deployments: {},
-                repo: {},
-                status: {},
-            },
 
             status: {
                 cloning: false,
@@ -80,7 +73,7 @@ export default {
     },
 
     computed : {
-        ...mapState(['actionTypes']),
+        ...mapState(['actionTypes', 'info']),
 
         endpoint () {
             const { project_id } = this.$route.params
@@ -127,6 +120,7 @@ export default {
 
         resetProject() {
             this.$store.dispatch(this.actionTypes.PROJECT_RESET)
+            this.$store.dispatch(this.actionTypes.PROJECT_INFO_RESET)
         },
 
         loadProject() {
@@ -154,7 +148,7 @@ export default {
 
         loadInfo() {
             this.$http.get(this.endpoint + '/info').then((response)=>{
-                this.info = this.updateInfo(response.data);
+                this.updateInfo(response.data);
             },({response})=>{
                 console.error("error", response);
             });
@@ -177,8 +171,7 @@ export default {
 
 
         updateInfo (info) {
-            this.info = info;
-            console.log("updating info", {info, });
+            this.$store.dispatch(this.$store.state.actionTypes.PROJECT_INFO_SET, {info,})
             this.status.cloning = info.status.is_cloning;
             this.status.cloningError = info.status.clone_failed;
             return info;

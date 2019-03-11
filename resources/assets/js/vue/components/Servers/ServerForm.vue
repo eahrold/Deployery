@@ -1,7 +1,7 @@
 <template>
 <form-modal @close='close'>
     <template slot="header">
-        <b>{{ header }}</b>
+        <b class="ml-3">{{ header }}</b>
     </template>
     <div slot="body" :class="{loading: loading}">
         <div class='form-group' v-if='model'>
@@ -19,7 +19,11 @@
                 <form-text v-model='model.username' :errors='errors' property="username" :required='true'></form-text>
                 <form-password v-model='model.password' :errors='errors' property="password"></form-password>
                 <form-checkbox v-model='model.use_ssh_key' :errors='errors' label='Use SSH Key' property="use_ssh_key"></form-checkbox>
-                <textarea v-if='model.use_ssh_key' rows='8' readonly>{{ pubkey }}</textarea>
+
+                <pub-key
+                    :pub-key='pubkey'
+                    heading='Add this key to the Server the code is being deployed to.'>
+                </pub-key>
             </form-section>
 
             <form-section header='Deployment Info'>

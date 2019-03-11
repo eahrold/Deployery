@@ -1,7 +1,7 @@
 <template>
 <form-modal @close='close'>
     <template slot="header">
-        <b>{{ heading }}</b>
+        <b class="ml-3">{{ header }}</b>
     </template>
 
     <div slot="body" :class="{loading: loading}">
@@ -49,6 +49,9 @@ export default {
     },
 
     computed : {
+        header() {
+            return this.loading ? "Loading..." : `Editing Congif File at path: ${this.model.path}`
+        },
 
         type () {
             return 'configs';

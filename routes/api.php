@@ -22,15 +22,15 @@
             "as" => 'options',
         ]);
 
-        $api->get('branch-commits', [
-            'as' => 'branch.commits',
-            'uses' => "Api\DeploymentController@getBranchCommits"
-        ]);
-
         $api->group(['prefix' => '{project}'], function($api){
             //----------------------------------------------------------
             // Project
             //-------------------------------------------------------
+            $api->get('branch-commits', [
+                'as' => 'branch.commits',
+                'uses' => "Api\DeploymentController@getBranchCommits"
+            ]);
+
             $api->get('/info', [
                 "as"=>"info",
                 "uses"=>"Api\ProjectsController@info"

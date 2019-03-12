@@ -3,6 +3,7 @@
 namespace App\Services\Git;
 
 use App\Services\Git\Traits\GitAuthenticatable;
+use Illuminate\Support\Str;
 use Symfony\Component\Process\ProcessBuilder;
 
 /**

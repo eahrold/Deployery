@@ -59,5 +59,3 @@ window.Echo = new Echo({
     encrypted: true
 });
 
-console.log("Bootstrapped", {Echo,})
-

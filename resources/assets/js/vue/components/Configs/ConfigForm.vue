@@ -50,7 +50,9 @@ export default {
 
     computed : {
         header() {
-            return this.loading ? "Loading..." : `Editing Congif File at path: ${this.model.path}`
+            return this.loading ? "Loading..." :
+                this.model.id ? `Editing Configuration at - ${this.model.path}` :
+                `Add A New Configuration File`
         },
 
         type () {

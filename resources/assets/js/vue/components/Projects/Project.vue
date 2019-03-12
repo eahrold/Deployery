@@ -128,7 +128,8 @@ export default {
             this.$http.get(this.endpoint).then(
                 (response)=>{
                     this.loading = false;
-                    this.project = response.data.data;
+                    const project = this.project = response.data.data;
+                    this.$store.dispatch(this.$store.state.actionTypes.PROJECT_SET, {project,})
                 },
                 ({response})=>{
                     this.loading = false;

@@ -10,16 +10,14 @@
     </div>
 
     <form-section>
-        <div slot='header'>
-            <span>Servers</span>
-            <div class="pull-right">
-                <router-link :to='{name: "projects.servers.form", params:{id: "create"}}'>
-                    <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                </router-link>
-            </div>
-        </div>
 
-        <list-group :items='servers'>
+        <span slot='header'>Servers</span>
+        <router-link slot='button' class='btn btn-info btn-small' :to='{name: "projects.servers.form", params:{id: "create"}}'>
+            + Add a Server
+        </router-link>
+
+
+        <list-group class='shadow' :items='servers'>
             <template slot-scope="context">
                 <server-list-item :server='context.item' :testing='testing' @test='test'></server-list-item>
             </template>

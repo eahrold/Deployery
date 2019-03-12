@@ -14,7 +14,7 @@
                 data-toggle="dropdown"
                 role="button"
                 aria-expanded="false">
-                Projects
+                {{ projectMenuTitle }}
             </a>
             <ul class="dropdown-menu" role="menu">
                 <li v-for='(project, idx) in projects' class="dropdown-item">
@@ -114,7 +114,12 @@ export default {
     },
 
     computed: {
-        ...mapState(['projects', 'user']),
+        ...mapState(['projects', 'user', 'project']),
+
+        projectMenuTitle() {
+            return _.get(this, 'project.name', "Projects")
+        },
+
         isGuest() {
             return _.isEmpty(this.user)
         }

@@ -8,6 +8,7 @@ use App\Services\Git\GitCloner;
 use App\Services\SSH\SSHKeyer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class ProjectObserver {
     public function updating($model) {
@@ -23,7 +24,7 @@ class ProjectObserver {
     }
 
     public function saving($model) {
-        $model->slug = str_slug($model->slug ?: $model->name);
+        $model->slug = Str::slug($model->slug ?: $model->name);
     }
 
     // Register for events

@@ -1,16 +1,12 @@
 <template>
     <form-section>
-        <div slot='header'>
-            <span>Install Scripts</span>
-            <div class="pull-right">
-                <router-link :to='{name: "projects.scripts.form", params: {id: "create"}}'>
-                    <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                </router-link>
-            </div>
-        </div>
+        <span slot='header'>Pre/Post Deployment Scripts</span>
+        <router-link slot='button' class='btn btn-info btn-small' :to='{name: "projects.scripts.form", params:{id: "create"}}'>
+        + Add Script
+        </router-link>
 
         <router-view :endpoint='apiEndpoint'></router-view>
-        <list-group :items='scripts'>
+        <list-group class='shadow' :items='scripts'>
             <template slot-scope="context">
                 <scripts-list-item :script='context.item'></scripts-list-item>
             </template>

@@ -24,7 +24,7 @@ class HistoryController extends APIController
     /**
      * Display a listing of the resource.
      *
-     * @return \Dingo\Api\Http\Response
+     * @return HistoryResource
      */
     public function index($project_id)
     {
@@ -40,9 +40,10 @@ class HistoryController extends APIController
     /**
      * Display the specified resource.
      *
-     * @param  int  $project_id
-     * @param  int  $id
-     * @return \Dingo\Api\Http\Response
+     * @param  integer  $project_id
+     * @param  integer  $id
+     *
+     * @return HistoryResource
      */
     public function show($project_id, $id)
     {

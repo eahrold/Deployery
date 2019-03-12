@@ -4,6 +4,7 @@ namespace App\Services\WebHooks;
 
 use App\Models\Server;
 use App\Services\WebHooks\Parsers\BitBucketParser;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Request;
 
 class WebhookHandler
@@ -23,7 +24,7 @@ class WebhookHandler
     }
 
     private function getParser() {
-        $agent = str_slug($this->request->header('User-Agent'));
+        $agent = Str::slug($this->request->header('User-Agent'));
 
         switch ($agent){
             case 'bitbucket-webhooks20':

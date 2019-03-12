@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Str;
 
 /**
 * @property boolean    $autodeploy
@@ -145,10 +146,15 @@ final class Server extends Base
     public function setIsDeployingAttribute($value = false)
     {
         $bool = $this->project->is_deploying = (bool)$value;
+
+        if(($key = $this->deploymentCacheKey()) === false) {
+            return false;
+        }
+
         if ($bool) {
-            Cache::put($this->deploymentCacheKey(), $bool, 120);
+            return Cache::put($key, $bool, 120);
         } else {
-            Cache::forget($this->deploymentCacheKey());
+            return Cache::forget($key, $this->deploymentCacheKey());
         }
     }
 
@@ -182,7 +188,7 @@ final class Server extends Base
      */
     public function getSlugAttribute($value)
     {
-        return str_slug($this->name);
+        return Str::slug($this->name);
     }
 
     /**
@@ -256,7 +262,7 @@ final class Server extends Base
 
     public function resetWebhook($save = false)
     {
-        $this->webhook = url('/api/webhooks/'.str_random(32));
+        $this->webhook = url('/api/webhooks/'.Str::random(32));
         if ($save === true) {
             $this->save();
         }

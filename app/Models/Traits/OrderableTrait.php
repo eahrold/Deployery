@@ -2,6 +2,8 @@
 
 namespace App\Models\Traits;
 
+use Illuminate\Support\Str;
+
 /**
  * Bcrypts passwords from the request on save.
  */
@@ -85,7 +87,7 @@ trait OrderableTrait {
             $query->orderBy($order, $dir);
         }
 
-        if (str_contains($order, '.')) {
+        if (Str::contains($order, '.')) {
             $list = explode('.', $order);
             logger("Relation", $list);
 
@@ -94,7 +96,7 @@ trait OrderableTrait {
                 $query->relatedOrder($relation, $column, $dir);
             }
         }
-        if (str_contains($order, '_count')) {
+        if (Str::contains($order, '_count')) {
             $query->relatedCount($order, $dir);
         }
 

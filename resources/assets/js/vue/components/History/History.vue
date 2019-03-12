@@ -4,7 +4,7 @@
     <form-section v-if='history.length'>
         <div slot="header">
             History
-            <span class="help-text">This repo has been deployed  times</span>
+            <span class="help-text">This repo has been deployed {{ info.deployments.count }} times</span>
         </div>
 
         <list-group :items='history'>
@@ -20,7 +20,7 @@
     </form-section>
 
     <div v-else class="col d-flex justify-content-center align-items-center">
-        <h4 class="text-secondary">{{ message }}</h4>
+        <h4 class="text-secondary text-center p-5 shadow bg-white w-50">{{ message }}</h4>
     </div>
 </div>
 </template>
@@ -46,7 +46,7 @@ export default {
     },
 
     computed: {
-        ...mapState(['history']),
+        ...mapState(['history', 'info']),
         ...mapGetters(['hasProject']),
 
         message() {

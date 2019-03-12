@@ -77,7 +77,9 @@
 
         computed: {
             header() {
-                return this.loading ? "Loading..." : `Editing Server ${this.model.name}`
+                return this.loading ? "Loading..." :
+                    this.model.id ? `Editing Server ${this.model.name}` :
+                    `Add A New Server`
             },
 
             port () {

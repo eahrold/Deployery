@@ -277,6 +277,7 @@ export default {
             commit('project', { project: {} })
             commit('history', { history: [] })
             commit('deployment', { deployment: DeploymentSchema() })
+            commit('info', { info: ProjectInfoSchema() })
         },
 
         [types.PROJECT_INFO_SET] ({commit, state}, { info }) {

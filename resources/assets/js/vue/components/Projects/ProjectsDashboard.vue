@@ -20,14 +20,13 @@
             <form-section class='mt-4' v-if='!loading && projects.length'>
                 <div slot="header">
                     Projects
-                    <span aria-hidden="true" class="pull-right">
-                        <router-link :to="{name:'projects.create'}">
-                            <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                        </router-link>
-                    </span>
                 </div>
 
-                <list-group :items='projects'>
+                <router-link slot='button' class='btn btn-info' :to="{name:'projects.create'}">
+                    <span>+ Add a New Project</span>
+                </router-link>
+
+                <list-group class='shadow' :items='projects'>
                     <template slot-scope="context">
                         <projects-dashboard-list-item
                             :project='context.item'>

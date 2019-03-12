@@ -4,21 +4,15 @@ let axios = window.axios = require('axios');
 let RELOADING = false;
 axios.interceptors.response.use(
     (response)=>{
-        RELOADING = false;
         return response;
   },(error)=>{
-        console.log(error.response.headers);
-        console.log(error.response.request);
-
         if(RELOADING) return;
         if(error.response.status === 401) {
-
             alert('Looks like your session has expired. reloading the page');
-            // window.location = window.location;
+            window.location = window.location;
             RELOADING = true
             return;
         }
-        // Do something with response error
         return Promise.reject(error);
   }
 );

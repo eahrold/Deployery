@@ -23,9 +23,10 @@ class ConfigsController extends APIController
     /**
      * Get the resource
      *
-     * @param  int $project_id
-     * @param  int $id
-     * @return \Dingo\Api\Http\Response
+     * @param  integer $project_id
+     * @param  integer $id
+     *
+     * @return ConfigResource
      */
     public function show($project_id, $id)
     {
@@ -40,7 +41,7 @@ class ConfigsController extends APIController
     /**
      * Store a newly created resource in storage.
      *
-     * @return \Dingo\Api\Http\Response
+     * @return ConfigResource
      */
     public function store($project_id)
     {
@@ -71,9 +72,10 @@ class ConfigsController extends APIController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $project_id
-     * @param  int  $id
-     * @return \Dingo\Api\Http\Response
+     * @param  integer  $project_id
+     * @param  integer  $id
+     *
+     * @return ConfigResource
      */
     public function update($project_id, $id)
     {
@@ -103,9 +105,10 @@ class ConfigsController extends APIController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $project_id
-     * @param  int  $id
-     * @return \Dingo\Api\Http\Response
+     * @param  integer  $project_id
+     * @param  integer  $id
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($project_id, $id)
     {
@@ -123,8 +126,9 @@ class ConfigsController extends APIController
     /**
      * Get the relational options for the form
      *
-     * @param  int|null $project_id
-     * @return \Dingo\Api\Http\Response
+     * @param  integer|null $project_id
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function options ($project_id=null)
     {

@@ -24,7 +24,7 @@ class ScriptsController extends APIController
     /**
      * Store a newly created resource in storage.
      *
-     * @return \Dingo\Api\Http\Response
+     * @return ScriptResource
      */
 
     public function show($project_id, $id)
@@ -40,8 +40,9 @@ class ScriptsController extends APIController
     /**
      * Get the specific resource in storage.
      *
-     * @param  int  $project_id
-     * @return \Dingo\Api\Http\Response
+     * @param  integer $project_id
+     *
+     * @return ScriptResource
      */
     public function store($project_id)
     {
@@ -71,9 +72,10 @@ class ScriptsController extends APIController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $project_id
-     * @param  int  $id
-     * @return \Dingo\Api\Http\Response
+     * @param  integer $project_id
+     * @param  integer $id
+     *
+     * @return ScriptResource
      */
     public function update($project_id, $id)
     {
@@ -99,9 +101,10 @@ class ScriptsController extends APIController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $project_id
-     * @param  int  $id
-     * @return \Dingo\Api\Http\Response
+     * @param  integer $project_id
+     * @param  integer $id
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($project_id, $id)
     {
@@ -119,8 +122,9 @@ class ScriptsController extends APIController
     /**
      * Get the relational options for the form
      *
-     * @param  int|null $project_id
-     * @return \Dingo\Api\Http\Response
+     * @param  integer|null $project_id
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function options ($project_id=null)
     {

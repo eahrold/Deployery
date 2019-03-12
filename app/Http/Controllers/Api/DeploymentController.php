@@ -29,7 +29,7 @@ class DeploymentController extends Controller
     /**
      * Trigger Deployment from frontend
      *
-     * @return JSON
+     * @return \Illuminate\Http\JsonResponse
      */
     public function deploy($project_id, $id)
     {
@@ -72,7 +72,7 @@ class DeploymentController extends Controller
      * @param  integer $project_id Project ID
      * @param  integer $id         Server ID
      *
-     * @return \Dingo\Api\Http\Response|null
+     * @return \Illuminate\Http\JsonResponse
      */
     public function commitDetails($project_id, $id)
     {
@@ -115,6 +115,13 @@ class DeploymentController extends Controller
         });
     }
 
+    /**
+     * Get The Branch Commits
+     *
+     * @param  integer $project_id Project Id
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getBranchCommits($project_id)
     {
         $project = Project::findOrFail($project_id);
@@ -132,7 +139,8 @@ class DeploymentController extends Controller
      *
      * @param  integer $project_id Project ID
      * @param  integer $id         Server ID
-     * @return \Dingo\Api\Http\Response|null
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function findCommit($project_id, $id)
     {
@@ -152,7 +160,9 @@ class DeploymentController extends Controller
     /**
      * Trigger Deployment from webhook
      *
-     * @return \Dingo\Api\Http\Response|null
+     * @param  string $webhook Webhook Param
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function webhook($webhook)
     {

@@ -1,16 +1,14 @@
 <template>
 <form-section>
-    <div slot='header'>
-        <span>Configuration Files</span>
-        <div class="pull-right">
-            <router-link :to='{name: "projects.configs.form", params: {id: "create"}}'>
-                <i class="fa fa-plus-circle" aria-hidden="true"></i>
-            </router-link>
-        </div>
-    </div>
+
+    <span slot='header'>Configuration Files</span>
+    <router-link slot='button' class='btn btn-info btn-small' :to='{name: "projects.configs.form", params:{id: "create"}}'>
+    + Add Config
+    </router-link>
+
 
     <router-view :endpoint='apiEndpoint'></router-view>
-    <list-group :items='configs'>
+    <list-group class='shadow' :items='configs'>
         <template slot-scope="context">
             <configs-list-item :config='context.item'></configs-list-item>
         </template>

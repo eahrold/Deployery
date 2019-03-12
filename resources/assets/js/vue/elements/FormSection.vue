@@ -1,12 +1,14 @@
 <template>
     <div class="vf-form-section">
-        <div class="row">
-            <div class="col">
-                <h4 class='vf-section-title'>
-                    <slot name='header'>{{ header }}</slot>
-                </h4>
+        <div v-if='$slots["header"]' class="row">
+            <div class="col shadow m-3 p-4 bg-white d-flex align-items-center">
+                <h4><slot name='header'>{{ header }}</slot></h4>
+                <div class="ml-auto"><slot name='button'></slot></div>
             </div>
         </div>
+
+        <div v-else class="vf-section-title my-3"></div>
+
         <div class="row">
             <div class="col">
             <slot></slot>

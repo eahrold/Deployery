@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Server;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 final class Script extends Base
 {

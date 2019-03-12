@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Support\Str;
 
 class CORS {
 
@@ -38,7 +39,7 @@ class CORS {
     {
         $host = str_replace(['http://', 'https://'], '', $origin);
         foreach ($allowed as $match) {
-            if(str_is($match, $host)) {
+            if(Str::is($match, $host)) {
                 return true;
             }
         }

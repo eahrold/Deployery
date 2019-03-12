@@ -1,6 +1,5 @@
 <template>
     <form-card>
-        <div slot='header'>Project Info</div>
         <div class='row'>
             <div class='col-sm-4'><b>Repository</b></div>
             <div class='col-sm-8 text-right'>

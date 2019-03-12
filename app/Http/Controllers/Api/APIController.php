@@ -25,7 +25,13 @@ abstract class APIController extends Controller
         $this->model = $model;
     }
 
-
+    /**
+     * Get Options For Project
+     *
+     * @param  integer $project_id
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function options ($project_id=null)
     {
         return  response()->json([

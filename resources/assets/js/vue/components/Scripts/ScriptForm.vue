@@ -13,13 +13,14 @@
                     <form-text v-model='model.description' :errors='errors' property="description"></form-text>
                     <form-textarea v-model='model.script' :rows='20' :errors='errors' property="script"></form-textarea>
                 </div>
-                <div class='col-md-3'>
-                    <h4>Script Variables</h4>
-                    <div class='mb-2'>You can substitute the following variables in your script</div>
+
+                <div class='col-md-3 shadow'>
+                    <div class='my-2 py-2 border-bottom'>You can substitute the following variables in your script</div>
 
                     <div class="form-group" v-for='(description, key) in parsables'>
-                        <code class='variable'>{{ key }}</code>
-                        <div class='help-text'>{{ description }}</div>
+                        <code class='variable'>{{ key }}</code><br/>
+                        <small class='help-text'>{{ description }}</small>
+                        <hr/>
                     </div>
                 </div>
             </div>
@@ -78,6 +79,12 @@
         },
 
         computed : {
+            header() {
+                return this.loading ? "Loading..." :
+                this.model.id ? `Editing "${this.model.description}" Script` :
+                `Add A New Script`
+            },
+
             type () {
                 return 'scripts';
             },

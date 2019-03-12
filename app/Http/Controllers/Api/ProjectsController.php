@@ -18,7 +18,7 @@ class ProjectsController extends APIController
     /**
      * Display a listing of the resource.
      *
-     * @return \Dingo\Api\Http\Response
+     * @return ProjectResource
      */
     public function index()
     {
@@ -46,7 +46,7 @@ class ProjectsController extends APIController
     /**
      * Store a newly created resource in storage.
      *
-     * @return \Dingo\Api\Http\Response
+     * @return ProjectResource
      */
     public function store()
     {
@@ -60,8 +60,8 @@ class ProjectsController extends APIController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Dingo\Api\Http\Response
+     * @param  integer  $id
+     * @return ProjectResource
      */
     public function show($id)
     {
@@ -82,8 +82,9 @@ class ProjectsController extends APIController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  integer  $id
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update($id) {
         $model = $this->model->getUserModel($id);
@@ -105,8 +106,9 @@ class ProjectsController extends APIController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Dingo\Api\Http\Response
+     * @param  integer  $id
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
     {
@@ -124,8 +126,9 @@ class ProjectsController extends APIController
     /**
      * Get General info about the project
      *
-     * @param  int $id
-     * @return \Dingo\Api\Http\Response
+     * @param  integer $id
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function info($id)
     {
@@ -162,8 +165,9 @@ class ProjectsController extends APIController
     /**
      * Get the Public Key for deployed to servers.
      *
-     * @param  int $id
-     * @return \Dingo\Api\Http\Response
+     * @param  integer $id
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function pubkey($id)
     {
@@ -178,8 +182,9 @@ class ProjectsController extends APIController
     /**
      * Trigger a RepositoryClone event
      *
-     * @param  int $id
-     * @return \Dingo\Api\Http\Response
+     * @param  integer $id
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function cloneRepo($id)
     {

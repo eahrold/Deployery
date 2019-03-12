@@ -21,6 +21,7 @@ final class MyAccountController extends Controller
 
     /**
      * Get The Current User
+     *
      * @return Auth The currrent authenticated user
      */
     public function user() {
@@ -31,7 +32,8 @@ final class MyAccountController extends Controller
      * Update the specified user in storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     *
+     * @return UserResource
      */
     public function show()
     {
@@ -42,7 +44,8 @@ final class MyAccountController extends Controller
      * Update the specified user in storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     *
+     * @return UserResource
      */
     public function update()
     {
@@ -70,6 +73,7 @@ final class MyAccountController extends Controller
         $model = $this->user();
         $this->authorize($model);
         $model->delete();
+
         return response()->json([
             'message' => 'deleted',
         ]);
@@ -78,7 +82,9 @@ final class MyAccountController extends Controller
 
     /**
      * Update the admin attributes on a model
+     *
      * @param  User   &$model User getting updated
+     *
      * @return void
      */
     private function updateAdminAttrs(User $model)

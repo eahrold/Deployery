@@ -3,11 +3,11 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <span>Add this to <span id='sshkey-modal-username'>{{ user }}'s </span><code> ~/.ssh/authorized_keys </code> file
+            <span>Add this to <span id='sshkey-modal-username'>{{ user }}'s </span><code class='pl-1'> ~/.ssh/authorized_keys </code> file
             <span id='sshkey-modal-hostname'>on {{ host }}</span></span>
           </div>
           <div class="modal-body">
-            <textarea rows='12' readonly>{{ pubkey }}</textarea>
+            <pub-key :pub-key='pubkey'></pub-key>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

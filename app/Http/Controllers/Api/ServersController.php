@@ -32,8 +32,8 @@ class ServersController extends APIController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  int  $project_id
-     * @return \Dingo\Api\Http\Response
+     * @param integer $project_id
+     * @return ServerResource
      */
     public function store($project_id)
     {
@@ -62,9 +62,9 @@ class ServersController extends APIController
     /**
      * Display the specified resource.
      *
-     * @param  int  $project_id
-     * @param  int  $id
-     * @return \Dingo\Api\Http\Response
+     * @param integer $project_id
+     * @param integer $id
+     * @return ServerResource
      */
     public function show($project_id, $id)
     {
@@ -78,9 +78,9 @@ class ServersController extends APIController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $project_id
-     * @param  int  $id
-     * @return \Dingo\Api\Http\Response|null
+     * @param integer $project_id
+     * @param integer $id
+     * @return ServerResource
      */
     public function update($project_id, $id)
     {
@@ -104,9 +104,10 @@ class ServersController extends APIController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $project_id
-     * @param  int  $id
-     * @return Dingo\Api\Http\Response
+     * @param integer $project_id
+     * @param integer $id
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($project_id, $id)
     {
@@ -121,6 +122,13 @@ class ServersController extends APIController
         ]);
     }
 
+    /**
+     * Options For Project
+     *
+     * @param integer $project_id
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function options ($project_id=null)
     {
         $protocols = [
@@ -138,7 +146,14 @@ class ServersController extends APIController
         ]);
     }
 
-
+    /**
+     * Test Server Connection
+     *
+     * @param integer $project_id
+     * @param integer $id
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function test($project_id, $id)
     {
         $server = $this->projects->findServer($project_id, $id);
@@ -153,6 +168,13 @@ class ServersController extends APIController
         abort(412, $server->present()->connection_status_message);
     }
 
+    /**
+     * [webhookReset description]
+     * @param integer$project_id [description]
+     * @param integer$id         [description]
+     *
+     * @return ServerResource
+     */
     public function webhookReset($project_id, $id)
     {
         $model = $this->projects->findServer($project_id, $id);
@@ -165,7 +187,13 @@ class ServersController extends APIController
         return new ServerResource($model);
     }
 
-    public function pubkey($id)
+    /**
+     * Get the pubkey for the server
+     *
+     * @param  integer $id serverId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function pubkey($id=0)
     {
         $project = $this->projects->findOrFail($id);
         $this->authorize('deploy', $project);

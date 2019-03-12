@@ -10,6 +10,7 @@ use App\Services\Git\GitInfo;
 use App\Services\Git\Validation\ValidCloneUrl;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 final class Project extends Base
@@ -69,7 +70,7 @@ final class Project extends Base
 
     public function backupDir($value = '')
     {
-        return $this->fileStore('/backups/').str_slug($value);
+        return $this->fileStore('/backups/').Str::slug($value);
     }
 
     public function keyPath($value = '')

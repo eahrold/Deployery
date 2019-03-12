@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\IpUtils;
 
 class ValidateWebhookSource
@@ -36,14 +37,14 @@ class ValidateWebhookSource
     private function validWebhook($request)
     {
         $ip = $request->ip();
-        $userAgent = str_slug($request->header('User-Agent'));
+        $userAgent = Str::slug($request->header('User-Agent'));
 
         $sources = config('webhooks.sources');
         foreach ($sources as $source) {
             $prefix = $source['user_agent_prefix'];
             foreach ($source['whitelist'] as $range) {
                 if ($ip === $range || IpUtils::checkIp($ip, $range)) {
-                    return $prefix === '*' || starts_with($userAgent, str_slug($prefix));
+                    return $prefix === '*' || starts_with($userAgent, Str::slug($prefix));
                 }
             }
         }

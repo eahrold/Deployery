@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\BaseRequest;
 use App\Http\Resources\Management\ProjectResource;
+use App\Http\Resources\ResourceCollection;
 use App\Jobs\RepositoryClone;
 use App\Models\Project;
 
@@ -18,7 +19,7 @@ class ProjectsController extends APIController
     /**
      * Display a listing of the resource.
      *
-     * @return ProjectResource
+     * @return ResourceCollection
      */
     public function index()
     {

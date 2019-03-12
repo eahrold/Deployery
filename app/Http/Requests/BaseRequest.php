@@ -5,6 +5,10 @@ namespace App\Http\Requests;
 use App\Http\Requests\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+  * @method array validate(array $rules, array $messages = [], array $customAttributes = [])
+  */
+
 class BaseRequest extends Request
 {
     /**

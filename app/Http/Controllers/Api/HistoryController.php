@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\BaseRequest;
 use App\Http\Resources\Management\HistoryResource;
+use App\Http\Resources\ResourceCollection;
 use App\Models\Project;
 
 class HistoryController extends APIController
@@ -24,7 +25,7 @@ class HistoryController extends APIController
     /**
      * Display a listing of the resource.
      *
-     * @return HistoryResource
+     * @return ResourceCollection
      */
     public function index($project_id)
     {

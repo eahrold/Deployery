@@ -45,8 +45,7 @@ class ConfigsController extends APIController
      */
     public function store($project_id)
     {
-        $this->validate(
-            $this->request,
+        $data = $this->request->validate(
             $this->model->getValidationRules()
         );
 

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BaseRequest as Request;
 use App\Models\Base;
-use App\Transformers\Transformer;
 
 abstract class APIController extends Controller
 {

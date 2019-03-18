@@ -4,7 +4,7 @@
     <form-section v-if='history.length'>
         <div slot="header">
             History
-            <span class="help-text">This repo has been deployed {{ info.deployments.count }} times</span>
+            <span class="help-text">This repo has been deployed {{ deploymentCount }} times</span>
         </div>
 
         <list-group :items='history'>
@@ -19,7 +19,7 @@
         </div>
     </form-section>
 
-    <div v-else class="col d-flex justify-content-center align-items-center">
+    <div v-else-if='!loading' class="col d-flex justify-content-center align-items-center">
         <h4 class="text-secondary text-center p-5 shadow bg-white w-50">{{ message }}</h4>
     </div>
 </div>
@@ -36,18 +36,24 @@ export default {
         HistoryListItem,
     },
 
-    props: [ 'project' ],
+    props: [
+        'project',
+        'loading'
+    ],
 
     data () {
         return {
             aHistory: null,
-            loading: true
         }
     },
 
     computed: {
         ...mapState(['history', 'info']),
         ...mapGetters(['hasProject']),
+
+        deploymentCount() {
+            return _.get(this.info, 'deployments.count', '???')
+        },
 
         message() {
             return _.isEmpty(this.project) ? "Loading..." : "This Project Has Never Been Deployed"
@@ -56,7 +62,10 @@ export default {
 
     methods: {
         open(history) {
-            this.$router.push({name: 'projects.history.details', params: {id: history.id}})
+            this.$router.push({
+                name: 'projects.history.details',
+                params: {id: history.id}
+            })
         }
     }
 }

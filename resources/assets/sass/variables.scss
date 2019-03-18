@@ -9,36 +9,40 @@ $navbar-default-border: $laravel-border-color;
 $panel-default-border: $laravel-border-color;
 $panel-inner-border: $laravel-border-color;
 
-/*$white:   #ffffff !default;
-$gray:    lightgrey !default;
-$blue:    #007bff !default;
-$indigo:  #6610f2 !default;
-$purple:  #6f42c1 !default;
-$pink:    #e83e8c !default;
-$red:     #dc3545 !default;
-$orange:  #fd7e14 !default;
-$yellow:  #ffc107 !default;
-$green:   #28a745 !default;
-$teal:    #20c997 !default;
-$cyan:    #17a2b8 !default;
+$blue:    #426aac !default;
+$red:     #dc4c35 !default;
+/*$white:   #ffffff !default;*/
+/*$gray:    lightgrey !default;*/
+/*$indigo:  #6610f2 !default;*/
+/*$purple:  #6f42c1 !default;*/
+/*$pink:    #e83e8c !default;*/
+
+/*$orange:  #fd7e14 !default;*/
+/*$yellow:  #ffc107 !default;*/
+/*$green:   #28a745 !default;*/
+/*$teal:    #20c997 !default;*/
+/*$cyan:    #17a2b8 !default;*/
 
 $colors: (
-  blue: $blue,
-  indigo: $indigo,
-  purple: $purple,
-  pink: $pink,
-  red: $red,
-  orange: $orange,
-  yellow: $yellow,
-  green: $green,
-  teal: $teal,
-  cyan: $cyan,
+  /*blue: $blue,*/
+  /*red: $red,*/
+  /*indigo: $indigo,*/
+  /*purple: $purple,*/
+  /*pink: $pink,*/
+
+  /*orange: $orange,*/
+  /*yellow: $yellow,*/
+  /*green: $green,*/
+  /*teal: $teal,*/
+  /*cyan: $cyan,*/
 ) !default;
 
 $theme-colors: (
-  primary: $blue,
-  success: $green,
+  primary: #678387,
+  secondary: #678387,
+  /*success: $green,
   info: $cyan,
-  warning: $yellow,
+  warning: $yellow,*/
   danger: $red,
-) !default;*/
+) !default;
+

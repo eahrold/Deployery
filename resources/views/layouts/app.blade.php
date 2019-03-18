@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 
-    <title>Project {{ $model->name or "Deployery" }}</title>
+    <title>Project {{ $model->name ?? "Deployery" }}</title>
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -20,18 +20,15 @@
         json_encode(['csrfToken' => csrf_token()])
     !!}
 
-    @if(Auth::user())
+    @if($user = Auth::user())
+        window.Deployery.user = {!! $user->toJson() !!}
         window.Deployery.userPubKey = "{!! Auth::user()->pubkey !!}";
-        window.Deployery.pusherKey = "{{ env('PUSHER_KEY') }}"
-        window.Deployery.user = {!! Auth::user()->toJson() !!}
     @endif
-
     </script>
 
 
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700">
-
 
     <!-- Animate!! -->
     <link rel="stylesheet" type="text/css" href="/css/animate.css">
@@ -43,10 +40,8 @@
 </head>
 <body id="app-layout">
     <div id='app'>
-        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-            <div class="navbar-brand">
-                Deployery
-            </div>
+        <nav class="navbar navbar-expand-md navbar-dark bg-info">
+            <div class="navbar-brand">Deployery</div>
             <button class="navbar-toggler"
                     type="button"
                     data-toggle="collapse"

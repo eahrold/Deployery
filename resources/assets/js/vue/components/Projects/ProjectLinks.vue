@@ -1,3 +1,7 @@
+<style scoped lang="scss">
+
+</style>
+
 <template>
     <nav class="navbar  justify-content-center navbar-dark bg-secondary">
         <ul class="nav">
@@ -80,5 +84,3 @@ export default {
     },
 }
 </script>
-
-<style scoped lang="scss"></style>

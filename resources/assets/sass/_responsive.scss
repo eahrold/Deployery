@@ -1,0 +1,17 @@
+@import "node_modules/bootstrap/scss/functions";
+@import "node_modules/bootstrap/scss/variables";
+@import "node_modules/bootstrap/scss/mixins/_breakpoints";
+
+@include media-breakpoint-down(sm) {
+    .vf-modal-container {
+        width: 98% !important;
+        margin: 1% 1% !important;
+    }
+}
+
+@include media-breakpoint-down(xs) {
+    .nav .fa {
+        margin-right: .25rem;
+        margin-left: .25rem;
+    }
+}

@@ -10,7 +10,7 @@
         <li class="dropdown-item nav-item">
             <a href="{{ route('users.index') }}">
                 <i class="fa fa-btn fa-users"></i>
-                Manage Users
+                <span>Manage Users</span>
             </a>
         </li>
         @endcan

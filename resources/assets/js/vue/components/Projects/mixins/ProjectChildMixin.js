@@ -3,6 +3,10 @@ export default {
         project: {
             type: Object,
             required: true
+        },
+        loading: {
+            type: Boolean,
+            default: false,
         }
     },
 

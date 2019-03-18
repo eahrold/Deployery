@@ -38,7 +38,7 @@
             <div class='col-sm-4'><b>Number of deployments</b></div>
             <div class='col-sm-8 text-right'>
                 <i v-if='loading' class="fa fa-spinner fa-spin"></i>
-                <code v-else>{{ info.deployments.count }}</code>
+                <code v-else>{{ deploymentCount }}</code>
             </div>
         </div>
 
@@ -106,6 +106,11 @@ export default {
 
         lastDeployedServer() {
             return _.get(this.info, 'deployments.last.server', '???')
+        },
+
+
+        deploymentCount() {
+            return _.get(this.info, 'deployments.count', '???')
         },
 
         lastDeployedDate () {

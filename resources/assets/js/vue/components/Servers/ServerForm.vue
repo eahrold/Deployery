@@ -77,7 +77,7 @@
 
         computed: {
             header() {
-                return this.loading ? "Loading..." :
+                return this.loading ? "Getting Server Info..." :
                     this.model.id ? `Editing Server ${this.model.name}` :
                     `Add A New Server`
             },

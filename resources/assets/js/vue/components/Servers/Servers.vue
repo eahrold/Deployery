@@ -3,7 +3,7 @@
     <router-view :endpoint='apiEndpoint'></router-view>
     <server-pubkey-modal :endpoint='apiEndpoint'></server-pubkey-modal>
 
-    <div class='col-md-12 text-center' v-if='!servers.length'>
+    <div class='col-md-12 text-center' v-if='!servers.length && !loading'>
         <router-link :to='{name: "projects.servers.form", params:{id: "create"}}'>
             Add your first server
         </router-link>
@@ -12,7 +12,7 @@
     <form-section>
 
         <span slot='header'>Servers</span>
-        <router-link slot='button' class='btn btn-info btn-small' :to='{name: "projects.servers.form", params:{id: "create"}}'>
+        <router-link v-if='!loading' slot='button' class='btn btn-info btn-small' :to='{name: "projects.servers.form", params:{id: "create"}}'>
             + Add a Server
         </router-link>
 
@@ -45,7 +45,10 @@ export default {
 
     mixins: [ ProjectChildMixin ],
 
-    props: ['deployment'],
+    props: [
+        'loading',
+        'deployment'
+    ],
 
     data() {
         return {

@@ -2,12 +2,16 @@
 <form-section>
 
     <span slot='header'>Configuration Files</span>
-    <router-link slot='button' class='btn btn-info btn-small' :to='{name: "projects.configs.form", params:{id: "create"}}'>
-    + Add Config
-    </router-link>
+    <router-link
+        v-if='!loading'
+        slot='button'
+        class='btn btn-info btn-small'
+        :to='{name: "projects.configs.form", params:{id: "create"}}'
+    >+ Add Config</router-link>
 
 
     <router-view :endpoint='apiEndpoint'></router-view>
+
     <list-group class='shadow' :items='configs'>
         <template slot-scope="context">
             <configs-list-item :config='context.item'></configs-list-item>
@@ -27,7 +31,9 @@ export default {
         ConfigsListItem,
     },
 
-    mixins: [ ProjectChildMixin ],
+    mixins: [
+        ProjectChildMixin
+    ],
 
     methods: {
     },

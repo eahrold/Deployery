@@ -6,7 +6,7 @@
         </router-link>
         </div>
         <div class="col d-flex justify-content-end align-items-center">
-            <small class="help">{{ lastDeployed }}</small>
+            <small class="help" v-html='lastDeployed'></small>
             <router-link class='btn btn-info ml-3' :to="{ name: 'projects.overview', params: { project_id: project.id }}">
                 Deploy
             </router-link>
@@ -40,7 +40,7 @@ export default {
         lastDeployed () {
             const { history } = this
             if (history) {
-                return `Last Deployed ${this.timeFromNow(history.created_at)} to ${_.get(history, 'server.name', "Unknown")}`
+                return `Last Deployed <b class='text-info'>${this.timeFromNow(history.created_at)}</b> to <b class='text-info'>${_.get(history, 'server.name', "Unknown")}</b>`
             }
             return "Never Deployed";
         }

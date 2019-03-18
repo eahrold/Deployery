@@ -1,7 +1,7 @@
 <template>
     <form-section>
         <span slot='header'>Pre/Post Deployment Scripts</span>
-        <router-link slot='button' class='btn btn-info btn-small' :to='{name: "projects.scripts.form", params:{id: "create"}}'>
+        <router-link v-if='!loading' slot='button' class='btn btn-info btn-small' :to='{name: "projects.scripts.form", params:{id: "create"}}'>
         + Add Script
         </router-link>
 

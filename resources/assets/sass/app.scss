@@ -10,12 +10,13 @@
 @import 'transitions';
 @import 'bs-overrides';
 
-@import 'btn.scss';
-@import 'table.scss';
-@import 'form.scss';
-@import 'project.scss';
-@import 'deployment.scss';
-@import 'fa-extensions.scss';
+@import 'btn';
+@import 'table';
+@import 'form';
+@import 'project';
+@import 'deployment';
+@import 'fa-extensions';
+@import 'responsive';
 
 /**
  * Variables

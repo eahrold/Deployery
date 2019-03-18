@@ -12,11 +12,9 @@
 
         <deployments-info-panel></deployments-info-panel>
 
-        <transition name='bottomup'>
-            <div v-if='loading' class="bottom-up loading">
-                Getting Project Data...
-            </div>
-        </transition>
+        <hiding-loader :show='loading'>
+            Getting Project Data...
+        </hiding-loader>
     </div>
 </div>
 </template>

@@ -1,7 +1,7 @@
 <template>
  <div class="collapse navbar-collapse" id="app-navbar-collapse">
 
-    <ul class="navbar-nav">
+    <ul class="navbar-nav w-100">
         <template v-if='!isGuest'>
         <li class="nav-item">
             <router-link v-if='isVueRoute' class='nav-link' :to="{ name: 'projects.dashbaord'}">Dashbaord</router-link>
@@ -34,7 +34,7 @@
 
         <slot name='teams'></slot>
 
-        <li class="nav-item dropdown">
+        <li class="nav-item dropdown ml-md-auto">
             <a class="nav-link dropdown-toggle"
                 href="#" id="navbarDropdown"
                 role="button"

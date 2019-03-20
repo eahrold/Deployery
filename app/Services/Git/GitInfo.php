@@ -296,7 +296,8 @@ class GitInfo
         $stdout = preg_replace('/([R])\d+\0/', "R\0", $stdout);
 
         // Now we'll set up things so we can get a clean explosion
-        $df_split = Str::split($diff_filters);
+        $df_split = str_split($diff_filters);
+
         foreach ($df_split as $key) {
             // The \0 before represents the end of the previous line, we replace this
             // with the PRETTY_FORMAT_DELIM, to differentiate it from the

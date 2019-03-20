@@ -63,8 +63,12 @@ class Rsyncer  {
         $args = [
             'rsync',
             '-av',
+            '--no-perms',
+            '--omit-dir-times',
+            '--no-o',
+            '--no-g',
             '-e',
-            "ssh -i {$this->sshKey}",
+            "ssh -i {$this->sshKey} -o StrictHostKeyChecking=no",
             rtrim($from, '/') . '/',
             "{$this->username}@{$this->host}:{$to}",
             '--exclude',

@@ -61,7 +61,7 @@ class DeploymentController extends Controller
         $options['script_ids'] = $oneOffScripts;
 
         return response()->json(
-            $this->queueDeployment($server, $to, $from, $this->user()->full_name, $options)
+            $this->queueDeployment($server, $to, $from, \Auth::user()->full_name, $options)
         );
     }
 
